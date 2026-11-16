@@ -363,3 +363,5 @@ stays the working title.
   platforms, letters, the level's end, the HUD.
 - **Level 1-1**: blockout approved, the art pass in from the creative lead's
   kit, water and foreground: `design/levels/1-1_overgrown_ruins.md`.
+- **Level 1-2**: a blockout, awaiting review:
+  `design/levels/1-2_gate_road.md`.

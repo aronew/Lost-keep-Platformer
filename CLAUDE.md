@@ -23,7 +23,7 @@ change it. In a cloud session it can be cloned beside this repo:
 |---|---|
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
-| `design/levels/` | One spec per level, with its validation (1-1 so far) |
+| `design/levels/` | One spec per level, with its validation (1-1; 1-2, a blockout) |
 | `design/enemies.md` | The creative lead's enemy roster: names, proposed roles, what is in the game |
 | `docs/mockups/platformer/bright_day/` | **The target look of region 1 now:** six bright daytime mockups (orange earth, grey ruin stone, green grass, great trees, clear water, blue sky) |
 | `docs/mockups/platformer/outdoor_level_1_mockup.webp` | Level 1-1's first mockup (its layout; the look is now `bright_day/`) |
@@ -179,7 +179,8 @@ game/                     the Godot project
   scenes/world/           the blockout tileset, terrain materials
   tools/                  room_builder.gd (shared base), surface_builder.gd,
                           level_builder.gd (the systems and the blockout look),
-                          build_l1_1.gd (level 1-1), build_systems.gd (the
+                          build_l1_1.gd (level 1-1), build_l1_2.gd (level 1-2's
+                          blockout), build_systems.gd (the
                           systems arena), build_test_room.gd (IB-01),
                           build_ib03.gd, build_ib04.gd
   tests/                  playtest.gd/.tscn (scripted play + captures), framelog
@@ -428,8 +429,8 @@ cd game
 xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playtest.tscn -- room=ib03 mode=tour
 ```
 
-- Levels: `l1_1` (`mode=tour`: the main line; `mode=secrets`: every secret,
-  letter, bonus area and chest; `shots`; `map`) and `sys`, the systems arena
+- Levels: `l1_1` and `l1_2` (`mode=tour`: the main line; `mode=secrets`:
+  every secret, letter, bonus area and chest; `shots`; `map`) and `sys`, the systems arena
   (`mode=systems`; run it with `--max-fps 60` too). Rooms: `ib01`
   (default), `ib03`, `ib04`. Output: `game/tests/out/<room>/<mode>/`.
 - **Pictures for a blockout review:** `mode=shots` (one in-game shot per
@@ -535,8 +536,15 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   pictures in `docs/levels/1-1/art_pass/`). Its art is still Book 3's dusk
   kit under daylight; **Book 4** (`platformer-region1-day-prompt-book.html`)
   asks for the bright-day kit after the six `bright_day/` mockups. As its
-  sheets arrive: process them, place them, judge in the game. Then 1-2:
-  blockout first.
+  sheets arrive: process them, place them, judge in the game.
+- **Level 1-2, The Gate Road: a blockout, awaiting the creative lead's
+  review** (`design/levels/1-2_gate_road.md`, pictures in
+  `docs/levels/1-2/blockout/`): hopping over water, stone islands then the
+  big floating islands. No art until the layout is approved. Play still
+  opens 1-1, and 1-1's end doesn't lead on to it yet.
+- Godot isn't in the cloud image: a session installs 4.7.2 from the
+  engine's GitHub release (`Godot_v4.7.2-stable_linux.x86_64.zip`) and runs
+  `godot --headless --path game --import` once before anything else.
 - In the art pass: `_tint_surface_kit` skips sprites with the `no_tint` meta
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax

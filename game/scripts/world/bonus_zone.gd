@@ -78,6 +78,11 @@ func begin(kleo: Kleo, door: Node) -> void:
 	await Game.fade_to(0.0, 0.25)
 	Game.banner(title, 0.9)
 	state = S.RUNNING
+	# A bead she already stands in (she walked on through the fade) is hers.
+	if beads:
+		for b in beads.get_children():
+			if (b as Area2D).monitoring and (b as Area2D).overlaps_body(kleo):
+				_on_bead(kleo, b as Area2D)
 
 
 func _process(delta: float) -> void:
