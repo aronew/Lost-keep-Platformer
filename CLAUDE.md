@@ -446,7 +446,7 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 - **Level 1-1: blockout approved; the first art pass is in and awaits
   review** (`design/levels/1-1_overgrown_ruins.md`, pictures in
   `docs/levels/1-1/art_pass/`). It is dressed from Book 1's kit; Book 3
-  asks for what the kit lacks (pilot W1, W3, C1). As sheets arrive: process
+  asks for what the kit lacks in 20 sheets (pilot W1, W3, C1; oversize pieces split across sheets so every asset keeps its exact size). As sheets arrive: process
   them, place them in `_dress()` (and the helpers), judge in the game. Then
   1-2 (IB-04's Gate Road, reworked): blockout first.
 - In the art pass: `_tint_surface_kit` skips sprites with the `no_tint` meta
