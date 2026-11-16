@@ -25,12 +25,13 @@ change it. In a cloud session it can be cloned beside this repo:
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
 | `design/levels/` | One spec per level, with its validation (1-1 so far) |
 | `design/enemies.md` | The creative lead's enemy roster: names, proposed roles, what is in the game |
-| `docs/mockups/platformer/outdoor_level_1_mockup.webp` | **The target look of level 1-1** |
+| `docs/mockups/platformer/bright_day/` | **The target look of region 1 now:** six bright daytime mockups (orange earth, grey ruin stone, green grass, great trees, clear water, blue sky) |
+| `docs/mockups/platformer/outdoor_level_1_mockup.webp` | Level 1-1's first mockup (its layout; the look is now `bright_day/`) |
 | `docs/mockups/platformer/natural_traversal/` | The creative lead's DKC-style traversal mockups: natural land, logs and roots over water, terraces, crates |
 | `docs/mockups/platformer/flooded_ruins/` | Nine more level mockups: flooded ruins, stone pillars in water, ridge runs, climbs |
 | `docs/mockups/platformer/enemies/` | The enemy roster (12 creatures) |
 | `docs/mockups/ironbark_surface/` | The "Moonlit" mockups behind Lost Keep's surface look |
-| `docs/art-production/*-prompt-book.html` | Copy-ready image prompts: Book 1 Ironbark and Book 2 Kleo (Lost Keep's, references in `lostkeep-attach/`), **Book 3 the Ironbark Wilds** (this game's Region 1 and 1-1, references in `platformer-attach/`) |
+| `docs/art-production/*-prompt-book.html` | Copy-ready image prompts: Book 1 Ironbark and Book 2 Kleo (Lost Keep's, references in `lostkeep-attach/`), Book 3 the Ironbark Wilds (the dusk kit, delivered), **Book 4 Ironbark by Day** (region 1's bright-day kit, after `bright_day/`; references in `platformer-attach/`) |
 | `art/source/ironbark/REVIEW.md` | The state of the generated Ironbark art |
 
 The design docs are canon. If a decision changes, update the doc in the same
@@ -131,17 +132,15 @@ vanishing. Kleo starts distrusted outside Ironbark.
 | Thing | Colour |
 |---|---|
 | Sovereign Prism and its shards | Icy blue `#9FE6F5` / `#3A7FB0` |
-| **The Blight (reserved for it alone)** | Crimson tendrils `#8E1E3A` / `#C2385A` |
+| **The Blight** | Crimson tendrils `#8E1E3A` / `#C2385A` |
 | Anima: Kleo's magic, life-force, vats | Teal `#3FE0C8` |
 | Morvath's thorn knots | Pale bark `#B8A58A` with an amber-gold eye. **Never red** |
 | Warm safety: lanterns, checkpoints, the Refuge | Amber `#F2B04A` |
 | Void: the inside of every solid mass | `#0B0812` |
 
-**Red and crimson belong to the Blight alone.** Nothing else in the world is
-red: no red mushroom caps, no red health bar, no red fire (fire is orange and
-gold), no red banners. (The level 1-1 mockup has red mushrooms and a red
-health bar; in the game the caps are violet, amber or teal and health is
-amber lantern flames.)
+**Red is no longer reserved** (the creative lead dropped the rule, 2026-11):
+banners and mushroom caps may be red, as in their mockups. The Blight keeps
+its crimson tendrils; health stays amber lantern flames.
 
 ---
 
@@ -170,8 +169,8 @@ game/                     the Godot project
                           back_wall, guard_lift, practice_post, winch;
                           the platformer's systems: checkpoint, hazard_area,
                           lunger, chest, carriable (+ carry_handle),
-                          cracked_wall, moving_platform, cocoon, bonus_room,
-                          level_end
+                          cracked_wall, moving_platform, letter,
+                          bonus_zone, bonus_door, bonus_token, level_end
   shaders/                terrain fill, water, fog, glow, vignette, hit flash
   scenes/player/          kleo.tscn and her frames
   scenes/rooms/           the carried-over rooms (built by their builders)
@@ -185,7 +184,8 @@ game/                     the Godot project
                           build_ib03.gd, build_ib04.gd
   tests/                  playtest.gd/.tscn (scripted play + captures), framelog
   assets/                 characters (kleo, mossback, stranger, roster/),
-                          items (resin, chest), ui (flames, cocoon icon), fx,
+                          items (resin, chest, letters, token), ui (flames,
+                          letter icons), fx,
                           world (blockout tiles), environment/ironbark
 ```
 
@@ -219,9 +219,11 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
 
 - **Health is lantern flames** (`Game.health`, amber, top left; 3 to start).
   A hit costs one (`Kleo.hurt(dir, heavy, damage)`), then about a second of
-  invulnerability. **A hazard** (`Kleo.hazard(kind)`: a pit, deep water,
-  thorns) costs one and sends her back to the last checkpoint
-  (`Game.respawn`). **The last flame lost is a defeat**: she falls
+  invulnerability. **A hazard** (`Kleo.hazard(kind)`: a pit, deep water)
+  costs one and sends her back to the last checkpoint (`Game.respawn`).
+  **Thorns are a hit**, not a hazard: a flame, and they throw her back out
+  the way she came (`hazard_area.gd`; the creative lead "had no idea why I
+  was dying" when they sent her back). **The last flame lost is a defeat**: she falls
   (`State.DOWN`, the death animation) and comes back at the checkpoint with
   her flames refilled. No lives, no game over. A fall below the level's
   bottom edge is a pit (`Room._physics_process`).
@@ -247,28 +249,41 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   overhead (`Kleo.held`; slower, lower jump, no ledge catch); attack throws
   it flat and fast (`throw_velocity`, about 9 tiles); down + attack sets it
   down. It smashes on what it meets and strikes what it hits
-  (`"attack": "throw"`). Used crates come back when she respawns.
+  (`"attack": "throw"`). Used crates come back when she respawns. Kleo's
+  carry frames are the kit's C2 (`tools/make_kleo_carry.py` → `carry.png`;
+  animations `carry_lift/idle/run/air/throw/set`); the crate rests where the
+  kit's green guide box was in each frame (`Kleo.CARRY_REST`), behind her.
 - **Cracked walls** (`cracked_wall.gd`, `_cracked_wall`): solid; the sword
-  rings off; a thrown crate breaks them open.
-- **Bonus rooms** (`bonus_room.gd`, `_bonus_room`): step in and the beads
-  light and a countdown starts (top centre); gather all for the prize (a
-  cocoon and Resin); fail, step out and in to try again. Won stays won.
+  rings off; a thrown crate breaks them open. Not the way into bonus areas.
+- **Bonus areas** (tokens open each region's secret level; bosses free the
+  captives to the Refuge: `design/game-structure.md` §5) (`bonus_zone.gd` + `bonus_door.gd` + `bonus_token.gd`;
+  `_bonus_zone`, `_bonus_door`): another zone beside the level, out of its
+  view (the room is wider than the level; `Room.main_area` is the level and
+  `Room.set_area` moves the camera's bounds and the pit edge to a zone while
+  she is in it). Its hidden way in is a hollow glowing with Anima, found by
+  exploring; walking in fades her there. "gather": beads light, a countdown
+  (top centre), all of them brings out the token. "course": a run of jumps
+  to the token. The token is the prize (`Game.take_token`); then back out
+  beside the entrance. Out of time or a fall: no harm, back out, try again.
+  Won stays won (the entrance says so). Two per level.
 - **Moving platforms** (`moving_platform.gd`, `_mover`): one-way timber on
   layer 7, eased in and out of each stop, pausing at the ends; optionally
   waiting for her to step on. Use only for something that really moves (a
   raft, a lift).
 - **Stacked crates** (`_box_stack`): solid boxes, 2 tiles each, climbed like
   steps (DKC's raised ground); they can't be carried.
-- **Cocoons** (`cocoon.gd`, `_cocoon`): interact to free the one inside
-  (`Game.rescue`; a line on screen; the HUD's cocoons, top right). Three per
-  level.
+- **Letters** (`letter.gd`, `_letter`): K-L-E-O, as DKC's K-O-N-G, four per
+  level; touching one takes it (`Game.take_letter`; the HUD's letters, top
+  right); all four is a burst of Resin. (They replace the cocoons: the
+  creative lead found rescuing from cocoons "dumb".)
 - **The level's end** (`level_end.gd`, `_level_end`): she walks on through,
-  the view dims, the tally shows. No world map yet, so it stops there.
+  the view dims, the tally shows (Resin, letters, tokens). No world map yet,
+  so it stops there.
 - **The art for the systems** comes from the creative lead's Book 3 kit
   (`tools/make_wilds.py`): the chest (3 frames), the HUD lanterns, the Resin
-  drop (6 turning frames), the cocoon icons, the cracked wall and its rubble,
-  the brambles. Kleo's carry frames are in the kit (`art/source/wilds/
-  13-kleo-interact.png`) but not wired in yet: she uses `interact`.
+  drop (6 turning frames), the cracked wall and its rubble, the brambles,
+  Kleo's carry frames. The letters, the token and the letter icons are
+  stand-ins (`tools/make_standins.py`) until Book 4.
 
 ## How a level is built in Godot
 
@@ -276,6 +291,21 @@ Levels are built the way Lost Keep built rooms (the builders still say
 "room"; a level is a long room, a Room with `is_level` set). A level's
 builder extends `level_builder.gd` and calls `_level_begin(node, title)`,
 its pieces, then `_level_finish()`.
+
+**Daylight** (`daylight = true`, `_daylight()` in `level_builder.gd`): the
+creative lead found the dusk pass "super dark", the creatures and thorns
+impossible to see. A level is lit as bright day: no dusk tint, no vignette,
+a blue sky (a gradient until Book 4's), the backdrops lifted and hazy, the
+water's paint and the masses' depth lifted (`paint_tint`, the skin's
+`void_color`), lanterns faint, and a rim of sky light along the tops of
+everything that hurts (`hit_flash.gdshader`'s `rim`: creatures, thorns).
+The dusk kit below is a stopgap under it until the bright-day kit (Book 4,
+after `docs/mockups/platformer/bright_day/`) arrives. By day the stone
+settles into the masses' deep plum (`DAY_DEPTH`) over `RUIN_FADE_DAY` (5)
+tiles: the stopgap fill repeats too plainly to show deep ("all these
+repetitive tiles on the wall look really weird"); Book 4's D3 is a real fill.
+(A shader on the skin's bands darkened them, even one that changed nothing:
+leave the skin's edges on the default material.)
 
 **The look of a level (the art pass), after the creative lead's mockups:**
 - **Ruin stone** everywhere (`_ruin_material()`: Book 3's W1 and W2 cut by
@@ -399,7 +429,7 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 ```
 
 - Levels: `l1_1` (`mode=tour`: the main line; `mode=secrets`: every secret,
-  cocoon and chest; `shots`; `map`) and `sys`, the systems arena
+  letter, bonus area and chest; `shots`; `map`) and `sys`, the systems arena
   (`mode=systems`; run it with `--max-fps 60` too). Rooms: `ib01`
   (default), `ib03`, `ib04`. Output: `game/tests/out/<room>/<mode>/`.
 - **Pictures for a blockout review:** `mode=shots` (one in-game shot per
@@ -434,7 +464,11 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
    commit that made it: Book 1's head up to `</style>`, the body, the
    script). Published at https://claude.ai/artifact/7mMMdvZHpnai3CM4TWMLuK:
    republish from the assembled file with its `platformer-attach/` and the
-   three `lostkeep-attach/` images it uses (A, B, Z).
+   three `lostkeep-attach/` images it uses (A, B, Z). **Book 4**
+   (`platformer-region1-day-prompt-book.html`, the bright-day kit) is built
+   the same way from `src/book4_body.html` and `src/book4_cards.js`;
+   published at https://claude.ai/artifact/9pZX52xTvGUX47A4TX8Epd with
+   `platformer-attach/` D1 to D6 (the mockups) and G8.
 2. **The creative lead generates sheets.** Unchanged originals go in
    `art/source/<region>/`.
 3. **Processing:** reduce to true pixel scale only. `tools/process_art.py`
@@ -474,8 +508,15 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   she leaves.
 - **The camera** never moves on its own, never runs ahead of Kleo, and
   ignores jumps.
-- **Colour:** red and crimson belong to the Blight alone; the Prism is icy
-  blue, Anima is teal, warm safety is amber.
+- **Colour:** the Prism is icy blue, Anima is teal, warm safety is amber.
+  (Red is no longer reserved for the Blight: the creative lead dropped it.)
+- **Bright and readable** (the creative lead, on the dusk art pass): the
+  game must look like the mockups, bright and fun, never "super dark". Every
+  hazard and creature must be seen at a glance: if Kleo is hurt, the player
+  must know by what. Later regions may go darker ("we can go from a brighter
+  setting to a darker setting in later regions"), but stay readable.
+- **No visibly repeating texture** across a mass: a fill must be a real,
+  varied tile.
 - **Floating islands on a path sit at different heights** so a run doesn't
   feel straight; vary heights around the big pieces rather than swapping them
   for small ones.
@@ -489,14 +530,13 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   into the dark gradually.
 
 ## Open items
-- **Level 1-1: blockout approved; the art pass now uses the creative
-  lead's kit (stall, islands, trunk, treetops, chest, cracked wall, brambles,
-  flora, HUD, sky, aqueduct), the ruin stone, the water and the new
-  foreground, and awaits review** (`design/levels/1-1_overgrown_ruins.md`, pictures in
-  `docs/levels/1-1/art_pass/`). It is dressed from Book 1's kit; Book 3
-  asks for what the kit lacks in 20 sheets (pilot W1, W3, C1; oversize pieces split across sheets so every asset keeps its exact size). As sheets arrive: process
-  them, place them in `_dress()` (and the helpers), judge in the game. Then
-  1-2 (IB-04's Gate Road, reworked): blockout first.
+- **Level 1-1: lit as bright day, letters and two bonus areas in, awaiting
+  the creative lead's play** (`design/levels/1-1_overgrown_ruins.md`,
+  pictures in `docs/levels/1-1/art_pass/`). Its art is still Book 3's dusk
+  kit under daylight; **Book 4** (`platformer-region1-day-prompt-book.html`)
+  asks for the bright-day kit after the six `bright_day/` mockups. As its
+  sheets arrive: process them, place them, judge in the game. Then 1-2:
+  blockout first.
 - In the art pass: `_tint_surface_kit` skips sprites with the `no_tint` meta
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax

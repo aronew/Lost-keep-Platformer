@@ -1,0 +1,174 @@
+<div class="controls" role="region" aria-label="Prompt options">
+  <div class="inner">
+    <span class="title">Ironbark by Day Prompt Book</span>
+    <label class="field" for="include-rules"><input type="checkbox" id="include-rules" checked> Copy shared rules with each prompt</label>
+    <span class="progress" id="progress">0 done</span>
+  </div>
+</div>
+
+<div class="page">
+  <aside class="rail" aria-label="Contents">
+    <nav>
+      <span class="group">Start</span>
+      <a href="#needs">What changes</a>
+      <a href="#workflow">How to use this book</a>
+      <a href="#build">How a level is assembled</a>
+      <a href="#pack">Images to attach</a>
+      <span class="group">Prompts</span>
+      <a href="#terrain">The ground</a>
+      <a href="#pieces">Islands, logs, stones</a>
+      <a href="#trees">Great trees and treetops</a>
+      <a href="#water">The pond</a>
+      <a href="#things">Letters, tokens, thorns, props</a>
+      <a href="#backdrop">Sky, forest, foreground</a>
+      <span class="group">Finish</span>
+      <a href="#checks">Check every result</a>
+      <a href="#fixes">If the image falls short</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <span class="eyebrow">Lost Keep: Platformer · art production · Book 4</span>
+      <h1>Ironbark by Day</h1>
+      <p class="lede">Region 1 in daylight, after your six new mockups: orange earth banks with grey ruin stone set into them, thick green grass, great old trees, floating islands, a clear pond and a soft sky. Bright and fun, never dark. This kit replaces Book 3's dusk kit in level 1-1 and every level of the region after it.</p>
+      <div class="meta"><span id="count">0 images</span><span>Base 640 × 360, ×3 to 1080p</span><span>1 tile = 16 px in game</span><span>Masters at ×8 (×4 for backdrops)</span><span>Godot 4.7.2</span></div>
+    </header>
+
+    <section id="needs">
+      <span class="eyebrow">Start</span>
+      <h2>What changes</h2>
+      <p>You found the dusk art pass "super dark", with creatures and thorns lost in it. The game is now lit as bright day, but its art is still Book 3's dusk kit, which can't be lit into the look of your mockups. This book asks for the kit that can: the ground, the islands and logs, the trees, the pond, the backdrops and the foreground in the mockups' style, plus real art for the new letters K-L-E-O, the bonus token, the hidden bonus entrances and thorns you can see at a glance.</p>
+      <div class="shots">
+        <figure class="shot"><img src="platformer-attach/D1-emerald-ramparts-above-the-ravine.jpg" alt="Bright day mockup: earth banks with grey ruin stone, great trees, floating islands and a pond" width="1400" height="788"></figure>
+        <figure class="shot"><img src="platformer-attach/G8-game-daylight.jpg" alt="Level 1-1 in the game today: lit as day, still dressed in the purple dusk kit" width="1280" height="720"></figure>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Piece</th><th>In the game today</th><th>Status</th></tr></thead>
+        <tbody id="audit"></tbody>
+      </table></div>
+      <p class="note">Red is no longer reserved for the Blight: banners and mushroom caps may be red, as in your mockups. Health stays amber lantern flames.</p>
+    </section>
+
+    <section id="workflow">
+      <span class="eyebrow">Start</span>
+      <h2>How to use this book</h2>
+      <div class="pilot">
+        <strong>Start with the pilot: D1, D3, D5, D12 and D17.</strong>
+        <p>D1 and D3 are the ground everywhere, D5 the floating islands, D17 the distance behind it all: together they set the look. D12 gives the letters and the token real art. Make the rest once those read well in 1-1.</p>
+      </div>
+      <ol class="steps">
+        <li><div><strong>Attach the images each card lists.</strong> They are in <code>docs/art-production/platformer-attach/</code>: D1 to D6 are your mockups, G8 the game today. D1 goes with every card.</div></li>
+        <li><div><strong>Press Copy and paste the prompt into your image model.</strong> The copy includes the shared rules unless you untick the box at the top.</div></li>
+        <li><div><strong>Check the result</strong> against <a href="#checks">the checklist</a>. If it falls short, use a fix from <a href="#fixes">If the image falls short</a>.</div></li>
+        <li><div><strong>Save it under the card's file name and hand it to me exactly as the generator made it.</strong> Don't run it through another cleanup or export tool. I reduce it to true pixel scale and place it in 1-1, and we judge it in the game.</div></li>
+        <li><div><strong>Tick it done.</strong> Ticks are saved in this browser only.</div></li>
+      </ol>
+    </section>
+
+    <section id="build">
+      <span class="eyebrow">Start</span>
+      <h2>How a level is assembled</h2>
+      <p>The same method as before, with the mockups' daylight on top. These rules are why the cards ask for what they ask for.</p>
+      <div class="cols">
+        <div class="kv"><h3>Collision first, then skin</h3><ul class="checks">
+          <li>Every level is blocked out as solid masses with flat floors: that is the collision, approved before any art.</li>
+          <li>The ground's art is painted along the edges of those masses (D1, D2) and filled with earth inside (D3). No black inside a mass: earth all the way in.</li>
+          <li>Pieces she stands on (islands, logs, stones, treetops) have a flat walking line at the height the card gives.</li>
+        </ul></div>
+        <div class="kv"><h3>Natural, like Donkey Kong Country</h3><ul class="checks">
+          <li>Everything she stands on is something real: ground, a stone step, a log, a root, a treetop, an island. No floating planks.</li>
+          <li>Things people left (lantern posts, benches, crates) look used and placed by someone.</li>
+          <li>Secrets have a visible tell: a draught into a false wall, a faint glow at a hidden entrance.</li>
+        </ul></div>
+        <div class="kv"><h3>Parallax and light</h3><ul class="checks">
+          <li>Sky 0.05 · far forest 0.15 · mid forest 0.35 · great trees just behind the play · playfield 1.0 · one leafy band in front.</li>
+          <li>Lanterns are lights in the engine: paint the flame and the lit glass, never the halo.</li>
+          <li>Each layer back is paler and hazier than the one in front.</li>
+        </ul></div>
+        <div class="kv"><h3>Read at a glance</h3><ul class="checks">
+          <li>What hurts must look like it hurts: thorns bristle, pale against green and brown.</li>
+          <li>What to collect must shine: gold letters, a gold token.</li>
+        </ul></div>
+      </div>
+      <div class="swatches" id="swatches"></div>
+    </section>
+
+    <section id="pack">
+      <span class="eyebrow">Start</span>
+      <h2>Images to attach</h2>
+      <p>All in <code>docs/art-production/platformer-attach/</code>.</p>
+      <div class="refs pack" id="pack-list"></div>
+    </section>
+
+    <section id="terrain" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>The ground</h2>
+      <p>The mockups' banks and terraces: orange earth, grey stone set into it, thick grass on top. Every bank, ledge and terrace in the region is made of these four.</p>
+      <div class="cards" id="cards-terrain"></div>
+    </section>
+    <section id="pieces" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Islands, logs and stones</h2>
+      <p>Things she stands on that aren't the ground itself. Each has a flat walking line at the height its card gives.</p>
+      <div class="cards" id="cards-pieces"></div>
+    </section>
+    <section id="trees" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Great trees and treetops</h2>
+      <p>The great trees standing just behind the play, and the crowns of the secret route over the hill.</p>
+      <div class="cards" id="cards-trees"></div>
+    </section>
+    <section id="water" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>The pond</h2>
+      <p>The clear water under the level and in its pits, and the plants at its edges.</p>
+      <div class="cards" id="cards-water"></div>
+    </section>
+    <section id="things" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Letters, tokens, thorns and props</h2>
+      <p>The new collectibles (letters K-L-E-O, a bonus area's token), a bonus area's hidden entrance, thorns that read as danger, and the things people left in the forest.</p>
+      <div class="cards" id="cards-things"></div>
+    </section>
+    <section id="backdrop" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Sky, forest and foreground</h2>
+      <p>The day sky, the far and mid forest behind the play, and the one leafy band along the bottom of the view.</p>
+      <div class="cards" id="cards-backdrop"></div>
+    </section>
+
+    <section id="checks">
+      <span class="eyebrow">Finish</span>
+      <h2>Check every result</h2>
+      <div class="cols">
+        <div class="kv"><h3>Every image</h3><ul class="checks">
+          <li>Put it next to D1. It looks like the same artist made both, in the same daylight.</li>
+          <li>It is real pixel art: hard square pixels on one even grid, no blur, no soft gradients.</li>
+          <li>No text, labels, grid lines or watermarks (the letters K-L-E-O excepted); transparent where the card says so.</li>
+          <li>Bright: no black masses, no night tones.</li>
+        </ul></div>
+        <div class="kv"><h3>Ground and pieces</h3><ul class="checks">
+          <li>Every walking line is dead straight, at exactly the height the card gives.</li>
+          <li>Widths and openings match the card's numbers: lay a ruler on them.</li>
+          <li>Undersides break up with clods, roots and stones, never a straight edge.</li>
+        </ul></div>
+        <div class="kv"><h3>Things</h3><ul class="checks">
+          <li>The thorns read as danger at a glance, at game size.</li>
+          <li>The letters and token shine gold against green and brown.</li>
+        </ul></div>
+        <div class="kv"><h3>Backdrops</h3><ul class="checks">
+          <li>The left and right edges join.</li>
+          <li>Each is paler and hazier than the layer in front of it.</li>
+          <li>Nothing in it looks like a ledge she could stand on.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <section id="fixes">
+      <span class="eyebrow">Finish</span>
+      <h2>If the image falls short</h2>
+      <div class="cards" id="fix-list"></div>
+    </section>
+  </main>
+</div>

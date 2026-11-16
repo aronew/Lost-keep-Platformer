@@ -37,6 +37,8 @@ var room: Node
 var kleo: Kleo
 var cam: CameraRig
 var mode := "shots"
+## mode=shots only=<prefix>: just the shots whose names start with it.
+var only := ""
 var out_dir := ""
 var _frame := 0
 var _held := {}
@@ -48,6 +50,8 @@ func _ready() -> void:
 			mode = arg.substr(5)
 		if arg.begins_with("room="):
 			room_id = arg.substr(5)
+		if arg.begins_with("only="):
+			only = arg.substr(5)
 	out_dir = "res://tests/out/" + ("" if room_id == "ib01" else room_id + "/") + mode
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	Game.room_host = _swap_room  # doors swap the room under this harness
@@ -193,13 +197,19 @@ func _shots() -> void:
 		places = SHOTS_IB03
 	if room_id == "ib04":
 		places = SHOTS_IB04
+	if only != "":
+		places = places.filter(func(p): return String(p[0]).begins_with(only))
 	for p in places:
+		if room.has_method("set_area"):
+			room.call("set_area", p[4] if p.size() > 4 else Rect2i())
 		_place(p[1], p[2], p[3])
 		# long enough for a banner set off by the shot before (1.5 s) to fade
 		await _frames(100 if room_id == "l1_1" else 40)
 		await _capture(p[0])
 	get_tree().call_group("box_view", "set_box_view", true)
 	for p in places:
+		if room.has_method("set_area"):
+			room.call("set_area", p[4] if p.size() > 4 else Rect2i())
 		_place(p[1], p[2], p[3])
 		await _frames(6)
 		await _capture(p[0] + "_box")
@@ -430,14 +440,17 @@ const SHOTS_L11 := [
 	["04_plateau_rat", 112.0, 24, 1],
 	["05_log_and_gap", 139.5, 24, 1],
 	["06_false_wall", 186.0, 30, -1],
-	["07_crates_great_tree", 203.0, 30, 1],
+	["07_crate_great_tree", 203.0, 30, 1],
 	["07b_root_bank_crates", 238.5, 27, 1],
-	["08_cracked_wall_hill", 226.0, 30, 1],
+	["08_hill_false_wall", 226.0, 30, 1],
 	["09_canopy_route", 248.0, 18, 1],
-	["10_bonus_room", 250.0, 34, 1],
+	["10_hidden_cave", 250.0, 34, 1],
 	["11_islands", 310.5, 26, 1],
 	["12_pits_thorns", 360.0, 30, 1],
 	["13_end_doorway", 420.0, 24, 1],
+	# The bonus areas, beside the level: the camera holds to each one's area.
+	["14_bonus_gather", 470.0, 30, 1, Rect2i(452, 16, 40, 24)],
+	["15_bonus_course", 512.0, 27, 1, Rect2i(496, 16, 40, 24)],
 ]
 const SHOTS_IB03 := [
 	["01_start_road", 2.5, 37, 1],
@@ -969,18 +982,20 @@ func _systems() -> void:
 	await _frames(20)
 	check.call("starts with 3 flames", Game.health == 3 and Game.max_health == 3)
 
-	# Thorns: a flame, and back to the start.
+	# Thorns: a hit, a flame, and thrown back out the way she came.
 	_press("move_right")
 	for i in 200:
 		await _frames(1)
-		if kleo.state == Kleo.State.LOCKED:
+		if kleo.state == Kleo.State.HURT:
 			break
 	_release_all()
 	await _frames(20)
 	await _shot("01_thorns")
 	await _frames(70)
 	check.call("thorns cost a flame", Game.health == 2, "health %d" % Game.health)
-	check.call("thorns send her back to the start", absf(kleo.global_position.x - 48.0) < 2.0 and kleo.is_on_floor(), "x %.0f" % kleo.global_position.x)
+	check.call("thorns throw her back out of them", kleo.global_position.x < 8.0 * TILE - 4.0 and kleo.is_on_floor() and kleo.state == Kleo.State.NORMAL, "x %.0f" % kleo.global_position.x)
+	_place(3.0, 20)
+	await _frames(10)
 
 	# The checkpoint: lit by walking past; it refills her flames.
 	_place(14.0, 20)
@@ -1089,23 +1104,36 @@ func _systems() -> void:
 	await _shot("07_crack_broken")
 	check.call("a thrown crate breaks the cracked wall", wall.broken)
 
-	# The bonus room: in, the beads light, gather them all in time.
-	await _walk_to(79.0 * TILE)
-	await _frames(10)
-	var bonus: Node = _find("bonus_room")[0]
-	check.call("the bonus room starts when she steps in", bonus.state == BonusRoom.S.RUNNING)
+	# The hollow behind it: its hidden entrance takes her to the bonus area.
+	var zone: BonusZone = _find("bonus_zone")[0]
+	await _walk_to(86.0 * TILE, 200)
+	for i in 90:
+		await _frames(1)
+		if zone.running():
+			break
+	check.call("the hidden entrance takes her to the bonus area", zone.running() and kleo.global_position.x > 154.0 * TILE,
+		"x %.0f" % kleo.global_position.x)
+	await _frames(30)
 	await _shot("08_bonus_running")
-	for b in bonus.get_node("Beads").get_children():
+	for b in zone.get_node("Beads").get_children():
 		kleo.global_position = b.global_position + Vector2(0, 10)
 		await _frames(3)
+	await _frames(10)
+	check.call("gathering every bead brings out the token", zone.token.visible, "left %d" % zone.remaining())
+	kleo.global_position = zone.token.global_position + Vector2(0, 8)
+	await _frames(10)
+	await _shot("09_bonus_token")
+	check.call("the token is won", Game.tokens_found() == 1, "%d of %d" % [Game.tokens_found(), Game.level_tokens.size()])
+	for i in 200:
+		await _frames(1)
+		if Game.bonus == null and kleo.state == Kleo.State.NORMAL:
+			break
+	await _frames(30)
+	check.call("then she is back out beside the entrance", absf(kleo.global_position.x - 82.0 * TILE) < 3.0 and kleo.is_on_floor(),
+		"x %.0f" % kleo.global_position.x)
+	await _walk_to(85.0 * TILE, 40)
 	await _frames(20)
-	check.call("gathering every bead wins it", bonus.state == BonusRoom.S.WON, "left %d" % bonus.remaining())
-	await _walk_to(84.6 * TILE)
-	await _frames(6)
-	_tap_f("interact")
-	await _frames(50)
-	await _shot("09_bonus_cocoon")
-	check.call("its prize cocoon can be freed", Game.rescued.has("sys_cocoon_bonus"))
+	check.call("won, the entrance stays shut", Game.bonus == null and kleo.global_position.x < 150.0 * TILE)
 
 	# The moving platform: it waits for her, then carries her over the pit.
 	_place(93.5, 20)
@@ -1140,12 +1168,12 @@ func _systems() -> void:
 	check.call("after a defeat she is back at the checkpoint, flames refilled", Game.health == 3 and absf(kleo.global_position.x - (64 * TILE + 14)) < 3.0,
 		"health %d, x %.0f" % [Game.health, kleo.global_position.x])
 
-	# A cocoon on the way.
-	_place(121.0, 20)
+	# A letter on the way.
+	_place(119.0, 20)
+	await _frames(10)
+	await _walk_to(124.0 * TILE)
 	await _frames(30)
-	_tap_f("interact")
-	await _frames(60)
-	check.call("a cocoon frees the one inside", Game.rescued.has("sys_cocoon"), "%d of %d" % [Game.cocoons_found(), Game.level_cocoons.size()])
+	check.call("touching a letter takes it", Game.letters_found() == 1, "%d" % Game.letters_found())
 
 	# The level's end.
 	_place(136.0, 20)
@@ -1251,86 +1279,78 @@ func _tour_l1_1() -> void:
 	_report(lines, "tour")
 
 
-## The secrets: the false wall (cocoon 1), a crate through the cracked wall
-## into the bonus room (cocoon 2), the canopy route (cocoon 3), the chests.
+## The secrets: the letters (K and O on the main line's jumps, L behind the
+## false wall, E on the treetops), the hill's false wall into its hidden cave
+## and bonus 1 (gather), the treetops and bonus 2 (course), the chests.
 func _secrets_l1_1() -> void:
 	_calm_enemies()
 	var res := []
 	_start_tour()
 	await _wait(20)
+	# Letter K, over the mushroom island: the main line's jump takes it.
+	_place(58.0, 30)
+	await _wait(6)
+	res.append(["to the mushroom island", await _jump_to(985, 1092, 1180, 29, 1012)])
+	if not _letter_taken("K"):
+		await _hop_up(29)
+	res.append(["letter K (over the mushroom island)", _letter_taken("K")])
 	# The chest on the high ledge.
 	_place(84.0, 25)
 	await _wait(10)
 	_tap("attack")
 	await _wait(40)
 	res.append(["the chest on the high ledge opens", _find("chest")[0].opened])
-	# The false wall: in, the cocoon, out; the wall closes behind her.
+	# The false wall: in, letter L, out; the wall closes behind her.
 	_place(184.0, 30, -1)
 	await _wait(10)
 	var cover: Node = room.get_node("FalseWall")
-	await _hold_until(["move_left"], func(): return kleo.global_position.x < 179.5 * TILE, 200)
+	await _hold_until(["move_left"], func(): return kleo.global_position.x < 178.5 * TILE, 200)
 	await _wait(40)
 	res.append(["the false wall fades while she is inside", cover.modulate.a < 0.1])
-	_tap("interact")
-	await _wait(60)
-	res.append(["cocoon 1 freed (behind the false wall)", Game.rescued.has("l11_cocoon1")])
+	res.append(["letter L (behind the false wall)", _letter_taken("L")])
 	await _hold_until(["move_right"], func(): return kleo.global_position.x > 186.0 * TILE, 200)
 	await _wait(70)
 	res.append(["the wall closes again once she leaves", cover.modulate.a > 0.95])
-	# A crate, carried to the hill's foot and thrown at the cracked wall.
-	_place(200.0, 30)
+	# The hill's foot: a false wall, a tunnel, the hidden cave under the hill.
+	_place(231.0, 30)
 	await _wait(10)
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 201.6 * TILE, 100)
-	await _wait(4)
-	_tap("interact")
-	await _wait(20)
-	res.append(["she lifts a crate", kleo.held != null])
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 228.0 * TILE, 300)
-	await _wait(4)
-	_tap("attack")
-	var wall: Node = _find("cracked_wall")[0]
-	for i in 80:
-		await _step()
-		if wall.broken:
-			break
-	res.append(["the thrown crate breaks the cracked wall", wall.broken])
-	# Into the tunnel and down into the bonus room.
-	await _hold_until(["move_right"], func(): return kleo.global_position.x > 244.0 * TILE and kleo.is_on_floor() and kleo.global_position.y > 33.5 * TILE, 300)
-	await _wait(10)
-	var bonus: Node = _find("bonus_room")[0]
-	res.append(["the bonus game starts", bonus.state == BonusRoom.S.RUNNING])
-	# Gather the beads as a player would: the floor, a jump, onto ledge 1, off,
-	# a jump, onto ledge 2, off, the floor.
-	var go := func(x: float) -> void:
-		await _hold_until(["move_right" if x > kleo.global_position.x else "move_left"], func(): return absf(kleo.global_position.x - x) < 5.0, 120)
-	await go.call(3896.0)
-	await go.call(3904.0)
-	await _hop_up(34)
-	await _jump_to(3906.0, 3940.0, 3980.0, 31)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 243.0 * TILE and kleo.is_on_floor() and kleo.global_position.y > 33.5 * TILE, 300)
+	res.append(["through the hill's false wall into the hidden cave", _floor_at(34)])
+	res.append(["onto the cave's first block", await _jump_to(3906.0, 3940.0, 3980.0, 31)])
 	await _step_off("move_right", 3992.0, 34)
-	await go.call(4016.0)
-	await _hop_up(34)
-	await _jump_to(4018.0, 4052.0, 4092.0, 31)
+	res.append(["onto its second block", await _jump_to(4018.0, 4052.0, 4092.0, 31)])
 	await _step_off("move_right", 4104.0, 34)
-	await go.call(4140.0)
+	var gather: BonusZone = _zone("gather")
+	await _hold_until(["move_right"], func(): return gather.running(), 200)
+	res.append(["the glowing hollow takes her to bonus 1", gather.running()])
+	await _wait(10)
+	# Bonus 1: gather every bead as a player would, block to block.
+	var hops := await _jump_to(7290, 7316, 7370, 27)
+	hops = hops and await _jump_to(7330, 7444, 7516, 25, 7368)
+	hops = hops and await _jump_to(7470, 7588, 7644, 27, 7512)
+	hops = hops and await _jump_to(7600, 7716, 7860, 25, 7640)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 7848.0, 200)
+	await _wait(10)
+	res.append(["bonus 1: block to block", hops])
+	res.append(["bonus 1: every bead gathered in time (%d left, %.1f s to spare)" % [gather.remaining(), maxf(gather._left, 0.0)], gather.remaining() == 0])
+	for b in gather.get_node("Beads").get_children():
+		if not b.get_meta("taken", false):
+			print("  bead left at ", b.global_position)
+	await _hold_until(["move_left"], func(): return kleo.global_position.x <= 7790.0, 100)
+	await _hop_up(25)
+	res.append(["bonus 1's token (a hop over the last block)", Game.flags.has("l11_token1")])
+	for i in 240:
+		await _step()
+		if Game.bonus == null and kleo.state == Kleo.State.NORMAL:
+			break
 	await _wait(20)
-	res.append(["every bead gathered in time (%d left, %.1f s to spare)" % [bonus.remaining(), maxf(bonus._left, 0.0)], bonus.state == BonusRoom.S.WON])
-	if bonus.state != BonusRoom.S.WON:
-		for b in bonus.get_node("Beads").get_children():
-			if not b.get_meta("taken", false):
-				print("  bead left at ", b.global_position)
-	await _hold_until(["move_right"], func(): return kleo.global_position.x > 256.6 * TILE, 200)
-	await _wait(4)
-	_tap("interact")
-	await _wait(60)
-	res.append(["cocoon 2 freed (the bonus room's prize)", Game.rescued.has("l11_cocoon2")])
-	# Out again: west, a ledge catch up into the tunnel, and out of the hill.
-	# Back over the two blocks, then a ledge catch up into the tunnel.
-	var over_blocks := await _jump_to(4110.0, 4052.0, 4092.0, 31)
+	res.append(["back out in the cave beside the hollow (x %.0f, y %.0f)" % [kleo.global_position.x, kleo.global_position.y], absf(kleo.global_position.x - 256.0 * TILE) < 12.0 and _floor_at(34)])
+	# Out again: back west over the blocks, a ledge catch up into the tunnel.
+	var over_blocks := await _jump_to(4080.0, 4052.0, 4092.0, 31)
 	over_blocks = over_blocks and await _step_off("move_left", 4040.0, 34)
 	over_blocks = over_blocks and await _jump_to(4000.0, 3940.0, 3980.0, 31)
 	over_blocks = over_blocks and await _step_off("move_left", 3928.0, 34)
-	res.append(["back west over the bonus room's blocks", over_blocks])
+	res.append(["back west over the cave's blocks", over_blocks])
 	res.append(["back up into the tunnel (a 4-tile ledge catch)", await _jump_to(242.6 * TILE, 236.5 * TILE, 241.5 * TILE, 30)])
 	await _hold_until(["move_left"], func(): return kleo.global_position.x < 233.0 * TILE, 200)
 	res.append(["out of the hill", kleo.global_position.x < 234.0 * TILE and _floor_at(30)])
@@ -1342,17 +1362,40 @@ func _secrets_l1_1() -> void:
 	res.append(["up into the first treetop (4 up from the stack)", await _hop_up(18, 0)])
 	res.append(["treetop 2 (4 across, 1 up)", await _jump_to(3968, 4084, 4204, 17, 4008)])
 	res.append(["treetop 3 (4 across, 2 down)", await _jump_to(4150, 4276, 4364, 19, 4200)])
-	res.append(["treetop 4 (4 across, 2 up)", await _jump_to(4300, 4436, 4540, 17, 4360)])
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 4520.0, 100)
-	_tap("interact")
-	await _wait(60)
-	res.append(["cocoon 3 freed (at the treetops' end)", Game.rescued.has("l11_cocoon3")])
-	res.append(["down off the last treetop onto the hill", await _step_off("move_right", 4552.0, 27)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 4330.0, 100)
+	res.append(["letter E (on the third treetop)", _letter_taken("E")])
+	res.append(["treetop 4 (4 across, 2 up)", await _jump_to(4300, 4436, 4500, 17, 4360)])
+	var course: BonusZone = _zone("course")
+	await _hold_until(["move_right"], func(): return course.running(), 200)
+	res.append(["the hollow at the treetops' end takes her to bonus 2", course.running()])
+	await _wait(10)
+	# Bonus 2: pillar to pillar over the drop, to the token.
+	var run := await _jump_to(8000, 8084, 8124, 29, 8024)
+	run = run and await _jump_to(8090, 8196, 8236, 27, 8120)
+	run = run and await _jump_to(8200, 8308, 8348, 29, 8232)
+	run = run and await _jump_to(8310, 8420, 8460, 27, 8344)
+	run = run and await _jump_to(8430, 8516, 8570, 27, 8456)
+	res.append(["bonus 2: across the pillars (%.1f s to spare)" % maxf(course._left, 0.0), run])
+	await _wait(10)
+	res.append(["bonus 2's token (at the course's end)", Game.flags.has("l11_token2")])
+	for i in 240:
+		await _step()
+		if Game.bonus == null and kleo.state == Kleo.State.NORMAL:
+			break
+	await _wait(20)
+	res.append(["back out on the last treetop", absf(kleo.global_position.x - 280.5 * TILE) < 3.0 and _floor_at(17)])
+	res.append(["down off the last treetop onto the hill (the hollow, won, lets her by)", await _step_off("move_right", 4552.0, 27)])
 	# The treetops can't be reached from the hill without the crates.
 	_place(262.0, 27)
 	await _wait(10)
 	var hop_ok := await _hop_up(19, 0)
 	res.append(["from the hill alone, the treetops are out of reach", not hop_ok and _floor_at(27)])
+	# Letter O, over the pit before the step: the main line's jump takes it.
+	_place(376.5, 30)
+	await _wait(10)
+	res.append(["over the pit, up the step", await _jump_to(6030, 6150, 6290, 28, 6062)])
+	res.append(["letter O (over the pit)", _letter_taken("O")])
+	res.append(["all four letters: K-L-E-O", Game.letters_found() == 4])
 	# The last chest.
 	_place(417.0, 24)
 	await _wait(10)
@@ -1364,6 +1407,18 @@ func _secrets_l1_1() -> void:
 	for r in res:
 		lines.append("%s %s" % ["PASS" if r[1] else "FAIL", r[0]])
 		all = all and r[1]
-	lines.append("cocoons freed: %d of %d" % [Game.cocoons_found(), Game.level_cocoons.size()])
+	lines.append("letters found: %d of 4; bonus tokens: %d of %d" % [Game.letters_found(), Game.tokens_found(), Game.level_tokens.size()])
 	lines.append("ALL PASS" if all else "SOME FAILED")
 	_report(lines, "secrets")
+
+
+func _letter_taken(l: String) -> bool:
+	var n := room.get_node_or_null("Letter" + l)
+	return n != null and n.is_taken()
+
+
+func _zone(kind: String) -> BonusZone:
+	for z in _find("bonus_zone"):
+		if z.kind == kind:
+			return z
+	return null

@@ -303,7 +303,17 @@ func _standing_on_tiles() -> bool:
 
 func _choose_animation() -> void:
 	var a := sprite.animation
-	var busy := sprite.is_playing() and a in ["land", "land_hard", "run_stop", "run_start", "turn", "idle_yawn", "jump", "interact", "rescue"]
+	if held:
+		# Carrying (Book 3's C2): the lift plays out, then she stands, runs or
+		# leaps with the crate overhead.
+		if a == "carry_lift" and sprite.is_playing():
+			return
+		if is_on_floor():
+			_play("carry_run" if absf(velocity.x) > 12.0 or _input_x != 0.0 else "carry_idle")
+		else:
+			_play("carry_air")
+		return
+	var busy := sprite.is_playing() and a in ["land", "land_hard", "run_stop", "run_start", "turn", "idle_yawn", "jump", "interact", "rescue", "carry_throw", "carry_set"]
 	if is_on_floor():
 		var moving := absf(velocity.x) > 12.0 or _input_x != 0.0
 		if a == "land_hard" and busy:
@@ -659,7 +669,7 @@ func use_object() -> void:
 	_play("interact", true)
 
 
-## Play a one-off pose in place (freeing a cocoon), holding her still for `hold` s.
+## Play a one-off pose in place, holding her still for `hold` s.
 func perform(anim: String, hold: float) -> void:
 	_lock = hold
 	velocity.x = 0.0
@@ -756,14 +766,14 @@ func pick_up(thing: Node) -> void:
 	held = thing
 	_lock = 0.22
 	velocity.x = 0.0
-	_play("interact", true)
+	_play("carry_lift", true)
 
 
 func _throw(set_down: bool) -> void:
 	var thing := held
 	held = null
 	_lock = 0.16
-	_play("interact", true)
+	_play("carry_set" if set_down else "carry_throw", true)
 	if set_down:
 		thing.call("set_down", global_position + Vector2(facing * 14, 0))
 	else:
@@ -779,12 +789,29 @@ func _drop_held() -> void:
 	held = null
 
 
-## Where a carried thing sits: over her head, bobbing with her stride.
+## Where a carried crate rests in each frame of carry.png, from her feet
+## (facing right): the bottom centre of the kit's key-green guide box, as
+## tools/make_kleo_carry.py measures it (frame 10 has none: it is thrown).
+const CARRY_REST := [Vector2(9, 0), Vector2(10, -7), Vector2(4, -26), Vector2(3, -24),
+	Vector2(4, -23), Vector2(4, -22), Vector2(3, -22), Vector2(3, -23),
+	Vector2(-9, -18), Vector2(15, -25), Vector2(15, -25), Vector2(9, 0)]
+## Each carry animation's first frame in carry.png (build_kleo_frames.py).
+const CARRY_FIRST := {"carry_lift": 0, "carry_idle": 3, "carry_run": 4, "carry_air": 6, "carry_throw": 9, "carry_set": 11}
+
+
+## Where a carried thing sits (its base): on her hands, frame by frame, as
+## she lifts it, holds it overhead and runs with it.
 func carry_point() -> Vector2:
-	var bob := 0.0
-	if sprite.animation == "run":
-		bob = -1.0 if sprite.frame % 4 < 2 else 0.0
-	return global_position + Vector2(0, -36 + bob)
+	var i := 3
+	var a := String(sprite.animation)
+	if CARRY_FIRST.has(a):
+		i = clampi(int(CARRY_FIRST[a]) + sprite.frame, 0, CARRY_REST.size() - 1)
+	var o: Vector2 = CARRY_REST[i]
+	# The game's crates are bigger than the kit's guide box: overhead, it
+	# rides 3 px higher so it doesn't hide her head.
+	if o.y < -15.0:
+		o.y -= 3.0
+	return global_position + Vector2(o.x * facing, o.y)
 
 
 # --- Animation ---------------------------------------------------------------------

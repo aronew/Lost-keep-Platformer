@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://csdrbix1yb2e7"
-path="res://.godot/imported/cocoon_icon.png-e0f9dc0bd797823874d8bbbe3bc3c4ba.ctex"
+uid="uid://b7h3cxurjs8wp"
+path="res://.godot/imported/token.png-448b90c54145ed24b7bc66340ad29049.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/cocoon_icon.png"
-dest_files=["res://.godot/imported/cocoon_icon.png-e0f9dc0bd797823874d8bbbe3bc3c4ba.ctex"]
+source_file="res://assets/items/token.png"
+dest_files=["res://.godot/imported/token.png-448b90c54145ed24b7bc66340ad29049.ctex"]
 
 [params]
 

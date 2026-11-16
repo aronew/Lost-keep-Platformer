@@ -42,6 +42,14 @@ ANIMS = [
     ("rest_rise", "heal_rest", 10, 11, 10, False, {}),
     ("interact", "rescue_interact", 5, 7, 12, False, {6: 1.6}),
     ("rescue", "rescue_interact", 0, 4, 12, False, {3: 1.6}),
+    # Carrying a crate (Book 3's C2, tools/make_kleo_carry.py; carry.json holds
+    # where the crate rests in each frame).
+    ("carry_lift", "carry", 0, 2, 16, False, {2: 1.4}),
+    ("carry_idle", "carry", 3, 3, 6, True, {}),
+    ("carry_run", "carry", 4, 7, 12, True, {}),
+    ("carry_air", "carry", 6, 6, 6, True, {}),
+    ("carry_throw", "carry", 9, 10, 16, False, {10: 2.2}),
+    ("carry_set", "carry", 11, 11, 10, False, {11: 2.0}),
     # Abilities found later in the game.
     ("ward", "ironbark_ward", 0, 11, 22, False, {}),
     ("spark", "anima_spark_cast", 0, 11, 20, False, {}),

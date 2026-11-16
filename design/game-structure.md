@@ -63,7 +63,7 @@ The vertical level can move (X-2 or X-4) where a region's story wants it.
 
 | # | Region | Biome and look | Teaches | Boss | Reward |
 |---|---|---|---|---|---|
-| 1 | **The Ironbark Wilds** | Teal forest, overgrown purple stone ruins, aqueducts, pools, dusk under three moons | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
+| 1 | **The Ironbark Wilds** | Bright day: a sunlit forest of great trees, orange earth banks with grey ruin stone, floating islands, clear ponds (`docs/mockups/platformer/bright_day/`) | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
 | 2 | **The Hearth-Plains** | Golden fields at late afternoon, silk orchards, windmills, Rootling villages, hay barns, butterflies | The Ward (parry, bash-dash), bounce silk, windmill sails, hay carts | **The Silk Mother** | **Barkgrip** |
 | 3 | **The Dusk-Drifter Wastes** | Ash dunes and glass flats under a violet dusk, slate canyons, nomad caravans, bone-white ruins, ember vents (orange and gold, never red) | Barkgrip (wall cling, wall jump) in canyons; sinking ash, ember geysers, wind | **The Cinder Warden** | **Emberwick** |
 | 4 | **Thornveil** (Fen-Stalker) | A lush swamp of giant roots and stilt huts, glowing fungi, fireflies; the first crimson Blight veins | Emberwick (burn bramble and silk, light braziers); rising and sinking water, sinking lily pads | **The Thornveil Reaper** | **Wing-Cloak** |
@@ -72,10 +72,13 @@ The vertical level can move (X-2 or X-4) where a region's story wants it.
 | 7 | **The Anima Vats** | The harvesting works under the Spire: vats of teal Anima, Blight crystal growths, iron, icy-blue Prism light at the very end | Anima Siphon (drain Blight crystals, power machines); everything at once | **The Alchemist** | The finale: the Sovereign Prism |
 
 ### Why this order
-- **Colour and mood run from lively to grave.** Teal forest, gold fields,
-  violet dusk, green swamp in the open air; then fire, sky, and finally the
-  vats. You asked for colourful outdoors first; the first underground level
-  comes about four hours in.
+- **Colour and mood run from lively to grave, bright to dark.** The
+  creative lead: "we can go from a brighter setting to a darker setting in
+  later regions". Region 1 is bright day; then gold fields, violet dusk,
+  green swamp in the open air; then fire, sky, and finally the vats. Darker
+  regions stay readable: every hazard and creature is seen at a glance. You
+  asked for colourful outdoors first; the first underground level comes
+  about four hours in.
 - **Story:** Kleo leaves home (1), follows the trail of the missing into the
   farmlands where the Silk Mother is cocooning villagers (2), crosses the
   wastes to win the Ash-Walkers' fire (3), finds the Blight's source growing
@@ -117,7 +120,7 @@ Foundry; a wall jump up a crumbling High-Spire tower).
 Kleo starts with Lost Keep's base kit: **run, jump, ledge catch, the 4-hit
 sword combo** (swipe left, swipe right, overhead, a spinning leap into a
 slashing slam; she steps forward with every hit), and her **Lantern** (it
-lights dark corners and pulses near hidden cocoons).
+lights dark corners and pulses near hidden letters and bonus entrances).
 
 | After | Ability | What it does in a platformer |
 |---|---|---|
@@ -181,15 +184,25 @@ lanterns in tree hollows).
   Kleo lifts one (interact), carries it overhead (a little slower, a little
   lower jump, no ledge catches), and throws it (attack): flat and fast, about
   9 tiles. It fells a weak enemy at once and smashes on what it hits.
-- **Cracked walls:** pale, cracked stone that her sword only rings off. A
-  thrown crate breaks it open, usually into **a bonus room**.
-- **Bonus rooms:** a little game against the clock (gather every bead before
-  the time runs out) whose prize is a cocoon and a spill of Resin. Failing
-  costs nothing: step out and back in to try again.
+- **Cracked walls:** pale, cracked stone that her sword only rings off; a
+  thrown crate breaks it open. A tool for a level that wants one, not the
+  way into bonus areas (the creative lead: crate throwing "was just an
+  example of what Donkey Kong did").
+- **Bonus areas** (decided by the creative lead, 2026-11, after DKC 1 and 2:
+  "finding something hidden that takes you to another zone even is rad"):
+  found by exploring, behind a false wall, at the end of a secret route, in
+  a hidden cave. The way in is a hollow glowing faintly with Anima; walking
+  in takes her to **another zone** beside the level, out of its view. Two
+  kinds: **gather** (beads light up: gather every one before the time runs
+  out and the token appears) and **course** (a short run of jumps: reach the
+  token at its end in time). The prize is **a bonus token**. Out of time or
+  a fall: no harm, back out beside the entrance, try again. **Two per
+  level.**
 - **Secret routes high above:** over the treetops, along a ruin's top:
   reached by something a curious player notices (beads climbing a crate
-  stack, a raised bank), paid off with Resin and often a cocoon. In 1-1:
-  a root bank on the hill, a crate, a stack of two, then the treetops.
+  stack, a raised bank), paid off with Resin, a letter or a bonus entrance.
+  In 1-1: a root bank on the hill, a crate, a stack of two, then the
+  treetops (letter E, and bonus 2's entrance at their end).
 - **Nothing out of place:** everything she stands on is ground, stone, a log or a treetop; every
   crate is where someone would have left it; every secret has a reason to be
   there. In the blockout, backdrop shapes show what holds each piece up.
@@ -203,9 +216,11 @@ lanterns in tree hollows).
 
 ### Lives or checkpoints: **checkpoints, no lives**
 **Proposed:** no lives and no game over. Hurt costs health; **falling in a
-pit or water, or touching thorns, costs one flame and sends her back to the
-last checkpoint**; losing her last flame sends her back to the last
-checkpoint with her health refilled.
+pit or water costs one flame and sends her back to the last checkpoint**;
+**thorns are a hit** (a flame, and they throw her back out the way she
+came: the creative lead "had no idea why I was dying" when thorns sent her
+back); losing her last flame sends her back to the last checkpoint with her
+health refilled.
 
 Why: lives punish by replaying the parts you already beat, which in a long
 handcrafted level means replaying minutes of content you've mastered. Modern
@@ -227,17 +242,23 @@ punishing the player twice.
 
 ### Secrets in every level
 Each level hides:
-- **3 cocoons**: the missing, waiting to be freed. Interact to rescue: the
-  person goes to the Refuge. This is the game's main collectible, the way
-  KONG letters are in DKC, but each one is a person with a name and a stall.
-  One is usually on the path's edge, one behind a false wall, and one off the
-  path above or below (a high ledge, a drop that looks like a pit and isn't).
+- **The letters K-L-E-O** (the creative lead chose letters over cocoons,
+  2026-11: "the cocoons to save people is dumb"), as DKC's K-O-N-G: gold
+  letters hung along the way, in order. Two on the main line's jumps, two
+  off it (behind a false wall, on a secret route). All four in one level:
+  a burst of Resin (25 for now).
+- **2 bonus areas**, each won for **a bonus token** (§5, the land).
 - **2 to 4 Resin caches** off the path: chests and hidden hollows.
-- **Often a bonus room** behind a cracked wall (§5, the land).
 - **In X-4 or X-5, a hidden exit** to the region's secret level.
 
 Tells, always: motes drifting into a false wall, moss on its stones, a Resin
-bead trail leading off the path, the Lantern pulsing near a cocoon.
+bead trail leading off the path, a faint Anima glow at a bonus entrance.
+
+**Decided** (the creative lead, 2026-11, "I'll go with suggestions"):
+**bonus tokens open each region's secret level** (as DKC2's Kremkoins open
+the Lost World), and **each region's boss frees its captives**: beating the
+boss sends the people held there to the Refuge, where they open their
+services.
 
 ### Resin on the way
 Beads lead along the main path in short trails (DKC's bananas): they show
@@ -247,8 +268,8 @@ arc**.
 
 ### The level's end
 An arched doorway, waystone or gate in the region's style. Walking through
-it ends the level: a short tally (Resin, cocoons found of 3, secret exit if
-found), then the world map.
+it ends the level: a short tally (Resin, letters of 4, bonus tokens of 2,
+secret exit if found), then the world map.
 
 ## 6. Resin and what it buys
 
@@ -259,7 +280,7 @@ spent at the Refuge, with the people Kleo rescued:
 |---|---|
 | **The healer** | Lantern flames: +1 max health, four for sale at rising prices |
 | **The Rootling kitchen** | A meal before a level: one extra flame for that level only |
-| **The map-maker** | For each level, how many cocoons and secrets are still missing, and a hint for each |
+| **The map-maker** | For each level, how many letters, tokens and secrets are still missing, and a hint for each |
 | **The tailor** | Kleo's looks: the wide-brimmed hat and long coat, cloak linings (never red) |
 | **The builders** | Homes and gardens for the rescued: the Refuge visibly grows and the Kindreds mix |
 | **The archivist** | Concept art, music, the Alchemist's notes (lore) |
@@ -313,27 +334,32 @@ purple ruins, under a dusk sky with three moons.
   `enemies.md`, for the creative lead to confirm).
 - **Bramble thorns** (a hazard), and **water** (a hazard: Kleo can't swim).
 
-### On the mockup and the colour rules
-The mockup is the look of 1-1, with three changes the colour language needs:
-- Its **red mushroom caps** become violet, amber or teal (red is the
-  Blight's).
-- Its **red health bar** becomes amber lantern flames.
-- Its **minimap** is dropped: a platformer level doesn't need one. The HUD is
-  flames (top left), Resin, and cocoons found (x/3).
+### The look of region 1 (changed, 2026-11)
+The creative lead found the dusk art pass "super dark" ("it doesn't look like
+the mockups I gave"): region 1 is now **bright day**, after their six mockups
+in `docs/mockups/platformer/bright_day/`: orange earth with grey ruin stone
+and green grass on top, great trees, floating islands, clear water, a blue
+sky, a leafy frame along the bottom and sides. The game is lit as day now
+(no dusk tint, no vignette); Book 4 asks for the kit to match. **Red is no
+longer reserved** (the creative lead dropped the rule): banners and
+mushrooms may be red, as in the mockups; the Blight keeps its crimson. The
+HUD: flames (top left), Resin under them, the letters and bonus tokens (top
+right); no minimap.
 
 ## 9. Decided at approval
 All seven questions were approved as proposed: 7 stops per region (49 in
 all); checkpoints and no lives, with Resin since the last checkpoint dropped
 on a fall; the region order and the boss rewards; three cocoons per level as
-the main collectible; 1-1 new after the mockup, IB-04 as 1-2, IB-03 the
+the main collectible (since replaced: letters and bonus tokens, §5); 1-1 new after the mockup, IB-04 as 1-2, IB-03 the
 vertical 1-3; a world map plus a walkable Refuge; "Lost Keep: Platformer"
 stays the working title.
 
 ## 10. What is built (see `CLAUDE.md` for how)
-- **The systems** (all in the systems arena, `room=sys mode=systems`, 26
-  checks): flames and damage, hazards (pits, water, thorns) back to the
-  checkpoint, defeat, checkpoints, Resin at risk until banked, the
-  lunger (the roster's rat), chests, crates to carry and throw, cracked walls, bonus rooms,
-  moving platforms, cocoons, the level's end, the HUD.
+- **The systems** (all in the systems arena, `room=sys mode=systems`, 28
+  checks): flames and damage, hazards (pits, water) back to the checkpoint,
+  thorns as a hit, defeat, checkpoints, Resin at risk until banked, the
+  lunger (the roster's rat), chests, crates to carry and throw (with Kleo's
+  carry frames), cracked walls, bonus areas through hidden entrances, moving
+  platforms, letters, the level's end, the HUD.
 - **Level 1-1**: blockout approved, the art pass in from the creative lead's
   kit, water and foreground: `design/levels/1-1_overgrown_ruins.md`.

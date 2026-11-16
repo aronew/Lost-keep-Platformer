@@ -13,9 +13,11 @@ extends "res://tools/level_builder.gd"
 ## ledge, the arched doorway out) and natural_traversal/ (log and root bridges
 ## over water, stepped stone terraces, crates, islands at different heights);
 ## and Donkey Kong Country's way with land, wall terraces, a secret route over
-## the treetops, and a crate thrown through a cracked wall into a bonus game.
+## the treetops, letters to find (K-L-E-O) and hidden ways into bonus areas.
 ##
-## 440 x 40 tiles (about 11 screens by 1.8). The walking line is row 30
+## The level is 440 x 40 tiles (about 11 screens by 1.8); its two bonus areas
+## lie beside it, x 452-536, out of its view (the room is 540 wide; the camera
+## holds to MAIN while she is in the level). The walking line is row 30
 ## (y 480) unless a beat lifts it; still water runs under everything two tiles
 ## below it (WATER_Y, the creative lead's mockups), and the hill rises from
 ## the water bed with the bonus cave inside it. Four beats, each opened by a checkpoint:
@@ -25,7 +27,11 @@ const ROOM_PATH := "res://scenes/levels/l1_1_overgrown_ruins.tscn"
 const G := 480.0  # the ground's walking line (row 30)
 const WATER_Y := 512.0  # the water's surface, two tiles under the ground's walking line
 
-const ROOM := Rect2i(0, 0, 440, 40)
+const ROOM := Rect2i(0, 0, 540, 40)
+const MAIN := Rect2i(0, 0, 440, 40)
+## The bonus areas (BonusZone), beside the level and out of its view.
+const BONUS_GATHER := Rect2i(452, 16, 40, 24)
+const BONUS_COURSE := Rect2i(496, 16, 40, 24)
 const ROCK := [
 	[0, 30, 440, 10, 0],     # the ground (under the water from row 32 down)
 	# TEACH: up the stone terraces onto the stall's arches
@@ -40,28 +46,45 @@ const ROCK := [
 	[144, 25, 16, 5, 0],     # the east bank, past the log (1 down)
 	[164, 23, 12, 7, 0],     # the ruin mass (4 across, 2 up)
 	[176, 26, 6, 4, 0],      # a step down (3 down): the false wall's face is its east side
-	# TWIST: the hill (the cracked wall in its foot, the bonus room under it)
+	# TWIST: the hill (a false wall in its foot, a hidden cave under it)
 	[236, 27, 56, 3, 0],     # the hill (3 up)
 	[239, 24, 8, 3, 0],      # a raised root bank on the hill (3 up): crates on it lead to the treetops
 	# FINISH: the last stretch and the way out
 	[384, 28, 10, 2, 0],     # a block past the second pit (2 up)
 	[400, 27, 40, 3, 0],     # the end terrace (3 up)
 	[412, 24, 28, 3, 0],     # the end ledge (3 up): the arched doorway
+	# Beside the level, out of its view: rock between it and the bonus areas.
+	[440, 0, 12, 40, 0],
+	# Bonus 1, "gather" (x 452-492): raised ground, 2 and 3 up, gaps of 4.
+	[452, 30, 40, 10, 0],
+	[457, 27, 4, 3, 0],
+	[465, 25, 5, 5, 0],
+	[474, 27, 4, 3, 0],
+	[482, 25, 10, 5, 0],
+	[492, 0, 4, 40, 0],
+	# Bonus 2, "course" (x 496-536): small stone pillars over a drop.
+	[496, 30, 6, 10, 0],     # the start ledge
+	[505, 29, 3, 11, 0],     # 3 across, 1 up
+	[512, 27, 3, 13, 0],     # 4 across, 2 up
+	[519, 29, 3, 11, 0],     # 4 across, 2 down
+	[526, 27, 3, 13, 0],     # 4 across, 2 up
+	[532, 27, 4, 13, 0],     # 3 across: the token
+	[536, 0, 4, 40, 0],
 ]
 const SPACES := [
 	[64, 30, 13, 10],         # the water pit (the mockup's)
 	[135, 30, 9, 10],         # the ravine under the fallen trunk
 	[160, 30, 4, 10],         # the gap between the bank and the ruin mass
-	[177, 27, 5, 3],         # the false wall's hollow (cocoon 1)
-	[236, 28, 6, 2],         # the tunnel behind the cracked wall
-	[242, 28, 18, 6],        # the bonus room, under the hill
+	[177, 27, 5, 3],         # the false wall's hollow (letter L)
+	[236, 28, 6, 2],         # the tunnel behind the hill's false wall
+	[242, 28, 18, 6],        # the hidden cave under the hill: bonus 1's entrance
 	[297, 30, 35, 10],        # the second water: islands at different heights
 	[362, 30, 4, 10],         # a pit
 	[380, 30, 4, 10],         # a pit, with a step up beyond it
 ]
 const MASSES := [
 	[68, 29, 5, 11, 0],       # the mushroom island (1 up), the width of its painting
-	[246, 31, 3, 3, 0],      # the bonus room's two stone blocks (3 up from its floor)
+	[246, 31, 3, 3, 0],      # the cave's two stone blocks (3 up from its floor)
 	[253, 31, 3, 3, 0],
 	[301, 28, 4, 12, 0],      # the islands: 2 up, 2 up, 3 down, 2 up, then 3 down to the bank
 	[309, 26, 4, 14, 0],     # (each the width of its painting, gaps of 4)
@@ -93,6 +116,7 @@ func _initialize() -> void:
 	main_floor = G
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://scenes/levels"))
 	_level_begin("L1_1_OvergrownRuins", "1-1 The Overgrown Ruins")
+	_root.set("main_area", MAIN)
 	# The water under everything, but for the hill, which stands on the water
 	# bed with the bonus cave inside it.
 	_water_foreground(WATER_Y, [[0.0, _t(236)], [_t(292), _t(440)]])
@@ -140,6 +164,8 @@ func _teach() -> void:
 	# The water pit and the mushroom island (gaps of 4).
 	_bead_arc(Vector2(_t(63.5), G), Vector2(_t(69), _t(29)), 30.0, 3, "l11_pit1a")
 	_bead_arc(Vector2(_t(72), _t(29)), Vector2(_t(77.5), G), 30.0, 3, "l11_pit1b")
+	_letter(Vector2(_t(70.5), _t(29) - 24), "K", "l11_letter_k")
+	_label("K", Vector2(_t(70), _t(29) - 60))
 	_label("WATER PIT + MUSHROOM ISLAND", Vector2(_t(63), _t(25)))
 	# The ruin block: a ledge catch up to the chest.
 	_chest(_t(86), _t(25), 8, "l11_chest1")
@@ -164,36 +190,40 @@ func _test() -> void:
 	_label("FALLEN LOG", Vector2(_t(134), _t(21)))
 	# The gap up to the ruin mass (4 across, 2 up), and its water.
 	_bead_arc(Vector2(_t(159.5), _t(25)), Vector2(_t(165), _t(23)), 34.0, 3, "l11_gap")
-	# The false wall: the step's east face hides a hollow (cocoon 1). Its tell:
+	# The false wall: the step's east face hides a hollow (letter L). Its tell:
 	# motes drifting into the stone.
 	_false_wall("FalseWall", Rect2i(177, 27, 5, 3), 182, Vector2i(27, 3), 1, "l11_secret1")
 	_draught("FalseWallDraught", Rect2(_t(183), _t(27), _t(3), _t(3)), Vector2(-1, 0))
-	_cocoon(Vector2(_t(179), G - 2), "l11_cocoon1", "Wren, a Rootling baker", 36.0)
+	_letter(Vector2(_t(179), G - 14), "L", "l11_letter_l")
 	_resin_cache(_root, _t(180), _t(181.5), G, 2, "l11_secret1_cache")
-	_label("FALSE WALL\n(cocoon 1)", Vector2(_t(176), _t(23) - 30))
+	_label("FALSE WALL\n(letter L)", Vector2(_t(176), _t(23) - 30))
 	_breakable(CRATES, BARREL, _t(188), G, WOOD)
 
 
-# --- TWIST: crates and the cracked wall, the treetops, the islands ----------------------------------
+# --- TWIST: the hill's hidden cave, the treetops, the islands --------------------------------------
 
 func _twist() -> void:
 	_checkpoint(_t(196), G, "l11_cp2")
 	_label("CHECKPOINT 2", Vector2(_t(194), G - 76))
 	_label("TWIST", Vector2(_t(198), _t(8)))
 	_crate(_t(202.5), G, CRATE_B)
-	_crate(_t(205.5), G, CRATE_C)
-	_label("CRATES", Vector2(_t(201), G - 40))
-	# The cracked wall in the hill's foot; the tunnel; the bonus room under the hill.
-	_cracked_wall(Rect2i(236, 28, 2, 2), "l11_crack")
-	_label("CRACKED WALL\n(throw a crate)", Vector2(_t(226), G - 50))
+	_label("A CRATE\n(throw it at the rat)", Vector2(_t(200), G - 40))
+	# The hill's foot is a false wall: a tunnel behind it drops into a hidden
+	# cave under the hill, and at the cave's end a hollow glows: the way into
+	# bonus 1. Its tell: motes drifting into the stone.
+	_false_wall("HillWall", Rect2i(236, 28, 6, 2), 236, Vector2i(28, 2), -1, "l11_secret2")
+	_draught("HillDraught", Rect2(_t(232), _t(28), _t(3), _t(2)), Vector2(1, 0))
+	_label("FALSE WALL\n(a hidden cave)", Vector2(_t(228), G - 50))
+	_resin_cache(_root, _t(249.5), _t(251.5), _t(34), 3, "l11_cave_cache")
 	var floor_b := _t(34)
-	_bonus_room(Rect2(_t(242), _t(28), _t(18), _t(6)), [
-		Vector2(_t(243.5), floor_b - 12), Vector2(_t(245), floor_b - 12), Vector2(_t(250.5), floor_b - 12),
-		Vector2(_t(252), floor_b - 12), Vector2(_t(257), floor_b - 12), Vector2(_t(258.5), floor_b - 12),
-		Vector2(_t(247), _t(31) - 12), Vector2(_t(248), _t(31) - 24), Vector2(_t(254), _t(31) - 12),
-		Vector2(_t(255), _t(31) - 24), Vector2(_t(251), _t(29) + 4), Vector2(_t(244), _t(29) + 4)],
-		Vector2(_t(257.5), floor_b - 4), "l11_bonus", "l11_cocoon2", "Oren, an Ironbark scout", 14.0)
-	_label("BONUS ROOM: gather 12 beads\nin 14 s (cocoon 2)", Vector2(_t(243), _t(34) + 4))
+	var gather := _bonus_zone("gather", BONUS_GATHER, Vector2(_t(453.5), G), Vector2(_t(486.5), _t(25) - 36),
+		"l11_token1", 12.0, "Gather every bead!", [
+		Vector2(_t(455), G - 10), Vector2(_t(458), _t(27) - 12), Vector2(_t(460), _t(27) - 12),
+		Vector2(_t(463), _t(25) - 30), Vector2(_t(466), _t(25) - 12), Vector2(_t(468), _t(25) - 12),
+		Vector2(_t(471.5), _t(25) - 52), Vector2(_t(475.5), _t(27) - 12), Vector2(_t(480), _t(25) - 30),
+		Vector2(_t(484), _t(25) - 12), Vector2(_t(487), _t(25) - 12), Vector2(_t(490), _t(25) - 12)])
+	_bonus_door(_t(258.5), floor_b, gather, Vector2(_t(256), floor_b), -1)
+	_label("BONUS 1 ENTRANCE\n(in the hidden cave)", Vector2(_t(250), _t(28) + 2))
 	# The great tree by the crates (backdrop only), and the trees whose crowns
 	# carry the canopy route.
 	_backdrop_tree(_t(214), G, _t(12), 64.0, 200.0)
@@ -213,11 +243,21 @@ func _twist() -> void:
 	var i := 0
 	for c in TREETOPS:
 		_canopy(_t(c[0]), _t(c[1]), _t(c[2]), false)
-		_beads([Vector2(_t(c[0] + 2), _t(c[2]) - 12), Vector2(_t((c[0] + c[1]) * 0.5), _t(c[2]) - 12), Vector2(_t(c[1] - 2), _t(c[2]) - 12)], "l11_canopy%d" % i)
+		if i == 2:
+			# The third treetop holds letter E in place of its middle bead.
+			_beads([Vector2(_t(c[0] + 2), _t(c[2]) - 12), Vector2(_t(c[1] - 2), _t(c[2]) - 12)], "l11_canopy%d" % i)
+			_letter(Vector2(_t((c[0] + c[1]) * 0.5), _t(c[2]) - 16), "E", "l11_letter_e")
+		else:
+			_beads([Vector2(_t(c[0] + 2), _t(c[2]) - 12), Vector2(_t((c[0] + c[1]) * 0.5), _t(c[2]) - 12), Vector2(_t(c[1] - 2), _t(c[2]) - 12)], "l11_canopy%d" % i)
 		i += 1
-	_cocoon(Vector2(_t(283), _t(17) - 2), "l11_cocoon3", "Ysolde, a Hearth-Plains weaver")
-	_label("CANOPY ROUTE (secret, over the treetops)", Vector2(_t(252), _t(11)))
-	_label("cocoon 3", Vector2(_t(287), _t(11)))
+	# At the treetops' end, a hollow in the last crown: the way into bonus 2.
+	var course := _bonus_zone("course", BONUS_COURSE, Vector2(_t(498), G), Vector2(_t(534), _t(27) - 14),
+		"l11_token2", 10.0, "Reach the token!")
+	_beads([Vector2(_t(503.5), _t(29) - 22), Vector2(_t(510), _t(27) - 26), Vector2(_t(517), _t(27) - 22), Vector2(_t(524), _t(27) - 26),
+		Vector2(_t(530.5), _t(27) - 22)], "l11_course")
+	_bonus_door(_t(283.5), _t(17), course, Vector2(_t(280.5), _t(17)), -1)
+	_label("CANOPY ROUTE (secret, over the treetops; letter E)", Vector2(_t(252), _t(11)))
+	_label("BONUS 2 ENTRANCE", Vector2(_t(281), _t(11)))
 	# The hill: a second rat.
 	_lunger(_t(272), _t(27), _t(248), _t(289), "rat")
 	_label("RAT", Vector2(_t(262), _t(27) - 40))
@@ -243,6 +283,7 @@ func _finish_beat() -> void:
 	_label("THORNS", Vector2(_t(370), G - 30))
 	_bead_arc(Vector2(_t(379), G), Vector2(_t(385), _t(28)), 30.0, 3, "l11_pit3")
 	_label("PIT, STEP UP", Vector2(_t(378), G - 46))
+	_letter(Vector2(_t(382), G - 62), "O", "l11_letter_o")
 	_breakable(CRATES, POT, _t(397), G, CLAY)
 	_beads([Vector2(_t(402), _t(27) - 12), Vector2(_t(406), _t(27) - 12), Vector2(_t(413), _t(24) - 12)], "l11_end")
 	_chest(_t(419), _t(24), 8, "l11_chest2")

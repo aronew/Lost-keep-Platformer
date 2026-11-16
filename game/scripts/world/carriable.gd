@@ -29,6 +29,7 @@ var _home := Vector2.ZERO
 var _holder: Kleo = null
 var _dir := 1
 var _spin := 0.0
+var _rest_z := 0
 
 
 func _ready() -> void:
@@ -36,6 +37,7 @@ func _ready() -> void:
 	collision_layer = 0
 	collision_mask = 1 | 64
 	_home = global_position
+	_rest_z = z_index
 	hit.collision_layer = 0
 	hit.collision_mask = 4  # hurtboxes: enemies, breakables, cracked walls
 	hit.monitoring = false
@@ -53,13 +55,14 @@ func lift(kleo: Node) -> void:
 	state = S.HELD
 	handle.monitorable = false
 	kleo.call("pick_up", self)
-	# It rises to her hands over a few frames rather than snapping.
-	var tw := create_tween()
-	tw.tween_property(self, "global_position", kleo.call("carry_point"), 0.12).set_ease(Tween.EASE_OUT)
+	# Held behind her, so her hands and hair show in front of it; it follows
+	# her hands frame by frame (Kleo.carry_point) as she lifts it.
+	z_index = (kleo as CanvasItem).z_index - 1
 
 
 func throw(vel: Vector2) -> void:
 	state = S.FLYING
+	z_index = _rest_z
 	velocity = vel
 	_dir = 1 if vel.x >= 0.0 else -1
 	_holder = null
@@ -68,6 +71,7 @@ func throw(vel: Vector2) -> void:
 
 func set_down(pos: Vector2) -> void:
 	state = S.REST
+	z_index = _rest_z
 	_holder = null
 	global_position = pos.round()
 	velocity = Vector2.ZERO
@@ -78,6 +82,7 @@ func drop() -> void:
 	if state != S.HELD:
 		return
 	state = S.REST
+	z_index = _rest_z
 	_holder = null
 	velocity = Vector2(0, -40)
 	handle.monitorable = true
@@ -170,6 +175,7 @@ func _on_respawned() -> void:
 	if state == S.HELD or state == S.GONE or state == S.FLYING:
 		state = S.REST
 		_holder = null
+		z_index = _rest_z
 		visible = true
 		velocity = Vector2.ZERO
 		global_position = _home
