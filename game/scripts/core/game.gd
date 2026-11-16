@@ -93,6 +93,8 @@ const LETTERS_PRIZE := 25
 ## Bonus tokens (BonusToken): the level's (their flags), and every one won.
 var level_tokens: Array[String] = []
 var tokens_won := 0
+## The level's great secret, one of Morvath's thorn knots (ThornKnot): its flag.
+var level_knot := ""
 ## The bonus area she is in, if any (BonusZone).
 var bonus: Node = null
 ## True while she is being sent back (a fall, a defeat): nothing else may hurt her.
@@ -105,12 +107,43 @@ var _flame_tex: Texture2D
 var _letter_tex: Texture2D
 var _banner: Label
 var _timer_label: Label
+var _knot_icon: TextureRect
+var _hud_layer: CanvasLayer
+
+# --- The world: its levels, what is found in each, the save file ---------------
+## The world map, where a level's end leads.
+const MAP_SCENE := "res://scenes/ui/world_map.tscn"
+## Region 1's stops in order. A stop with no scene isn't built yet. `node` is
+## the level's root node (its "level_done_" flag); `prefix` starts every flag
+## the level owns. `letters`, `tokens` and `knot` are what the map keeps score
+## of: these flags, and each level's done flag, are all that is saved.
+const LEVELS := [
+	{"id": "1-1", "name": "The Overgrown Ruins", "node": "L1_1_OvergrownRuins", "prefix": "l11_",
+		"scene": "res://scenes/levels/l1_1_overgrown_ruins.tscn",
+		"letters": ["l11_letter_k", "l11_letter_l", "l11_letter_e", "l11_letter_o"],
+		"tokens": ["l11_token1", "l11_token2"], "knot": "l11_knot"},
+	{"id": "1-2", "name": "The Gate Road", "node": "L1_2_GateRoad", "prefix": "l12_",
+		"scene": "res://scenes/levels/l1_2_gate_road.tscn",
+		"letters": ["l12_letter_k", "l12_letter_l", "l12_letter_e", "l12_letter_o"],
+		"tokens": ["l12_token1", "l12_token2"], "knot": "l12_knot"},
+	{"id": "1-3", "name": "The Ruin Gardens", "scene": ""},
+	{"id": "1-4", "name": "The Aqueduct", "scene": ""},
+	{"id": "1-5", "name": "The Lantern Clearing", "scene": ""},
+	{"id": "1-S", "name": "The Hollow Oak", "scene": ""},
+	{"id": "1-B", "name": "The Keep Gate", "scene": ""},
+]
+## Where the game is saved. Tests turn saving off.
+var save_path := "user://save.json"
+var save_enabled := true
+## The stop Kleo stands on, on the map.
+var map_stop := 0
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_setup_input()
 	_setup_screen_layers()
+	load_game()
 
 
 # --- Input ------------------------------------------------------------------
@@ -164,7 +197,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _hitstop_end_us == 0:
 				Engine.time_scale = _base_time_scale()
 		KEY_F5:
-			flags.clear()
+			# A restart of the level: what the map keeps score of stays.
+			var kept := {}
+			for f in flags:
+				if keeper(f):
+					kept[f] = true
+			flags = kept
 			tokens_won = 0
 			currency = 0
 			_unbanked.clear()
@@ -174,6 +212,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_hitstop_end_us = 0
 			Engine.time_scale = _base_time_scale()
 			get_tree().reload_current_scene()
+		KEY_ESCAPE:
+			# Out of a level, back to the map (what was found stays found).
+			if level and is_instance_valid(level) and level.get("is_level") and not room_host.is_valid() and not _changing:
+				go_to(MAP_SCENE, "")
 		KEY_H:
 			for k in get_tree().get_nodes_in_group("player"):
 				k.hurt(-k.facing, true)
@@ -232,6 +274,7 @@ func _setup_screen_layers() -> void:
 	var hud_layer := CanvasLayer.new()
 	hud_layer.layer = 90
 	add_child(hud_layer)
+	_hud_layer = hud_layer
 	_flame_tex = load("res://assets/ui/flame.png")
 	_letter_tex = load("res://assets/ui/letter_icons.png")
 	_flames = HBoxContainer.new()
@@ -274,6 +317,12 @@ func _setup_screen_layers() -> void:
 	_token_box.add_child(ticon)
 	_token_count = _hud_label(10)
 	_token_box.add_child(_token_count)
+	# The level's thorn knot: asleep until she finds it.
+	_knot_icon = TextureRect.new()
+	_knot_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_knot_icon.position = Vector2(640 - 8 - 20, 34)
+	_knot_icon.visible = false
+	hud_layer.add_child(_knot_icon)
 	_timer_label = _hud_label(16)
 	_timer_label.position = Vector2(296, 8)
 	_timer_label.size = Vector2(48, 20)
@@ -342,6 +391,10 @@ func _show_finds(flare := "") -> void:
 	_token_box.visible = not level_tokens.is_empty()
 	_token_count.text = "%d/%d" % [tokens_found(), level_tokens.size()]
 	_token_box.position.x = 640 - 8 - 12 - 2 - 18
+	_knot_icon.visible = level_knot != ""
+	if level_knot != "":
+		_knot_icon.texture = _frame(load("res://assets/items/knot.png"), 20, 20, 1 if flags.has(level_knot) else 0)
+		_knot_icon.modulate = Color.WHITE if flags.has(level_knot) else Color(1, 1, 1, 0.45)
 
 
 ## A line of text in the middle of the screen for a moment (a tally, a bonus).
@@ -371,7 +424,9 @@ func level_begin(room: Node, start: Vector2, facing: int) -> void:
 	respawning = false
 	level_letters.clear()
 	level_tokens.clear()
+	level_knot = ""
 	bonus = null
+	_hud_layer.visible = true
 	_flames.visible = true
 	_show_health()
 	# The letters and tokens register themselves as they enter the tree.
@@ -391,6 +446,7 @@ func take_letter(letter: String, flag: String) -> void:
 	if flag != "":
 		flags[flag] = true
 	_show_finds(letter)
+	save_game()
 	if letters_found() == 4:
 		banner("K - L - E - O !", 1.2)
 		add_currency(LETTERS_PRIZE)
@@ -416,7 +472,23 @@ func take_token(flag: String) -> void:
 	if flag != "" and not flags.has(flag):
 		flags[flag] = true
 		tokens_won += 1
+		save_game()
 	_show_finds()
+
+
+func register_knot(flag: String) -> void:
+	level_knot = flag
+	_show_finds()
+
+
+## She woke the level's thorn knot: its great secret.
+func take_knot(flag: String) -> void:
+	level_knot = flag
+	if flag != "":
+		flags[flag] = true
+	_show_finds()
+	banner("Morvath's knot wakes", 1.2)
+	save_game()
 
 
 func tokens_found() -> int:
@@ -551,3 +623,109 @@ func _process(_delta: float) -> void:
 	for k in get_tree().get_nodes_in_group("player"):
 		lines.append(k.debug_text())
 	_debug_label.text = "\n".join(lines)
+
+
+# --- The world map and the save file -----------------------------------------------------
+
+## True for the flags the map keeps score of (and the save file holds): each
+## level's letters, tokens and knot, and its done flag.
+func keeper(flag: String) -> bool:
+	if flag.begins_with("level_done_"):
+		return true
+	for l in LEVELS:
+		if l.get("scene", "") == "":
+			continue
+		if flag == l["knot"] or flag in l["letters"] or flag in l["tokens"]:
+			return true
+	return false
+
+
+## What is found in stop `i`: {done, letters: [4 bools], tokens, tokens_of, knot}.
+func record(i: int) -> Dictionary:
+	var l: Dictionary = LEVELS[i]
+	if l.get("scene", "") == "":
+		return {"built": false, "done": false}
+	var letters := []
+	for f in l["letters"]:
+		letters.append(flags.has(f))
+	var tokens := 0
+	for f in l["tokens"]:
+		if flags.has(f):
+			tokens += 1
+	return {"built": true, "done": flags.has("level_done_" + l["node"]), "letters": letters,
+		"tokens": tokens, "tokens_of": l["tokens"].size(), "knot": flags.has(l["knot"])}
+
+
+## A stop can be entered once it is built and the stop before it is done.
+func stop_open(i: int) -> bool:
+	if LEVELS[i].get("scene", "") == "":
+		return false
+	return i == 0 or record(i - 1)["done"]
+
+
+## Into stop `i` from the map. Its beads, chests and checkpoints start afresh;
+## its letters, tokens and knot stay as found.
+func enter_level(i: int) -> void:
+	var l: Dictionary = LEVELS[i]
+	map_stop = i
+	for f in flags.keys():
+		if String(f).begins_with(l["prefix"]) and not keeper(f):
+			flags.erase(f)
+	go_to(l["scene"], "")
+
+
+## The level is finished: mark it, save, and (in the game itself) back to the map.
+func finish_level() -> void:
+	if level and is_instance_valid(level):
+		flags["level_done_" + level.name] = true
+		for i in LEVELS.size():
+			if LEVELS[i].get("node", "") == String(level.name):
+				map_stop = i
+	save_game()
+	if not room_host.is_valid():
+		go_to(MAP_SCENE, "")
+
+
+## The HUD belongs to a level: the map hides it.
+func show_hud(on: bool) -> void:
+	_hud_layer.visible = on
+
+
+func save_game() -> void:
+	if not save_enabled:
+		return
+	var kept := []
+	for f in flags:
+		if keeper(f):
+			kept.append(f)
+	var f := FileAccess.open(save_path, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify({"flags": kept, "currency": currency, "map_stop": map_stop}))
+
+
+func load_game() -> void:
+	if not save_enabled or not FileAccess.file_exists(save_path):
+		return
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(save_path))
+	if not (data is Dictionary):
+		return
+	for f in data.get("flags", []):
+		flags[String(f)] = true
+	currency = int(data.get("currency", 0))
+	map_stop = clampi(int(data.get("map_stop", 0)), 0, LEVELS.size() - 1)
+	_hud_count.text = str(currency)
+	tokens_won = 0
+	for l in LEVELS:
+		for t in l.get("tokens", []):
+			if flags.has(t):
+				tokens_won += 1
+
+
+## Wipe the save: a new game.
+func new_game() -> void:
+	flags.clear()
+	currency = 0
+	tokens_won = 0
+	map_stop = 0
+	_hud_count.text = "0"
+	save_game()

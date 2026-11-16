@@ -4,6 +4,10 @@ real ones (each is listed in Book 4):
   game/assets/items/letters.png     4 frames of 16 x 18: K, L, E, O, gold (in the world)
   game/assets/ui/letter_icons.png   8 frames of 9 x 11: K L E O dim, then lit (the HUD)
   game/assets/items/token.png       4 frames of 16 x 16: the bonus token, turning
+  game/assets/items/banner.png      3 frames of 40 x 64: the midway checkpoint, a
+                                    Guard's banner: furled, then flying (2 frames)
+  game/assets/items/knot.png        2 frames of 20 x 20: Morvath's thorn knot, its
+                                    eye shut, then open (each level's great secret)
 
 The letters spell KLEO, as Donkey Kong Country's spell KONG: four per level.
 The token is a gold coin with a Prism-blue shard on it: a bonus area's prize.
@@ -97,6 +101,68 @@ def token():
     return sheet
 
 
+BARK, BARK_L, BARK_D = (184, 165, 138, 255), (222, 208, 182, 255), (120, 102, 84, 255)
+
+
+def knot():
+    """Morvath's thorn knot: pale bark, thorns round it, an amber-gold eye
+    (never red). Frame 0 sleeps, frame 1 has woken."""
+    sheet = Image.new("RGBA", (40, 20), (0, 0, 0, 0))
+    for f in range(2):
+        im = Image.new("RGBA", (20, 20), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        for a, b in [((10, 0), (10, 4)), ((2, 3), (5, 6)), ((17, 3), (14, 6)), ((0, 10), (4, 10)),
+                     ((19, 10), (15, 10)), ((3, 17), (6, 14)), ((16, 17), (13, 14)), ((10, 19), (10, 15))]:
+            d.line([a, b], fill=OUT, width=3)
+            d.line([a, b], fill=BARK_D)
+        d.ellipse((3, 3, 16, 16), fill=BARK_D, outline=OUT)
+        d.ellipse((4, 4, 14, 14), fill=BARK)
+        d.arc((4, 4, 14, 14), 190, 300, fill=BARK_L)
+        if f == 0:
+            d.arc((6, 6, 13, 12), 20, 160, fill=OUT)      # a shut lid
+        else:
+            d.ellipse((6, 7, 13, 12), fill=GOLD_L, outline=OUT)
+            d.ellipse((8, 8, 11, 11), fill=GOLD)
+            d.rectangle((9, 8, 10, 11), fill=OUT)          # the pupil
+        sheet.alpha_composite(im, (f * 20, 0))
+    return sheet
+
+
+WOOD, WOOD_L, WOOD_D = (122, 78, 48, 255), (168, 114, 70, 255), (74, 46, 30, 255)
+TEAL = (63, 224, 200, 255)
+
+
+def banner():
+    """The midway checkpoint: an Ironbark Guard's banner on a pole. Frame 0 is
+    furled (not reached); frames 1 and 2 fly (reached), amber for safety."""
+    sheet = Image.new("RGBA", (40 * 3, 64), (0, 0, 0, 0))
+    for f in range(3):
+        im = Image.new("RGBA", (40, 64), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        d.rectangle((5, 6, 8, 63), fill=WOOD, outline=OUT)      # the pole
+        d.line((6, 7, 6, 62), fill=WOOD_L)
+        d.ellipse((3, 1, 10, 8), fill=GOLD, outline=OUT)        # its finial
+        d.point((5, 3), fill=GOLD_L)
+        d.rectangle((2, 60, 11, 63), fill=WOOD_D, outline=OUT)  # its foot
+        if f == 0:
+            d.rectangle((9, 9, 13, 34), fill=GOLD_D, outline=OUT)   # furled, tied
+            d.line((9, 16, 13, 16), fill=OUT)
+            d.line((9, 26, 13, 26), fill=OUT)
+        else:
+            wave = [0, 1, 2, 1, 0, -1] if f == 1 else [1, 2, 1, 0, -1, 0]
+            top = [(9 + i * 5, 9 + wave[i]) for i in range(6)]
+            bot = [(9 + i * 5, 31 + wave[i]) for i in range(6)]
+            tail = [(top[-1][0], top[-1][1]), (top[-1][0] - 5, 20 + wave[-1]), (bot[-1][0], bot[-1][1])]
+            poly = top + [tail[1]] + list(reversed(bot))
+            d.polygon(poly, fill=GOLD, outline=OUT)
+            d.line(top, fill=GOLD_L)
+            d.line([(x, y - 1) for x, y in bot[:-1]], fill=GOLD_D)
+            cx, cy = 20, 20 + wave[2]                             # the Guard's mark: a teal leaf
+            d.polygon([(cx, cy - 5), (cx + 4, cy), (cx, cy + 5), (cx - 4, cy)], fill=TEAL, outline=OUT)
+        sheet.alpha_composite(im, (f * 40, 0))
+    return sheet
+
+
 def save(im, *parts):
     path = os.path.join(ROOT, *parts)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -108,3 +174,5 @@ if __name__ == "__main__":
     save(letters(), "items", "letters.png")
     save(letter_icons(), "ui", "letter_icons.png")
     save(token(), "items", "token.png")
+    save(knot(), "items", "knot.png")
+    save(banner(), "items", "banner.png")

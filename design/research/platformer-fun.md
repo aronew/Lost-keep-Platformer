@@ -305,7 +305,23 @@ is the one that makes secrets matter.
 
 ## 9. What I would do next, in order
 
-Suggestions for the creative lead to accept or refuse [mine]:
+**Status (2026-11):** the creative lead said to implement all of it. What
+was built, and where the rule now lives:
+
+| # | Suggestion | Built? |
+|---|---|---|
+| 1 | World map with a per-level record | Yes, with a save file (`scripts/ui/world_map.gd`, `Game.LEVELS`); a stand-in look |
+| 2 | One great secret per level | Yes: Morvath's thorn knot (`thorn_knot.gd`), in 1-1 and 1-2 |
+| 3 | The bead rule | Written into `design/game-structure.md` §5; both levels keep it |
+| 4 | A momentum move | Yes: Kleo's stride (`kleo.gd`). Not a new button: speed for running on without stopping. Untuned by play |
+| 5 | Vary the chain in 1-2 | The long pool, yes, with a rest and risky Resin. The twist's islands, not yet |
+| 6 | More kinds of tell; a habit broken once | 1-2 has four different tells; its knot is the one time she must go back west |
+| 7 | A ratings board | `design/levels/ratings.md` |
+
+Not built: corner correction on jumps; a third kind of bonus game; any of
+the later-region ideas (combining several ideas a level).
+
+The suggestions as first written [mine]:
 
 1. **A world map with a per-level record** (letters, tokens, the great
    secret, each shown found or missing). It turns everything already built

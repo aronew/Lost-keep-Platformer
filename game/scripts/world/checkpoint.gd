@@ -1,12 +1,15 @@
 class_name Checkpoint
 extends Node2D
-## A checkpoint: a lantern post, dark until Kleo passes it. Then its flame
-## catches (a puff of amber sparks, the light swelling up), and from then on a
-## fall or a defeat brings her back here. Lighting it refills her flames and
-## banks the Resin she carries (Game.reach_checkpoint).
+## The midway checkpoint: an Ironbark Guard's banner on a pole, furled until
+## Kleo passes it. Then it unfurls and flies (a puff of amber sparks), and from
+## then on a fall or a defeat brings her back here. Reaching it refills her
+## flames and banks the Resin she carries (Game.reach_checkpoint). One a
+## level, at its middle (the creative lead: "there should be a middle point
+## where you get a checkpoint; I don't want lanterns").
 ##
-## The node sits at the post's foot (the floor line). `Dark` and `Lit` are the
-## post's two sprites; `Light` its lamp; `Trigger` the area she walks into.
+## The node sits at the pole's foot (the floor line). `Dark` is the furled
+## banner and `Lit` the flying one (items/banner.png); `Light` a faint warm
+## glow at its top; `Trigger` the area she walks into.
 
 ## A name in Game.flags: set when lit, so it stays lit for this visit.
 @export var flag := ""
@@ -20,6 +23,7 @@ extends Node2D
 @onready var trigger: Area2D = $Trigger
 
 var lit := false
+var _t := 0.0
 
 
 func _ready() -> void:
@@ -28,6 +32,12 @@ func _ready() -> void:
 	trigger.collision_mask = 2
 	trigger.body_entered.connect(_on_body_entered)
 	_show(flag != "" and Game.flags.has(flag), false)
+
+
+func _process(delta: float) -> void:
+	if lit and lit_art.hframes > 1:
+		_t += delta
+		lit_art.frame = 1 + int(_t * 5.0) % 2  # flying
 
 
 func _show(on: bool, animate: bool) -> void:
