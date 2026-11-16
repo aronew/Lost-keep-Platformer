@@ -795,7 +795,7 @@ func _bonus_zone(kind: String, area: Rect2i, start: Vector2, token_pos: Vector2,
 			a.position = (p as Vector2).round()
 			var cs := CollisionShape2D.new()
 			var cc := CircleShape2D.new()
-			cc.radius = 7.0
+			cc.radius = 9.0
 			cs.shape = cc
 			_node(cs, "Shape", a)
 			var art := _node(Sprite2D.new(), "Art", a) as Sprite2D

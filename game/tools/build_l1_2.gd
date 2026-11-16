@@ -22,7 +22,7 @@ const WATER_Y := 512.0  # the water's surface, two tiles under the walking line
 
 const ROOM := Rect2i(0, 0, 540, 40)
 const MAIN := Rect2i(0, 0, 440, 40)
-const BONUS_COURSE := Rect2i(452, 16, 40, 24)
+const BONUS_COURSE := Rect2i(452, 16, 40, 24)  # bonus 1: the pillars
 const BONUS_GATHER := Rect2i(496, 16, 40, 24)
 const ROCK := [
 	[0, 30, 440, 10, 0],     # the road (under the water from row 32 down)
@@ -126,6 +126,13 @@ func _hops(hops: Array, flag: String, count := 2) -> void:
 		_bead_arc(Vector2(_t(h[0]), _t(h[1])), Vector2(_t(h[2]), _t(h[3])), 30.0, count, "%s%d" % [flag, k])
 
 
+## Three beads along a real jump's arc, from a take-off just short of the
+## edge at `edge` (tiles) on `row`, going right: she takes them in the air.
+func _arc_pts(edge: float, row: float) -> Array:
+	var t0 := Vector2(_t(edge) - 8.0, _t(row))
+	return [t0 + Vector2(24, -52), t0 + Vector2(47, -66), t0 + Vector2(70, -54)]
+
+
 # --- TEACH: hops with nothing to lose, the first water, the first floating island -----------------
 
 func _teach() -> void:
@@ -171,9 +178,15 @@ func _test() -> void:
 	_letter(Vector2(_t(195), _t(16) - 16), "L", "l12_letter_l")
 	_label("HIGH PATH (secret): the big floating islands, from the tower's top; a chest, letter L", Vector2(_t(138), _t(11)))
 	# At the high path's end, a glowing hollow: bonus 1, a course of pillars.
-	var course := _bonus_zone("course", BONUS_COURSE, Vector2(_t(454), G), Vector2(_t(490.5), _t(27) - 14),
-		"l12_token1", 10.0, "Reach the token!")
-	_hops([[457.5, 30, 462.5, 28], [464.5, 28, 469.5, 29], [471.5, 29, 476.5, 27], [478.5, 27, 483.5, 29], [485.5, 29, 489.5, 27]], "l12_course", 1)
+	# (Both bonus areas are Resin rushes, the creative lead's: a ton of Resin
+	# along the jumps; get every bead in time and the token is hers.)
+	var rush: Array = [Vector2(_t(456.5), G - 10)]
+	for h in [[458, 30], [465, 28], [472, 29], [479, 27], [486, 29]]:
+		rush.append_array(_arc_pts(h[0], h[1]))
+	for q in [[463.5, 28], [470.5, 29], [477.5, 27], [484.5, 29]]:
+		rush.append(Vector2(_t(q[0]), _t(q[1]) - 12))
+	var course := _bonus_zone("gather", BONUS_COURSE, Vector2(_t(454), G), Vector2(_t(490.5), _t(27) - 40),
+		"l12_token1", 12.0, "Get all the Resin!", rush)
 	_bonus_door(_t(208.5), _t(20), course, Vector2(_t(205.5), _t(20)), -1)
 	_label("BONUS 1 ENTRANCE", Vector2(_t(203), _t(15)))
 	_breakable(CRATES, BARREL, _t(204), G, WOOD)
@@ -195,12 +208,19 @@ func _twist() -> void:
 	# its face, a stone shelf by the water) and, in the island's shadow, a
 	# glowing hollow: bonus 2. Its tell: beads stepping down, the glow below.
 	_beads([Vector2(_t(233), _t(27) - 12), Vector2(_t(235), _t(31) - 12), Vector2(_t(236.5), _t(31) - 12)], "l12_under")
+	var pile: Array = [Vector2(_t(500), G - 10), Vector2(_t(501), G - 10)]
+	# Along every block's top, a column over three of them (a jump on the
+	# spot), and an arc over every hop.
+	for q in [[503, 28], [504.5, 28], [511, 26], [512.5, 26], [514, 26], [520, 28], [521.5, 28],
+			[528.5, 26], [530, 26], [531.5, 26], [533, 26], [534.5, 26]]:
+		pile.append(Vector2(_t(q[0]), _t(q[1]) - 12))
+	for q in [[512.5, 26], [521, 28], [533, 26]]:
+		for up in [30, 46, 62]:
+			pile.append(Vector2(_t(q[0]), _t(q[1]) - up))
+	for h in [[506, 28], [515, 26], [523, 28]]:
+		pile.append_array(_arc_pts(h[0], h[1]))
 	var gather := _bonus_zone("gather", BONUS_GATHER, Vector2(_t(497.5), G), Vector2(_t(531.5), _t(26) - 36),
-		"l12_token2", 12.0, "Gather every bead!", [
-		Vector2(_t(500.5), G - 10), Vector2(_t(503), _t(28) - 12), Vector2(_t(505), _t(28) - 12),
-		Vector2(_t(508), _t(26) - 30), Vector2(_t(511), _t(26) - 12), Vector2(_t(514), _t(26) - 12),
-		Vector2(_t(517), _t(26) - 56), Vector2(_t(520), _t(28) - 12), Vector2(_t(522), _t(28) - 12),
-		Vector2(_t(525), _t(26) - 30), Vector2(_t(529), _t(26) - 12), Vector2(_t(533), _t(26) - 12)])
+		"l12_token2", 16.0, "Get all the Resin!", pile)
 	_bonus_door(_t(238.3), _t(31), gather, Vector2(_t(236.2), _t(31)), -1)
 	_label("THE OLD LANDING under the island (secret):\nBONUS 2 ENTRANCE", Vector2(_t(240), _t(29)))
 

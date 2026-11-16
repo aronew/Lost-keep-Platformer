@@ -197,7 +197,10 @@ lanterns in tree hollows).
   out and the token appears) and **course** (a short run of jumps: reach the
   token at its end in time). The prize is **a bonus token**. Out of time or
   a fall: no harm, back out beside the entrance, try again. **Two per
-  level.**
+  level.** From 1-2 on, the creative lead's **Resin rush**: "a ton of resin
+  where you need to jump and try and get all the resin; if you're able to
+  get it all you get a token": a gather with beads along the arc of every
+  jump, whose Resin is hers to keep when she wins.
 - **Secret routes high above:** over the treetops, along a ruin's top:
   reached by something a curious player notices (beads climbing a crate
   stack, a raised bank), paid off with Resin, a letter or a bonus entrance.

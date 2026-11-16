@@ -266,7 +266,10 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   (top centre), all of them brings out the token. "course": a run of jumps
   to the token. The token is the prize (`Game.take_token`); then back out
   beside the entrance. Out of time or a fall: no harm, back out, try again.
-  Won stays won (the entrance says so). Two per level.
+  Won stays won (the entrance says so). Two per level. **A Resin rush**
+  (the creative lead's, 1-2's two): a gather with a ton of beads along the
+  arcs of its jumps (`_arc_pts` in `build_l1_2.gd`); the countdown shows how
+  many are left, and winning pays the Resin out (`Game.add_currency`).
 - **Moving platforms** (`moving_platform.gd`, `_mover`): one-way timber on
   layer 7, eased in and out of each stop, pausing at the ends; optionally
   waiting for her to step on. Use only for something that really moves (a

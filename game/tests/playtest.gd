@@ -207,6 +207,9 @@ func _shots() -> void:
 	if room_id == "l1_2":
 		places = SHOTS_L12
 		_calm_enemies()
+		# The bonus areas' Resin, lit as it is while a bonus runs.
+		for z in _find("bonus_zone"):
+			z._show_beads(true)
 	if room_id == "sys":
 		places = [["01_arena", 20.0, 20, 1], ["02_bonus", 72.0, 20, 1], ["03_platform", 96.0, 20, 1]]
 	if room_id == "ib03":
@@ -1596,7 +1599,7 @@ func _secrets_l1_2() -> void:
 	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 195.5 * TILE, 100)
 	res.append(["letter L (on the high path)", _letter_taken("L")])
 	res.append(["the last island (4 across, 4 down)", await _hop(198, 202, 208, 20)])
-	var course: BonusZone = _zone("course")
+	var course: BonusZone = _find("bonus_zone").filter(func(z): return z.token.flag == "l12_token1")[0]
 	await _hold_until(["move_right"], func(): return course.running(), 200)
 	res.append(["the hollow at the high path's end takes her to bonus 1", course.running()])
 	await _wait(10)
@@ -1605,9 +1608,11 @@ func _secrets_l1_2() -> void:
 	run = run and await _hop(472, 476, 479, 27)
 	run = run and await _hop(479, 483, 486, 29)
 	run = run and await _hop(486, 489, 492, 27)
-	res.append(["bonus 1: across the pillars (%.1f s to spare)" % maxf(course._left, 0.0), run])
-	await _wait(10)
-	res.append(["bonus 1's token (at the course's end)", Game.flags.has("l12_token1")])
+	res.append(["bonus 1: across the pillars", run])
+	res.append(["bonus 1: all %d Resin taken on the way (%d left, %.1f s to spare)" % [course.beads.get_child_count(), course.remaining(), maxf(course._left, 0.0)], course.remaining() == 0])
+	_bead_report(course)
+	await _hop_up(27)
+	res.append(["bonus 1's token (a hop on the last pillar)", Game.flags.has("l12_token1")])
 	await _bonus_over()
 	res.append(["back out beside the hollow", absf(kleo.global_position.x - 205.5 * TILE) < 3.0 and _floor_at(20)])
 	res.append(["off the island's end onto the bank's block (7 down; the hollow, won, lets her by)", await _off(210, 27)])
@@ -1616,21 +1621,28 @@ func _secrets_l1_2() -> void:
 	await _wait(10)
 	res.append(["off the bank's edge onto the step in its face (3 down)", await _off(232, 27)])
 	res.append(["down to the old landing (4 down)", await _off(234, 31)])
-	var gather: BonusZone = _zone("gather")
+	var gather: BonusZone = _find("bonus_zone").filter(func(z): return z.token.flag == "l12_token2")[0]
 	await _hold_until(["move_right"], func(): return gather.running(), 200)
 	res.append(["the glowing hollow under the island takes her to bonus 2", gather.running()])
 	await _wait(10)
 	var hops := await _rise(502, 506, 28)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 504.8 * TILE, 100)
 	hops = hops and await _hop(506, 510, 515, 26)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 514.2 * TILE, 100)
+	await _hold_until(["move_left"], func(): return kleo.global_position.x <= 512.7 * TILE, 100)
+	await _hop_up(26)
 	hops = hops and await _hop(515, 519, 523, 28)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 521.0 * TILE, 100)
+	await _hop_up(28)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 521.8 * TILE, 100)
 	hops = hops and await _hop(523, 527, 536, 26)
 	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 533.0 * TILE, 200)
-	await _wait(10)
+	await _hop_up(26)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 534.6 * TILE, 200)
+	await _wait(6)
 	res.append(["bonus 2: block to block", hops])
-	res.append(["bonus 2: every bead gathered in time (%d left, %.1f s to spare)" % [gather.remaining(), maxf(gather._left, 0.0)], gather.remaining() == 0])
-	for b in gather.get_node("Beads").get_children():
-		if not b.get_meta("taken", false):
-			print("  bead left at ", b.global_position)
+	res.append(["bonus 2: all %d Resin gathered in time (%d left, %.1f s to spare)" % [gather.beads.get_child_count(), gather.remaining(), maxf(gather._left, 0.0)], gather.remaining() == 0])
+	_bead_report(gather)
 	await _hold_until(["move_left"], func(): return kleo.global_position.x <= 531.8 * TILE, 100)
 	await _hop_up(26)
 	res.append(["bonus 2's token (a hop at the last block)", Game.flags.has("l12_token2")])
@@ -1661,3 +1673,9 @@ func _secrets_l1_2() -> void:
 	await _wait(40)
 	res.append(["the chest by the gateway opens", _find("chest")[2].opened])
 	_results(res, ["letters found: %d of 4; bonus tokens: %d of %d" % [Game.letters_found(), Game.tokens_found(), Game.level_tokens.size()]], "secrets")
+
+
+func _bead_report(zone: BonusZone) -> void:
+	for b in zone.beads.get_children():
+		if not b.get_meta("taken", false):
+			print("  bead left at ", b.global_position)

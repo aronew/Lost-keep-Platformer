@@ -52,15 +52,22 @@ water).
   2, down 4): a chest on the second, **a rat on the great island** (24
   tiles), **letter L** on the fourth, and at the end of the fifth **a
   glowing hollow: bonus 1**. Off its end she lands on the far bank's block.
-- **Bonus 1, "course"** (10 s): five stone pillars over a drop, at different
-  heights, to the token.
+- **Both bonus areas are Resin rushes** (the creative lead: "a ton of resin
+  where you need to jump and try and get all the resin; if you're able to
+  get it all you get a token"). Every bead in time brings out the token,
+  and the Resin gathered is hers to keep. Miss one, run out of time or
+  fall: no harm, back out, try again.
+- **Bonus 1** (12 s, 20 Resin): five stone pillars over a drop, at different
+  heights: three beads along the arc of every hop, one on each pillar. The
+  token appears over the last pillar.
 - **The old landing** (hidden under the twist's first floating island): off
   the bank's edge where the road ends, a step in the bank's face (3 down)
   and a stone shelf by the water (4 down); in the island's shadow, **a
   glowing hollow: bonus 2**. The way back up is a 4-tile ledge catch, then 3
   up. Its tell: beads stepping down off the edge.
-- **Bonus 2, "gather"** (12 s): twelve beads along and over raised ground;
-  the token appears over the last block.
+- **Bonus 2** (16 s, 32 Resin): raised ground in four blocks: beads along
+  every top, an arc over every hop, and a column of three over three of the
+  blocks (a jump on the spot). The token appears over the last block.
 - **The false wall:** the end terrace's west face, by the gatehouse (motes
   drift into it): **letter E** in the hollow behind it.
 - **Chests (3):** on the first floating island (8), on the high path (6), by
@@ -79,10 +86,10 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   checkpoints lit, through the gateway; 59 Resin on the main line.
 - `mode=secrets`: **ALL PASS**, 32 checks: all four letters; all three
   chests; the first floating island out of reach from the road under it;
-  the high path end to end and into bonus 1; its pillars crossed with 3.8 s
-  to spare and the token won; back out beside the hollow and down onto the
-  block; off the bank's edge to the old landing and into bonus 2; every bead
-  gathered with 6.1 s to spare and the token won; back up the ledge catch
+  the high path end to end and into bonus 1; all 20 Resin taken across its
+  pillars with 5.8 s to spare and the token won; back out beside the hollow and down onto the
+  block; off the bank's edge to the old landing and into bonus 2; all 32
+  Resin gathered with 6.4 s to spare and the token won; back up the ledge catch
   onto the bank; the false wall fades while she is inside and closes when
   she leaves.
 - `mode=shots` and `mode=map`, then `python3 tools/stitch_map.py l1_2` and
@@ -101,6 +108,12 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   started (she walked on through the fade) was never taken. `bonus_zone.gd`
   now gives it to her.
 
+## Changed after the creative lead saw the bonus shots (2026-11)
+"Make the bonus level have a ton of resin where you need to jump and try
+and get all the resin; if you're able to get it all you get a token." Both
+areas are Resin rushes (above): bonus 1's pillar course is now a gather
+too. The countdown shows how much is left; winning pays the Resin out.
+
 ## Open for the review
 - **The layout as a whole:** is hopping stones, then floating islands, the
   right second level, and is 440 tiles the right length for it?
@@ -108,7 +121,8 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   that enough, or too plain?
 - **The old landing:** it is only mildly hidden (beads step down off the
   edge). Hide it more, or keep it as the easy find?
-- **The bonus areas** reuse 1-1's two kinds with new layouts. A third kind
-  can wait for a later level.
+- **The bonus areas** are Resin rushes now (20 and 32 beads). More Resin,
+  less time, or beads that take a harder jump? 1-1's two bonus areas are
+  still the old kinds (12 beads; a course): change them to match?
 - **Enemies:** a Mossback on the road, a rat on each great island. The
   roster's bat or toad could take a place here once they are built.
