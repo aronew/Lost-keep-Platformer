@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="TerrainMaterial" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/environment/wilds/terrain/ruin_corner_top.png" id="1_5bnkr"]
+[ext_resource type="Texture2D" path="res://assets/environment/wilds/terrain/ruin_corner_under.png" id="2_gtb25"]
+[ext_resource type="Texture2D" path="res://assets/environment/wilds/terrain/ruin_fill.png" id="3_fspxa"]
+[ext_resource type="Texture2D" path="res://assets/environment/wilds/terrain/ruin_inner_top.png" id="4_jgnql"]
+[ext_resource type="Texture2D" path="res://assets/environment/wilds/terrain/ruin_inner_under.png" id="5_o840a"]
+[ext_resource type="Script" path="res://scripts/world/terrain_material.gd" id="6_p5o3q"]
+[ext_resource type="Texture2D" path="res://assets/environment/wilds/terrain/ruin_top.png" id="7_soxp7"]
+[ext_resource type="Texture2D" path="res://assets/environment/wilds/terrain/ruin_under.png" id="8_2ecle"]
+[ext_resource type="Texture2D" path="res://assets/environment/wilds/terrain/ruin_wall.png" id="9_4focs"]
+
+[resource]
+script = ExtResource("6_p5o3q")
+fill = ExtResource("3_fspxa")
+fade_tiles = 6.0
+top_band = ExtResource("7_soxp7")
+top_line = 15
+under_band = ExtResource("8_2ecle")
+under_line = 25
+wall_band = ExtResource("9_4focs")
+wall_face = 31
+corner_top = ExtResource("1_5bnkr")
+corner_top_anchor = Vector2(67, 14)
+corner_under = ExtResource("2_gtb25")
+corner_under_anchor = Vector2(77, 77)
+inner_under = ExtResource("5_o840a")
+inner_under_anchor = Vector2(27, 29)
+inner_top = ExtResource("4_jgnql")
+inner_top_anchor = Vector2(22, 67)
+outline_color = Color(0, 0, 0, 0)

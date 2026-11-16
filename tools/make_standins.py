@@ -1,14 +1,12 @@
-"""Stand-in sprites for the platformer's first systems, drawn here until the
+"""(Retired) stand-in sprites for the platformer's first systems, drawn here until the
 creative lead generates the real art (Book 1 / Book 2 cards):
 
-  game/assets/characters/thornhound/thornhound.png  10 frames of 48 x 32
-      0-3 walk, 4 notice, 5 wind-up, 6 lunge, 7 land, 8 flinch, 9 down
   game/assets/items/chest.png                       2 frames of 30 x 24 (shut, open)
   game/assets/ui/flame.png                          3 frames of 11 x 14 (lit, spent, flare)
   game/assets/ui/cocoon_icon.png                    2 frames of 9 x 12 (missing, found)
 
-Colours keep the colour language: the hound is plum and charcoal with crimson
-Blight tendrils (it is Blight-touched, so its red is the Blight's); the chest
+(The Thornhound drawn here was replaced by the creative lead's roster.)
+Colours keep the colour language: the chest
 is timber and bronze; health is amber flame; nothing else is red.
 
 Usage: python3 tools/make_standins.py
@@ -210,7 +208,6 @@ def save(im, *parts):
 
 
 if __name__ == "__main__":
-    save(thornhound(), "characters", "thornhound", "thornhound.png")
-    save(chest(), "items", "chest.png")
-    save(flame(), "ui", "flame.png")
-    save(cocoon_icon(), "ui", "cocoon_icon.png")
+    # The chest, flames and cocoon icon now come from Book 3's kit
+    # (tools/make_wilds.py); these stand-ins are kept only for reference.
+    pass

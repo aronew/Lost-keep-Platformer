@@ -231,14 +231,14 @@ func _setup_screen_layers() -> void:
 	_flames.visible = false
 	hud_layer.add_child(_flames)
 	_hud = HBoxContainer.new()
-	_hud.position = Vector2(10, 23)
+	_hud.position = Vector2(9, 30)
 	_hud.add_theme_constant_override("separation", 3)
 	_hud.modulate.a = 0.0
 	hud_layer.add_child(_hud)
 	var icon := TextureRect.new()
 	var at := AtlasTexture.new()
 	at.atlas = load("res://assets/items/resin.png")
-	at.region = Rect2(0, 0, 9, 9)
+	at.region = Rect2(0, 0, 12, 12)
 	icon.texture = at
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -248,7 +248,7 @@ func _setup_screen_layers() -> void:
 	_hud.add_child(_hud_count)
 	_cocoon_row = HBoxContainer.new()
 	_cocoon_row.add_theme_constant_override("separation", 2)
-	_cocoon_row.position = Vector2(640 - 8 - 3 * 11, 7)
+	_cocoon_row.position = Vector2(640 - 8 - 3 * 12, 6)
 	hud_layer.add_child(_cocoon_row)
 	_timer_label = _hud_label(16)
 	_timer_label.position = Vector2(296, 8)
@@ -289,7 +289,7 @@ func _show_health(flare := -1) -> void:
 	for i in max_health:
 		var r := TextureRect.new()
 		r.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		r.texture = _frame(_flame_tex, 11, 14, 0 if i < health else 1)
+		r.texture = _frame(_flame_tex, 12, 21, 0 if i < health else 1)
 		_flames.add_child(r)
 		if i == flare:
 			r.modulate = Color(2.0, 1.7, 1.2)
@@ -303,9 +303,9 @@ func _show_cocoons() -> void:
 	for f in level_cocoons:
 		var r := TextureRect.new()
 		r.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		r.texture = _frame(_cocoon_tex, 9, 12, 1 if rescued.has(f) else 0)
+		r.texture = _frame(_cocoon_tex, 10, 19, 1 if rescued.has(f) else 0)
 		_cocoon_row.add_child(r)
-	_cocoon_row.position.x = 640 - 8 - level_cocoons.size() * 11
+	_cocoon_row.position.x = 640 - 8 - level_cocoons.size() * 12
 
 
 ## A line of text in the middle of the screen for a moment (a tally, a bonus).

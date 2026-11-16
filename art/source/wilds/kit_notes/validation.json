@@ -1,0 +1,564 @@
+{
+  "sheet_count": 22,
+  "region_count": 88,
+  "checks": [
+    {
+      "check": "01-ruin-top-and-underside: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "01-ruin-top-and-underside: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "01-ruin-top-and-underside: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "01-ruin-top-and-underside: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "01-ruin-top-and-underside: horizontal seam",
+      "passed": true
+    },
+    {
+      "check": "02-wall-and-corners: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "02-wall-and-corners: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "02-wall-and-corners: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "02-wall-and-corners: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "03-market-stall: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "03-market-stall: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "03-market-stall: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "03-market-stall: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "04-islands-1: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "04-islands-1: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "04-islands-1: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "04-islands-1: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "04-islands-2: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "04-islands-2: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "04-islands-2: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "04-islands-2: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "04-island-mushrooms: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "04-island-mushrooms: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "04-island-mushrooms: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "04-island-mushrooms: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "05-fallen-trunk: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "05-fallen-trunk: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "05-fallen-trunk: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "05-fallen-trunk: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "05-root-arch: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "05-root-arch: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "05-root-arch: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "05-root-arch: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "06-branches-1: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "06-branches-1: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "06-branches-1: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "06-branches-1: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "06-branches-2: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "06-branches-2: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "06-branches-2: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "06-branches-2: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-1: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-1: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-1: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-1: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-2: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-2: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-2: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-2: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-3: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-3: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-3: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "07-canopy-tree-3: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "08-chest-animation: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "08-chest-animation: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "08-chest-animation: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "08-chest-animation: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "09-breakable-stone: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "09-breakable-stone: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "09-breakable-stone: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "09-breakable-stone: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "10-brambles: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "10-brambles: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "10-brambles: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "10-brambles: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "11-flora: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "11-flora: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "11-flora: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "11-flora: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "12-hud-icons: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "12-hud-icons: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "12-hud-icons: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "12-hud-icons: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "13-kleo-interact: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "13-kleo-interact: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "13-kleo-interact: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "13-kleo-interact: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "13-crate-guides: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "13-crate-guides: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "13-crate-guides: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "13-crate-guides: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "14-distant-aqueduct: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "14-distant-aqueduct: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "14-distant-aqueduct: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "14-distant-aqueduct: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "14-distant-aqueduct: horizontal seam",
+      "passed": true
+    },
+    {
+      "check": "aqueduct solid bottom60",
+      "passed": true
+    },
+    {
+      "check": "15-triad-sky: exact canvas",
+      "passed": true
+    },
+    {
+      "check": "15-triad-sky: exact solid pixel grid",
+      "passed": true
+    },
+    {
+      "check": "15-triad-sky: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "15-triad-sky: no Blight crimson",
+      "passed": true
+    },
+    {
+      "check": "15-triad-sky: horizontal seam",
+      "passed": true
+    },
+    {
+      "check": "sky fully opaque",
+      "passed": true
+    },
+    {
+      "check": "ruin_top: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "wall_face: region seam",
+      "passed": true
+    },
+    {
+      "check": "market_stall: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "island_1: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "island_2: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "island_3: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "island_4: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "island_5: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "fallen-trunk: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "root-arch: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "lantern_branch: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "nest_branch: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "fork_branch: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "morvath_branch: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "canopy_tree_1: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "canopy_tree_2: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "canopy_tree_3: solid walking line",
+      "passed": true
+    },
+    {
+      "check": "bramble: region seam",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_01: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_01: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_02: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_02: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_03: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_03: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_04: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_04: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_05: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_05: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_06: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_06: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_07: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_07: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_08: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_08: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_09: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_09: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_10: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_10: exact key green",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_12: exact24x20",
+      "passed": true
+    },
+    {
+      "check": "crate_guide_12: exact key green",
+      "passed": true
+    },
+    {
+      "check": "distant_aqueduct: region seam",
+      "passed": true
+    },
+    {
+      "check": "triad_sky: region seam",
+      "passed": true
+    },
+    {
+      "check": "22 original-size export canvases",
+      "passed": true
+    },
+    {
+      "check": "five island dimensions",
+      "passed": true
+    },
+    {
+      "check": "tree crown widths",
+      "passed": true
+    },
+    {
+      "check": "four full128px branches",
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "passed": true
+}

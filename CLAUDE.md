@@ -24,8 +24,11 @@ change it. In a cloud session it can be cloned beside this repo:
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
 | `design/levels/` | One spec per level, with its validation (1-1 so far) |
+| `design/enemies.md` | The creative lead's enemy roster: names, proposed roles, what is in the game |
 | `docs/mockups/platformer/outdoor_level_1_mockup.webp` | **The target look of level 1-1** |
 | `docs/mockups/platformer/natural_traversal/` | The creative lead's DKC-style traversal mockups: natural land, logs and roots over water, terraces, crates |
+| `docs/mockups/platformer/flooded_ruins/` | Nine more level mockups: flooded ruins, stone pillars in water, ridge runs, climbs |
+| `docs/mockups/platformer/enemies/` | The enemy roster (12 creatures) |
 | `docs/mockups/ironbark_surface/` | The "Moonlit" mockups behind Lost Keep's surface look |
 | `docs/art-production/*-prompt-book.html` | Copy-ready image prompts: Book 1 Ironbark and Book 2 Kleo (Lost Keep's, references in `lostkeep-attach/`), **Book 3 the Ironbark Wilds** (this game's Region 1 and 1-1, references in `platformer-attach/`) |
 | `art/source/ironbark/REVIEW.md` | The state of the generated Ironbark art |
@@ -165,7 +168,7 @@ game/                     the Godot project
                           terrain_skin, terrain_material, prism_shrine, stranger,
                           back_wall, guard_lift, practice_post, winch;
                           the platformer's systems: checkpoint, hazard_area,
-                          thornhound, chest, carriable (+ carry_handle),
+                          lunger, chest, carriable (+ carry_handle),
                           cracked_wall, moving_platform, cocoon, bonus_room,
                           level_end
   shaders/                terrain fill, water, fog, glow, vignette, hit flash
@@ -180,7 +183,7 @@ game/                     the Godot project
                           systems arena), build_test_room.gd (IB-01),
                           build_ib03.gd, build_ib04.gd
   tests/                  playtest.gd/.tscn (scripted play + captures), framelog
-  assets/                 characters (kleo, mossback, stranger, thornhound),
+  assets/                 characters (kleo, mossback, stranger, roster/),
                           items (resin, chest), ui (flames, cocoon icon), fx,
                           world (blockout tiles), environment/ironbark
 ```
@@ -226,12 +229,17 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   Resin**. Resin taken since the last checkpoint is at risk: a fall puts
   those beads back where they hung (`Pickup.restore`, `Game.take_resin`).
   The level's start counts as a checkpoint.
-- **The Thornhound** (`thornhound.gd`, `_thornhound`): patrols its stretch,
-  notices her (stops, head up), stalks, winds up (crouch and shiver, 0.5 s),
-  lunges (a heavy hit), lands in a skid open to a counter; struck, it
-  flinches and its wind-up breaks. 4 sword hits (a finisher counts 2), or
-  one thrown crate. It never leaves `[left_x, right_x]`. The Mossback still
-  ambles and shoves (now a flame per shove).
+- **The lunger** (`lunger.gd`, `_lunger(x, floor, left, right, sprite)`):
+  any creature from the creative lead's roster (`design/enemies.md`; 1-1 uses
+  the rat). Patrols its stretch, notices her (stops, rears), stalks, winds up
+  (crouch and shiver, 0.5 s), lunges (a heavy hit), lands in a skid open to a
+  counter; struck, it flinches and its wind-up breaks. 4 sword hits (a
+  finisher counts 2), or one thrown crate. It never leaves `[left_x,
+  right_x]`. A one-frame roster sprite acts its moves out by squash, stretch
+  and lean (`_pose`); a 10-frame sheet plays its frames. (My first
+  "Thornhound" was replaced: the creative lead has their own enemies.) The
+  Mossback still ambles and shoves (a flame per shove), then stops and turns
+  away.
 - **Chests** (`chest.gd`, `_chest`): strike one and it spills its Resin in an
   arc (`Pickup.launch`); beads bounce once and hang where they settle.
 - **Carry and throw** (`carriable.gd`, `_crate`): interact lifts a crate
@@ -255,9 +263,11 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   level.
 - **The level's end** (`level_end.gd`, `_level_end`): she walks on through,
   the view dims, the tally shows. No world map yet, so it stops there.
-- **Stand-in art** (`tools/make_standins.py`): the Thornhound, the chest, the
-  flames and the cocoon icon are drawn there until the real sheets are
-  generated. Kleo has no carry pose yet (she uses `interact`).
+- **The art for the systems** comes from the creative lead's Book 3 kit
+  (`tools/make_wilds.py`): the chest (3 frames), the HUD lanterns, the Resin
+  drop (6 turning frames), the cocoon icons, the cracked wall and its rubble,
+  the brambles. Kleo's carry frames are in the kit (`art/source/wilds/
+  13-kleo-interact.png`) but not wired in yet: she uses `interact`.
 
 ## How a level is built in Godot
 
@@ -265,6 +275,32 @@ Levels are built the way Lost Keep built rooms (the builders still say
 "room"; a level is a long room, a Room with `is_level` set). A level's
 builder extends `level_builder.gd` and calls `_level_begin(node, title)`,
 its pieces, then `_level_finish()`.
+
+**The look of a level (the art pass), after the creative lead's mockups:**
+- **Ruin stone** everywhere (`_ruin_material()`: Book 3's W1 and W2 cut by
+  `make_wilds.py` into `wilds/terrain/`): bands that fade into the dark at
+  every edge, and blocks inside each mass that fade with depth over
+  `RUIN_FADE` tiles (the mockups' masses are stone all through, not black).
+  The fill is a stopgap course cut from the top band; Book 3 should ask for a
+  proper fill.
+- **Still water under everything** (`_water_foreground(surface_y, spans)`):
+  one level-wide water two tiles under the main walking line, painted with
+  the creative lead's water (`water_paint.png`) and lightly reflecting the
+  world above; pits and gaps are this water. A mass that stands on the bed
+  (1-1's hill) breaks the span, and its face runs on under the water
+  (`_face_under_water`). Sunken stone, rubble and reeds under the surface
+  (`_underwater`, tinted).
+- **The foreground** (`_level_foreground()`): the creative lead's teal fern
+  band and plum stone band along the bottom of the view, in their own
+  colours, placed in the world (scroll 1.25 / 1.08), anchored so their feet
+  sit on the screen's bottom when Kleo stands on `main_floor`, and kept under
+  it. This replaces Lost Keep's single black band in the levels.
+- **Backdrops:** the Triad sky with small moons (B2), the far aqueduct layer
+  (B1, scroll 0.25), the far and mid forest.
+- **Kit art is taken from the generator's raw sheets** (`art/source/wilds/`)
+  and reduced by `process_art.py`'s method. The kit's own "native" exports
+  were rebuilt and snapped to 40 colours by a script: not used (the process
+  Lost Keep's review rejected).
 
 **Blockout first:** with `blockout = true` (the default) a level shows its
 black box (the skin off: `skin_visible = false`) on a flat pale sky, no
@@ -448,8 +484,10 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   into the dark gradually.
 
 ## Open items
-- **Level 1-1: blockout approved; the first art pass is in and awaits
-  review** (`design/levels/1-1_overgrown_ruins.md`, pictures in
+- **Level 1-1: blockout approved; the art pass now uses the creative
+  lead's kit (stall, islands, trunk, treetops, chest, cracked wall, brambles,
+  flora, HUD, sky, aqueduct), the ruin stone, the water and the new
+  foreground, and awaits review** (`design/levels/1-1_overgrown_ruins.md`, pictures in
   `docs/levels/1-1/art_pass/`). It is dressed from Book 1's kit; Book 3
   asks for what the kit lacks in 20 sheets (pilot W1, W3, C1; oversize pieces split across sheets so every asset keeps its exact size). As sheets arrive: process
   them, place them in `_dress()` (and the helpers), judge in the game. Then

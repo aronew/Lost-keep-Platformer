@@ -1,12 +1,16 @@
-class_name Thornhound
+class_name Lunger
 extends CharacterBody2D
-## The Thornhound: a forest hound touched by the Blight, the first enemy that
-## fights. It patrols its stretch of floor; when Kleo comes into view it
+## A creature that fights by lunging (in 1-1, the creative lead's rat from
+## their enemy roster). It patrols its stretch of floor; when Kleo comes into view it
 ## NOTICES her (stops dead, head and ears snap up), STALKS closer, WINDS UP (a
 ## crouch and a shiver, about half a second: the tell), LUNGES (a long leap
 ## that hurts), and LANDS in a skid, open to a counter. Struck, it FLINCHES:
 ## knocked back, its wind-up broken. Four sword hits put it down; a thrown
 ## crate does it in one.
+##
+## Its `Art` is either an animation sheet (10 frames: walk 0-3, notice, wind-up,
+## lunge, land, flinch, down) or a single pose (the roster's stand-ins): then
+## each move is acted out by squash, stretch and lean (`_pose`).
 ##
 ## The node sits at its feet. It is a CharacterBody2D only for gravity and the
 ## floor (no collision with Kleo: she takes a hit when its `Touch` meets her).
@@ -81,27 +85,27 @@ func _physics_process(delta: float) -> void:
 			_patrol(delta)
 		S.NOTICE:
 			velocity.x = 0.0
-			art.frame = F_NOTICE
+			_pose(F_NOTICE)
 			if _t >= 0.38:
 				_go(S.STALK)
 		S.STALK:
 			_stalk(delta)
 		S.WINDUP:
 			velocity.x = 0.0
-			art.frame = F_WINDUP
+			_pose(F_WINDUP)
 			art.offset.x = (1.0 if int(_t * 30.0) % 2 == 0 else -1.0) if _t > windup_time * 0.4 else 0.0
 			_flash(0.35 if int(_t * 12.0) % 2 == 0 and _t > windup_time * 0.5 else 0.0)
 			if _t >= windup_time:
 				_lunge()
 		S.LUNGE:
-			art.frame = F_LUNGE
+			_pose(F_LUNGE)
 			if is_on_floor() and _t > 0.08:
 				_go(S.LAND)
 				Fx.dust(self, global_position, Fx.LANDING, dir)
 				Game.shake(0.08)
 		S.LAND:
 			velocity.x = move_toward(velocity.x, 0.0, 700.0 * delta)
-			art.frame = F_LAND
+			_pose(F_LAND)
 			if _t > 0.08 and _t < 0.3 and Engine.get_physics_frames() % 5 == 0:
 				Fx.dust(self, global_position, Fx.SKID, dir)
 			if _t >= 0.6:
@@ -109,7 +113,7 @@ func _physics_process(delta: float) -> void:
 				_go(S.STALK)
 		S.FLINCH:
 			velocity.x = move_toward(velocity.x, 0.0, 500.0 * delta)
-			art.frame = F_FLINCH
+			_pose(F_FLINCH)
 			if _t >= 0.34 and is_on_floor():
 				_cool = 0.35
 				_go(S.STALK)
@@ -120,6 +124,37 @@ func _physics_process(delta: float) -> void:
 		velocity.x = 0.0
 	art.flip_h = dir < 0
 	_touch_kleo()
+
+
+## Show a move: its frame on a sheet; on a single pose, a squash, stretch or
+## lean of the one drawing (anchored at its feet), so it still reads.
+func _pose(f: int) -> void:
+	if art.hframes > 1:
+		art.frame = f
+		return
+	var sc := Vector2.ONE
+	var rot := 0.0
+	match f:
+		F_NOTICE:
+			sc = Vector2(0.92, 1.1)        # rears up
+		F_WINDUP:
+			sc = Vector2(1.14, 0.84)       # crouched low
+		F_LUNGE:
+			sc = Vector2(1.18, 0.88)       # stretched long
+			rot = -0.12
+		F_LAND:
+			sc = Vector2(1.12, 0.9)
+		F_FLINCH:
+			sc = Vector2(0.88, 1.08)
+			rot = 0.18
+		F_DOWN:
+			sc = Vector2(1.1, 0.7)
+		_:
+			# walking: a small bob in step with the stride
+			var step := f - F_WALK
+			sc = Vector2(1.0, 1.0 - 0.04 * float(step % 2))
+	art.scale = sc
+	art.rotation = rot * (-1.0 if dir < 0 else 1.0)
 
 
 func _sees_kleo() -> bool:
@@ -144,10 +179,10 @@ func _patrol(delta: float) -> void:
 	if _rest > 0.0:
 		_rest -= delta
 		velocity.x = 0.0
-		art.frame = F_WALK
+		_pose(F_WALK)
 		return
 	velocity.x = dir * walk_speed
-	art.frame = F_WALK + int(_clock * 6.0) % 4
+	_pose(F_WALK + int(_clock * 6.0) % 4)
 	if (dir > 0 and global_position.x >= right_x - 1.0) or (dir < 0 and global_position.x <= left_x + 1.0):
 		dir = -dir
 		_rest = 0.9
@@ -159,7 +194,7 @@ func _stalk(delta: float) -> void:
 	if not _sees_kleo():
 		_lost += delta
 		velocity.x = 0.0
-		art.frame = F_NOTICE
+		_pose(F_NOTICE)
 		if _lost > 1.4:
 			_lost = 0.0
 			_go(S.PATROL)
@@ -175,7 +210,7 @@ func _stalk(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, -dir * stalk_speed * 0.6, 400.0 * delta)  # backs off to lunge room
 	else:
 		velocity.x = move_toward(velocity.x, dir * stalk_speed, 400.0 * delta)
-	art.frame = F_WALK + int(_clock * 10.0) % 4
+	_pose(F_WALK + int(_clock * 10.0) % 4)
 
 
 func _lunge() -> void:
@@ -231,7 +266,7 @@ func _die(from: int) -> void:
 	state = S.DEAD
 	hurtbox.set_deferred("monitorable", false)
 	touch.set_deferred("monitoring", false)
-	art.frame = F_DOWN
+	_pose(F_DOWN)
 	Fx.burst(self, global_position + Vector2(0, -10), Color(0.42, 0.32, 0.52), 18, 150.0)
 	Fx.burst(self, global_position + Vector2(0, -10), Color(0.76, 0.22, 0.35), 10, 120.0)
 	var tw := create_tween()

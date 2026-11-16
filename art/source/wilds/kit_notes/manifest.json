@@ -1,0 +1,1488 @@
+{
+  "project": "Lost Keep: Platformer",
+  "version": 1,
+  "sheets": [
+    {
+      "name": "01-ruin-top-and-underside",
+      "file": "sheets/01-ruin-top-and-underside.png",
+      "native_file": "native/01-ruin-top-and-underside.png",
+      "size": [
+        3072,
+        1024
+      ],
+      "native_size": [
+        384,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": "x"
+    },
+    {
+      "name": "02-wall-and-corners",
+      "file": "sheets/02-wall-and-corners.png",
+      "native_file": "native/02-wall-and-corners.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "native_size": [
+        256,
+        256
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "03-market-stall",
+      "file": "sheets/03-market-stall.png",
+      "native_file": "native/03-market-stall.png",
+      "size": [
+        2304,
+        1536
+      ],
+      "native_size": [
+        288,
+        192
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "04-islands-1",
+      "file": "sheets/04-islands-1.png",
+      "native_file": "native/04-islands-1.png",
+      "size": [
+        3072,
+        1024
+      ],
+      "native_size": [
+        384,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "04-islands-2",
+      "file": "sheets/04-islands-2.png",
+      "native_file": "native/04-islands-2.png",
+      "size": [
+        3072,
+        1024
+      ],
+      "native_size": [
+        384,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "04-island-mushrooms",
+      "file": "sheets/04-island-mushrooms.png",
+      "native_file": "native/04-island-mushrooms.png",
+      "size": [
+        3072,
+        1024
+      ],
+      "native_size": [
+        384,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "05-fallen-trunk",
+      "file": "sheets/05-fallen-trunk.png",
+      "native_file": "native/05-fallen-trunk.png",
+      "size": [
+        3072,
+        1024
+      ],
+      "native_size": [
+        384,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "05-root-arch",
+      "file": "sheets/05-root-arch.png",
+      "native_file": "native/05-root-arch.png",
+      "size": [
+        3072,
+        1024
+      ],
+      "native_size": [
+        384,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "06-branches-1",
+      "file": "sheets/06-branches-1.png",
+      "native_file": "native/06-branches-1.png",
+      "size": [
+        2048,
+        1024
+      ],
+      "native_size": [
+        256,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "06-branches-2",
+      "file": "sheets/06-branches-2.png",
+      "native_file": "native/06-branches-2.png",
+      "size": [
+        2048,
+        1024
+      ],
+      "native_size": [
+        256,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "07-canopy-tree-1",
+      "file": "sheets/07-canopy-tree-1.png",
+      "native_file": "native/07-canopy-tree-1.png",
+      "size": [
+        3072,
+        2048
+      ],
+      "native_size": [
+        384,
+        256
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "07-canopy-tree-2",
+      "file": "sheets/07-canopy-tree-2.png",
+      "native_file": "native/07-canopy-tree-2.png",
+      "size": [
+        3072,
+        2048
+      ],
+      "native_size": [
+        384,
+        256
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "07-canopy-tree-3",
+      "file": "sheets/07-canopy-tree-3.png",
+      "native_file": "native/07-canopy-tree-3.png",
+      "size": [
+        3072,
+        2048
+      ],
+      "native_size": [
+        384,
+        256
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "08-chest-animation",
+      "file": "sheets/08-chest-animation.png",
+      "native_file": "native/08-chest-animation.png",
+      "size": [
+        1536,
+        512
+      ],
+      "native_size": [
+        192,
+        64
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "09-breakable-stone",
+      "file": "sheets/09-breakable-stone.png",
+      "native_file": "native/09-breakable-stone.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "native_size": [
+        128,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "10-brambles",
+      "file": "sheets/10-brambles.png",
+      "native_file": "native/10-brambles.png",
+      "size": [
+        2048,
+        512
+      ],
+      "native_size": [
+        256,
+        64
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "11-flora",
+      "file": "sheets/11-flora.png",
+      "native_file": "native/11-flora.png",
+      "size": [
+        2048,
+        1024
+      ],
+      "native_size": [
+        256,
+        128
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "12-hud-icons",
+      "file": "sheets/12-hud-icons.png",
+      "native_file": "native/12-hud-icons.png",
+      "size": [
+        1024,
+        512
+      ],
+      "native_size": [
+        128,
+        64
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "13-kleo-interact",
+      "file": "sheets/13-kleo-interact.png",
+      "native_file": "native/13-kleo-interact.png",
+      "size": [
+        1536,
+        1152
+      ],
+      "native_size": [
+        192,
+        144
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "13-crate-guides",
+      "file": "sheets/13-crate-guides.png",
+      "native_file": "native/13-crate-guides.png",
+      "size": [
+        1536,
+        1152
+      ],
+      "native_size": [
+        192,
+        144
+      ],
+      "pixel_scale": 8,
+      "repeat": null
+    },
+    {
+      "name": "14-distant-aqueduct",
+      "file": "sheets/14-distant-aqueduct.png",
+      "native_file": "native/14-distant-aqueduct.png",
+      "size": [
+        3072,
+        1440
+      ],
+      "native_size": [
+        768,
+        360
+      ],
+      "pixel_scale": 4,
+      "repeat": "x"
+    },
+    {
+      "name": "15-triad-sky",
+      "file": "sheets/15-triad-sky.png",
+      "native_file": "native/15-triad-sky.png",
+      "size": [
+        3072,
+        1440
+      ],
+      "native_size": [
+        768,
+        360
+      ],
+      "pixel_scale": 4,
+      "repeat": "x"
+    }
+  ],
+  "assets": [
+    {
+      "name": "ruin_top",
+      "sheet": "01-ruin-top-and-underside",
+      "rect_native": [
+        0,
+        8,
+        384,
+        48
+      ],
+      "walk_y": 16
+    },
+    {
+      "name": "ruin_underside",
+      "sheet": "01-ruin-top-and-underside",
+      "rect_native": [
+        0,
+        72,
+        384,
+        48
+      ]
+    },
+    {
+      "name": "outer_top",
+      "sheet": "02-wall-and-corners",
+      "rect_native": [
+        80,
+        32,
+        64,
+        64
+      ],
+      "corner_anchor": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "outer_under",
+      "sheet": "02-wall-and-corners",
+      "rect_native": [
+        168,
+        32,
+        64,
+        64
+      ],
+      "corner_anchor": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "inner_top",
+      "sheet": "02-wall-and-corners",
+      "rect_native": [
+        80,
+        144,
+        64,
+        64
+      ],
+      "corner_anchor": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "inner_under",
+      "sheet": "02-wall-and-corners",
+      "rect_native": [
+        168,
+        144,
+        64,
+        64
+      ],
+      "corner_anchor": [
+        32,
+        32
+      ]
+    },
+    {
+      "name": "wall_face",
+      "sheet": "02-wall-and-corners",
+      "rect_native": [
+        0,
+        0,
+        40,
+        256
+      ],
+      "wall_x": 40,
+      "repeat": "y"
+    },
+    {
+      "name": "market_stall",
+      "sheet": "03-market-stall",
+      "rect_native": [
+        0,
+        0,
+        288,
+        192
+      ],
+      "walk_y": 96,
+      "slab_bottom": 128,
+      "piers": [
+        [
+          0,
+          128,
+          32,
+          64
+        ],
+        [
+          128,
+          128,
+          32,
+          64
+        ],
+        [
+          256,
+          128,
+          32,
+          64
+        ]
+      ]
+    },
+    {
+      "name": "island_1",
+      "sheet": "04-islands-1",
+      "rect_native": [
+        16,
+        0,
+        96,
+        128
+      ],
+      "walk_y": 32
+    },
+    {
+      "name": "island_2",
+      "sheet": "04-islands-1",
+      "rect_native": [
+        136,
+        0,
+        80,
+        128
+      ],
+      "walk_y": 48
+    },
+    {
+      "name": "island_3",
+      "sheet": "04-islands-1",
+      "rect_native": [
+        240,
+        0,
+        80,
+        128
+      ],
+      "walk_y": 16
+    },
+    {
+      "name": "island_4",
+      "sheet": "04-islands-2",
+      "rect_native": [
+        16,
+        0,
+        80,
+        128
+      ],
+      "walk_y": 64
+    },
+    {
+      "name": "island_5",
+      "sheet": "04-islands-2",
+      "rect_native": [
+        120,
+        0,
+        64,
+        128
+      ],
+      "walk_y": 32
+    },
+    {
+      "name": "mushroom_large",
+      "sheet": "04-island-mushrooms",
+      "rect_native": [
+        16,
+        32,
+        52,
+        40
+      ],
+      "island": "island_1",
+      "placement_relative_to_island": [
+        8,
+        -8
+      ]
+    },
+    {
+      "name": "mushroom_small",
+      "sheet": "04-island-mushrooms",
+      "rect_native": [
+        96,
+        46,
+        36,
+        26
+      ],
+      "island": "island_1",
+      "placement_relative_to_island": [
+        60,
+        6
+      ]
+    },
+    {
+      "name": "fallen-trunk",
+      "sheet": "05-fallen-trunk",
+      "rect_native": [
+        0,
+        0,
+        224,
+        128
+      ],
+      "walk_y": 40,
+      "embed_ends": 16
+    },
+    {
+      "name": "root-arch",
+      "sheet": "05-root-arch",
+      "rect_native": [
+        0,
+        0,
+        192,
+        128
+      ],
+      "walk_y": 24,
+      "embed_ends": 0
+    },
+    {
+      "name": "lantern_branch",
+      "sheet": "06-branches-1",
+      "rect_native": [
+        16,
+        12,
+        128,
+        40
+      ],
+      "walk_y": 16
+    },
+    {
+      "name": "nest_branch",
+      "sheet": "06-branches-1",
+      "rect_native": [
+        16,
+        68,
+        128,
+        40
+      ],
+      "walk_y": 72
+    },
+    {
+      "name": "fork_branch",
+      "sheet": "06-branches-2",
+      "rect_native": [
+        16,
+        12,
+        128,
+        40
+      ],
+      "walk_y": 16
+    },
+    {
+      "name": "morvath_branch",
+      "sheet": "06-branches-2",
+      "rect_native": [
+        16,
+        68,
+        128,
+        40
+      ],
+      "walk_y": 72
+    },
+    {
+      "name": "canopy_tree_1",
+      "sheet": "07-canopy-tree-1",
+      "rect_native": [
+        80,
+        32,
+        224,
+        224
+      ],
+      "walk_y": 40,
+      "walk_x": [
+        88,
+        296
+      ]
+    },
+    {
+      "name": "canopy_tree_2",
+      "sheet": "07-canopy-tree-2",
+      "rect_native": [
+        104,
+        32,
+        176,
+        224
+      ],
+      "walk_y": 40,
+      "walk_x": [
+        112,
+        272
+      ]
+    },
+    {
+      "name": "canopy_tree_3",
+      "sheet": "07-canopy-tree-3",
+      "rect_native": [
+        112,
+        32,
+        160,
+        224
+      ],
+      "walk_y": 40,
+      "walk_x": [
+        120,
+        264
+      ]
+    },
+    {
+      "name": "chest_closed",
+      "sheet": "08-chest-animation",
+      "rect_native": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "anchor": [
+        32,
+        56
+      ],
+      "nominal_body_size": [
+        32,
+        24
+      ]
+    },
+    {
+      "name": "chest_opening",
+      "sheet": "08-chest-animation",
+      "rect_native": [
+        64,
+        0,
+        64,
+        64
+      ],
+      "anchor": [
+        32,
+        56
+      ],
+      "nominal_body_size": [
+        32,
+        24
+      ]
+    },
+    {
+      "name": "chest_open",
+      "sheet": "08-chest-animation",
+      "rect_native": [
+        128,
+        0,
+        64,
+        64
+      ],
+      "anchor": [
+        32,
+        56
+      ],
+      "nominal_body_size": [
+        32,
+        24
+      ]
+    },
+    {
+      "name": "cracked_wall_1",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        8,
+        8,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "cracked_wall_2",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        72,
+        8,
+        32,
+        48
+      ]
+    },
+    {
+      "name": "rubble_1",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        12,
+        80,
+        7,
+        8
+      ]
+    },
+    {
+      "name": "rubble_2",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        40,
+        80,
+        10,
+        9
+      ]
+    },
+    {
+      "name": "rubble_3",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        68,
+        80,
+        7,
+        6
+      ]
+    },
+    {
+      "name": "rubble_4",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        96,
+        80,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "rubble_5",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        12,
+        104,
+        5,
+        6
+      ]
+    },
+    {
+      "name": "rubble_6",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        40,
+        104,
+        7,
+        5
+      ]
+    },
+    {
+      "name": "rubble_7",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        68,
+        104,
+        9,
+        9
+      ]
+    },
+    {
+      "name": "rubble_8",
+      "sheet": "09-breakable-stone",
+      "rect_native": [
+        96,
+        104,
+        8,
+        5
+      ]
+    },
+    {
+      "name": "bramble",
+      "sheet": "10-brambles",
+      "rect_native": [
+        16,
+        24,
+        128,
+        16
+      ],
+      "base_y": 40,
+      "repeat": "x"
+    },
+    {
+      "name": "left_cap",
+      "sheet": "10-brambles",
+      "rect_native": [
+        168,
+        28,
+        24,
+        12
+      ],
+      "base_y": 40,
+      "repeat": null
+    },
+    {
+      "name": "right_cap",
+      "sheet": "10-brambles",
+      "rect_native": [
+        208,
+        28,
+        24,
+        12
+      ],
+      "base_y": 40,
+      "repeat": null
+    },
+    {
+      "name": "flora_1",
+      "sheet": "11-flora",
+      "rect_native": [
+        6,
+        32,
+        29,
+        28
+      ],
+      "base_y": 60
+    },
+    {
+      "name": "flora_2",
+      "sheet": "11-flora",
+      "rect_native": [
+        48,
+        36,
+        30,
+        24
+      ],
+      "base_y": 60
+    },
+    {
+      "name": "flora_3",
+      "sheet": "11-flora",
+      "rect_native": [
+        88,
+        28,
+        34,
+        32
+      ],
+      "base_y": 60
+    },
+    {
+      "name": "flora_4",
+      "sheet": "11-flora",
+      "rect_native": [
+        133,
+        38,
+        27,
+        22
+      ],
+      "base_y": 60
+    },
+    {
+      "name": "flora_5",
+      "sheet": "11-flora",
+      "rect_native": [
+        175,
+        40,
+        28,
+        20
+      ],
+      "base_y": 60
+    },
+    {
+      "name": "flora_6",
+      "sheet": "11-flora",
+      "rect_native": [
+        216,
+        30,
+        30,
+        30
+      ],
+      "base_y": 60
+    },
+    {
+      "name": "flora_7",
+      "sheet": "11-flora",
+      "rect_native": [
+        8,
+        96,
+        26,
+        24
+      ],
+      "base_y": 120
+    },
+    {
+      "name": "flora_8",
+      "sheet": "11-flora",
+      "rect_native": [
+        53,
+        100,
+        20,
+        20
+      ],
+      "base_y": 120
+    },
+    {
+      "name": "flora_9",
+      "sheet": "11-flora",
+      "rect_native": [
+        93,
+        96,
+        24,
+        24
+      ],
+      "base_y": 120
+    },
+    {
+      "name": "flora_10",
+      "sheet": "11-flora",
+      "rect_native": [
+        134,
+        96,
+        26,
+        24
+      ],
+      "base_y": 120
+    },
+    {
+      "name": "flora_11",
+      "sheet": "11-flora",
+      "rect_native": [
+        177,
+        104,
+        24,
+        16
+      ],
+      "base_y": 120
+    },
+    {
+      "name": "flora_12",
+      "sheet": "11-flora",
+      "rect_native": [
+        216,
+        92,
+        29,
+        28
+      ],
+      "base_y": 120
+    },
+    {
+      "name": "icon_1",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        1,
+        10,
+        11,
+        14
+      ]
+    },
+    {
+      "name": "icon_2",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        13,
+        10,
+        11,
+        14
+      ]
+    },
+    {
+      "name": "icon_3",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        25,
+        9,
+        11,
+        15
+      ]
+    },
+    {
+      "name": "icon_4",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        37,
+        15,
+        9,
+        9
+      ]
+    },
+    {
+      "name": "icon_5",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        47,
+        15,
+        9,
+        9
+      ]
+    },
+    {
+      "name": "icon_6",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        57,
+        15,
+        9,
+        9
+      ]
+    },
+    {
+      "name": "icon_7",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        67,
+        15,
+        9,
+        9
+      ]
+    },
+    {
+      "name": "icon_8",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        77,
+        15,
+        9,
+        9
+      ]
+    },
+    {
+      "name": "icon_9",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        87,
+        15,
+        9,
+        9
+      ]
+    },
+    {
+      "name": "icon_10",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        97,
+        12,
+        9,
+        12
+      ]
+    },
+    {
+      "name": "icon_11",
+      "sheet": "12-hud-icons",
+      "rect_native": [
+        107,
+        12,
+        9,
+        12
+      ]
+    },
+    {
+      "name": "kleo_01",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        0,
+        0,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        6,
+        -20
+      ]
+    },
+    {
+      "name": "crate_guide_01",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        12,
+        14,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        6,
+        -20
+      ]
+    },
+    {
+      "name": "kleo_02",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        48,
+        0,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        8,
+        -30
+      ]
+    },
+    {
+      "name": "crate_guide_02",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        60,
+        14,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        8,
+        -30
+      ]
+    },
+    {
+      "name": "kleo_03",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        96,
+        0,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        -12,
+        -49
+      ]
+    },
+    {
+      "name": "crate_guide_03",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        108,
+        14,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        -12,
+        -49
+      ]
+    },
+    {
+      "name": "kleo_04",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        144,
+        0,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        -12,
+        -47
+      ]
+    },
+    {
+      "name": "crate_guide_04",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        156,
+        14,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        -12,
+        -47
+      ]
+    },
+    {
+      "name": "kleo_05",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        0,
+        48,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        -13,
+        -48
+      ]
+    },
+    {
+      "name": "crate_guide_05",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        12,
+        62,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        -13,
+        -48
+      ]
+    },
+    {
+      "name": "kleo_06",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        48,
+        48,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        -12,
+        -47
+      ]
+    },
+    {
+      "name": "crate_guide_06",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        60,
+        62,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        -12,
+        -47
+      ]
+    },
+    {
+      "name": "kleo_07",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        96,
+        48,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        -11,
+        -48
+      ]
+    },
+    {
+      "name": "crate_guide_07",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        108,
+        62,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        -11,
+        -48
+      ]
+    },
+    {
+      "name": "kleo_08",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        144,
+        48,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        -12,
+        -47
+      ]
+    },
+    {
+      "name": "crate_guide_08",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        156,
+        62,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        -12,
+        -47
+      ]
+    },
+    {
+      "name": "kleo_09",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        0,
+        96,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        -26,
+        -40
+      ]
+    },
+    {
+      "name": "crate_guide_09",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        12,
+        110,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        -26,
+        -40
+      ]
+    },
+    {
+      "name": "kleo_10",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        48,
+        96,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        12,
+        -44
+      ]
+    },
+    {
+      "name": "crate_guide_10",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        60,
+        110,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        12,
+        -44
+      ]
+    },
+    {
+      "name": "kleo_11",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        96,
+        96,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": null
+    },
+    {
+      "name": "kleo_12",
+      "sheet": "13-kleo-interact",
+      "rect_native": [
+        144,
+        96,
+        48,
+        48
+      ],
+      "anchor": [
+        24,
+        43
+      ],
+      "crate_offset": [
+        7,
+        -20
+      ]
+    },
+    {
+      "name": "crate_guide_12",
+      "sheet": "13-crate-guides",
+      "rect_native": [
+        156,
+        110,
+        24,
+        20
+      ],
+      "attach_offset_from_feet": [
+        7,
+        -20
+      ]
+    },
+    {
+      "name": "distant_aqueduct",
+      "sheet": "14-distant-aqueduct",
+      "rect_native": [
+        0,
+        0,
+        768,
+        360
+      ],
+      "repeat": "x",
+      "bottom_mist_start": 300
+    },
+    {
+      "name": "triad_sky",
+      "sheet": "15-triad-sky",
+      "rect_native": [
+        0,
+        0,
+        768,
+        360
+      ],
+      "moon_center": [
+        300,
+        60
+      ],
+      "moon_diameter": 40,
+      "repeat": "x"
+    }
+  ],
+  "notes": [
+    "Art pixels are exported as exact solid 8x8 squares; backdrop pixels are 4x4.",
+    "Overhead crate guides are on a separate sheet; attach offsets can be negative relative to the character cell."
+  ]
+}

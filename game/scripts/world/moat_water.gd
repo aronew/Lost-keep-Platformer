@@ -44,3 +44,5 @@ func _process(_delta: float) -> void:
 	var screen_y := (get_global_transform_with_canvas() * Vector2.ZERO).y
 	surface.material.set_shader_parameter("surface_uv_y", screen_y / vp.y)
 	surface.material.set_shader_parameter("height_px", size.y)
+	surface.material.set_shader_parameter("width_px", size.x)
+	surface.material.set_shader_parameter("world_x", global_position.x)

@@ -15,27 +15,28 @@ extends "res://tools/level_builder.gd"
 ## and Donkey Kong Country's way with land, wall terraces, a secret route over
 ## the treetops, and a crate thrown through a cracked wall into a bonus game.
 ##
-## 440 x 36 tiles (about 11 screens by 1.6). The walking line is row 30
-## (y 480) unless a beat lifts it. Four beats, each opened by a checkpoint:
+## 440 x 40 tiles (about 11 screens by 1.8). The walking line is row 30
+## (y 480) unless a beat lifts it; still water runs under everything two tiles
+## below it (WATER_Y, the creative lead's mockups), and the hill rises from
+## the water bed with the bonus cave inside it. Four beats, each opened by a checkpoint:
 ## TEACH (x 0-94), TEST (94-200), TWIST (200-340), FINISH (340-440).
 
 const ROOM_PATH := "res://scenes/levels/l1_1_overgrown_ruins.tscn"
 const G := 480.0  # the ground's walking line (row 30)
+const WATER_Y := 512.0  # the water's surface, two tiles under the ground's walking line
 
-const ROOM := Rect2i(0, 0, 440, 36)
+const ROOM := Rect2i(0, 0, 440, 40)
 const ROCK := [
-	[0, 30, 440, 6, 0],      # the ground
+	[0, 30, 440, 10, 0],     # the ground (under the water from row 32 down)
 	# TEACH: up the stone terraces onto the stall's arches
 	[14, 28, 4, 2, 0],       # terrace 1 (2 up)
 	[18, 26, 4, 4, 0],       # terrace 2 (2 up)
-	[22, 24, 18, 2, 0],      # the stall's floor, on arches (2 up)
-	[22, 26, 2, 4, 0],       # its piers: the arches between them open onto a nook
-	[30, 26, 2, 4, 0],
-	[38, 26, 2, 4, 0],
+	[22, 24, 18, 2, 0],      # the stall's floor, on arches (2 up); its piers are the
+	                         # stall painting's own (STALL_PIERS), not tiles
 	[82, 25, 8, 5, 0],       # the ruin block with the chest on top (5 up: a ledge catch)
 	# TEST: wall terraces up to the plateau, the log, the banks, down again
 	[100, 27, 6, 3, 0],      # terrace (3 up)
-	[106, 24, 26, 6, 0],     # the plateau (3 up): the first Thornhound
+	[106, 24, 29, 6, 0],     # the plateau (3 up): the first enemy that fights; it meets the log
 	[144, 25, 16, 5, 0],     # the east bank, past the log (1 down)
 	[164, 23, 12, 7, 0],     # the ruin mass (4 across, 2 up)
 	[176, 26, 6, 4, 0],      # a step down (3 down): the false wall's face is its east side
@@ -48,31 +49,36 @@ const ROCK := [
 	[412, 24, 28, 3, 0],     # the end ledge (3 up): the arched doorway
 ]
 const SPACES := [
-	[64, 30, 14, 6],         # the water pit (the mockup's)
-	[132, 30, 12, 6],        # the ravine under the log
-	[160, 30, 4, 6],         # the gap between the bank and the ruin mass
+	[64, 30, 13, 10],         # the water pit (the mockup's)
+	[135, 30, 9, 10],         # the ravine under the fallen trunk
+	[160, 30, 4, 10],         # the gap between the bank and the ruin mass
 	[177, 27, 5, 3],         # the false wall's hollow (cocoon 1)
 	[236, 28, 6, 2],         # the tunnel behind the cracked wall
 	[242, 28, 18, 6],        # the bonus room, under the hill
-	[297, 30, 39, 6],        # the second water: islands at different heights
-	[362, 30, 4, 6],         # a pit
-	[380, 30, 4, 6],         # a pit, with a step up beyond it
+	[297, 30, 35, 10],        # the second water: islands at different heights
+	[362, 30, 4, 10],         # a pit
+	[380, 30, 4, 10],         # a pit, with a step up beyond it
 ]
 const MASSES := [
-	[68, 29, 6, 7, 0],       # the mushroom island (1 up)
+	[68, 29, 5, 11, 0],       # the mushroom island (1 up), the width of its painting
 	[246, 31, 3, 3, 0],      # the bonus room's two stone blocks (3 up from its floor)
 	[253, 31, 3, 3, 0],
-	[301, 28, 5, 8, 0],      # the islands: 2 up, 2 up, 3 down, 2 up, then 3 down to the bank
-	[310, 26, 5, 10, 0],
-	[319, 29, 5, 7, 0],
-	[328, 27, 4, 9, 0],
+	[301, 28, 4, 12, 0],      # the islands: 2 up, 2 up, 3 down, 2 up, then 3 down to the bank
+	[309, 26, 4, 14, 0],     # (each the width of its painting, gaps of 4)
+	[317, 29, 4, 11, 0],
+	[325, 27, 3, 13, 0],
 ]
 
 
-## The canopy route: [x0, x1, row] of each treetop (8 rows over the hill at
-## its lowest, so only the crates reach it), and its trees' centres and rows.
-const TREETOPS := [[244, 253, 18], [257, 266, 17], [270, 279, 19], [283, 291, 17]]
-const CANOPY_TREES := [[248.5, 18], [261.5, 17], [274.5, 19], [287, 17]]
+## The canopy route: [x0, x1, row, tree, flip] of each treetop (8 rows over
+## the hill at its lowest, so only the crates reach it): each walkway is the
+## flat top of one of Book 3's three trees (W7), centred on its crown.
+const TREETOPS := [[244, 251, 18, 1, false], [255, 263, 17, 0, false], [267, 273, 19, 2, false], [277, 284, 17, 1, true]]
+## The stall's piers, from its painting (art x, width; the painting's left
+## edge stands at the slab's left end, x 352).
+const STALL_PIERS := [[9, 31], [123, 32], [243, 33]]
+## The islands' paintings (wilds/water_islands.png pieces) for each mass.
+const ISLAND_ART := [[68, 29, 0], [301, 28, 3], [309, 26, 1], [317, 29, 4], [325, 27, 2]]
 
 
 func _initialize() -> void:
@@ -80,12 +86,19 @@ func _initialize() -> void:
 	rock = ROCK
 	spaces = SPACES
 	masses = MASSES
-	skip = []
+	skip = [] if blockout else [[22, 24, 18, 2]] + MASSES.filter(func(m): return m[0] != 246 and m[0] != 253).map(func(m): return [m[0], m[1], m[2], m[3]])
 	spawn = Vector2(5 * TILE, G)
 	room_path = ROOM_PATH
 	blockout = false
+	main_floor = G
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://scenes/levels"))
 	_level_begin("L1_1_OvergrownRuins", "1-1 The Overgrown Ruins")
+	# The water under everything, but for the hill, which stands on the water
+	# bed with the bonus cave inside it.
+	_water_foreground(WATER_Y, [[0.0, _t(236)], [_t(292), _t(440)]])
+	if not blockout:
+		_face_under_water(_t(236), -1)
+		_face_under_water(_t(292), 1)
 	_teach()
 	_test()
 	_twist()
@@ -110,6 +123,11 @@ func _teach() -> void:
 		Vector2(_t(20), _t(26) - 12), Vector2(_t(25), _t(24) - 12), Vector2(_t(27), _t(24) - 12)], "l11_a")
 	_label("stone terraces", Vector2(_t(14), _t(25) - 4))
 	_label("THE STALL ON ARCHES\n(a crate to carry)", Vector2(_t(26), _t(20)))
+	for p in STALL_PIERS:
+		var b := _body("StallPier", 1)
+		_node(_rect_shape(Vector2(p[1], 64), Vector2(_t(22) + p[0] + p[1] * 0.5, _t(26) + 32)), "Shape", b)
+		if blockout:
+			_shape(_blockout_node, _box(Rect2(_t(22) + p[0], _t(26), p[1], 64)), Color("#0b0812"), "Pier")
 	_crate(_t(33), _t(24), CRATE_B)
 	_breakable(CRATES, POT, _t(28), _t(24), CLAY)
 	# The nook under the arches, reached from the east: a pot and a little cache.
@@ -120,31 +138,31 @@ func _teach() -> void:
 	_mossback(_t(52), G, _t(44), _t(60))
 	_label("MOSSBACK", Vector2(_t(49), G - 44))
 	# The water pit and the mushroom island (gaps of 4).
-	_water("WaterPit", Vector2(_t(64), G + 8), Vector2(_t(14), _t(6) - 8), Vector2(60, 30))
 	_bead_arc(Vector2(_t(63.5), G), Vector2(_t(69), _t(29)), 30.0, 3, "l11_pit1a")
-	_bead_arc(Vector2(_t(73), _t(29)), Vector2(_t(78.5), G), 30.0, 3, "l11_pit1b")
+	_bead_arc(Vector2(_t(72), _t(29)), Vector2(_t(77.5), G), 30.0, 3, "l11_pit1b")
 	_label("WATER PIT + MUSHROOM ISLAND", Vector2(_t(63), _t(25)))
 	# The ruin block: a ledge catch up to the chest.
 	_chest(_t(86), _t(25), 8, "l11_chest1")
 	_label("CHEST ON A HIGH LEDGE\n(ledge catch)", Vector2(_t(80), _t(20)))
 
 
-# --- TEST: the first Thornhound, the log, the gaps, the false wall ------------------------------
+# --- TEST: the first enemy that fights (the rat), the log, the gaps, the false wall ------------------------------
 
 func _test() -> void:
 	_checkpoint(_t(94), G, "l11_cp1")
 	_label("CHECKPOINT 1", Vector2(_t(92), G - 76))
 	_label("TEST", Vector2(_t(96), _t(16)))
 	_beads([Vector2(_t(101), _t(27) - 12), Vector2(_t(104), _t(27) - 12), Vector2(_t(107), _t(24) - 12)], "l11_t")
-	_thornhound(_t(122), _t(24), _t(108), _t(130))
-	_label("THORNHOUND\n(notices, winds up, lunges)", Vector2(_t(112), _t(18)))
-	# The fallen log over the ravine (one-way).
-	_log(_root, _t(132), _t(144), _t(24))
-	_water("Ravine", Vector2(_t(132), G + 8), Vector2(_t(12), _t(6) - 8), Vector2(40, 30))
-	_beads([Vector2(_t(135), _t(24) - 12), Vector2(_t(138), _t(24) - 12), Vector2(_t(141), _t(24) - 12)], "l11_log")
+	_lunger(_t(122), _t(24), _t(108), _t(130), "rat")
+	_label("RAT\n(notices, winds up, lunges)", Vector2(_t(112), _t(18)))
+	# The fallen trunk over the ravine (one-way): Book 3's W5 in the art pass.
+	if blockout:
+		_log(_root, _t(135), _t(144), _t(24))
+	else:
+		_canopy(_t(135), _t(144), _t(24), false)
+	_beads([Vector2(_t(137), _t(24) - 12), Vector2(_t(139.5), _t(24) - 12), Vector2(_t(142), _t(24) - 12)], "l11_log")
 	_label("FALLEN LOG", Vector2(_t(134), _t(21)))
 	# The gap up to the ruin mass (4 across, 2 up), and its water.
-	_water("Gap", Vector2(_t(160), G + 8), Vector2(_t(4), _t(6) - 8), Vector2(20, 30))
 	_bead_arc(Vector2(_t(159.5), _t(25)), Vector2(_t(165), _t(23)), 34.0, 3, "l11_gap")
 	# The false wall: the step's east face hides a hollow (cocoon 1). Its tell:
 	# motes drifting into the stone.
@@ -179,8 +197,8 @@ func _twist() -> void:
 	# The great tree by the crates (backdrop only), and the trees whose crowns
 	# carry the canopy route.
 	_backdrop_tree(_t(214), G, _t(12), 64.0, 200.0)
-	for c in CANOPY_TREES:
-		_backdrop_tree(_t(c[0]), _t(27), _t(c[1]) - 4, 22.0, 190.0)
+	for c in TREETOPS:
+		_backdrop_tree(_t((c[0] + c[1]) * 0.5), _t(27), _t(c[2]) - 4, 22.0, 190.0)
 	_backdrop(_box(Rect2(_t(23), _t(18), _t(16), 6)))  # the stall's roof
 	_backdrop(_box(Rect2(_t(24), _t(18), 4, _t(6))))
 	_backdrop(_box(Rect2(_t(37), _t(18), 4, _t(6))))
@@ -194,22 +212,21 @@ func _twist() -> void:
 	# The canopy: treetops at different heights, gaps of 4, beads all the way.
 	var i := 0
 	for c in TREETOPS:
-		_canopy(_t(c[0]), _t(c[1]), _t(c[2]))
+		_canopy(_t(c[0]), _t(c[1]), _t(c[2]), false)
 		_beads([Vector2(_t(c[0] + 2), _t(c[2]) - 12), Vector2(_t((c[0] + c[1]) * 0.5), _t(c[2]) - 12), Vector2(_t(c[1] - 2), _t(c[2]) - 12)], "l11_canopy%d" % i)
 		i += 1
-	_cocoon(Vector2(_t(289.5), _t(17) - 2), "l11_cocoon3", "Ysolde, a Hearth-Plains weaver")
+	_cocoon(Vector2(_t(283), _t(17) - 2), "l11_cocoon3", "Ysolde, a Hearth-Plains weaver")
 	_label("CANOPY ROUTE (secret, over the treetops)", Vector2(_t(252), _t(11)))
 	_label("cocoon 3", Vector2(_t(287), _t(11)))
-	# The hill: the second Thornhound.
-	_thornhound(_t(272), _t(27), _t(248), _t(289))
-	_label("THORNHOUND", Vector2(_t(262), _t(27) - 40))
+	# The hill: a second rat.
+	_lunger(_t(272), _t(27), _t(248), _t(289), "rat")
+	_label("RAT", Vector2(_t(262), _t(27) - 40))
 	# The second water: islands at different heights, gaps of 4.
-	_water("IslandWater", Vector2(_t(297), G + 8), Vector2(_t(39), _t(6) - 8), Vector2(200, 30))
-	var tops := [[296.5, 30], [303, 28], [312, 26], [321, 29], [330, 27], [337, 30]]
-	for k in tops.size() - 1:
-		var a: Array = tops[k]
-		var b: Array = tops[k + 1]
-		_bead_arc(Vector2(_t(a[0] + 1.5), _t(a[1])), Vector2(_t(b[0] - 1.5), _t(b[1])), 30.0, 2, "l11_isl%d" % k)
+	# [from x, its row, to x, its row]: each jump, edge to edge.
+	var hops := [[296.5, 30, 301.5, 28], [304.5, 28, 309.5, 26], [312.5, 26, 317.5, 29], [320.5, 29, 325.5, 27], [327.5, 27, 332.5, 30]]
+	for k in hops.size():
+		var h: Array = hops[k]
+		_bead_arc(Vector2(_t(h[0]), _t(h[1])), Vector2(_t(h[2]), _t(h[3])), 30.0, 2, "l11_isl%d" % k)
 	_label("ISLANDS AT DIFFERENT HEIGHTS", Vector2(_t(303), _t(22)))
 
 
@@ -249,6 +266,31 @@ const REED_TALL := Rect2(124, 204, 37, 41)
 const REED := Rect2(177, 214, 30, 31)
 const LILY_A := Rect2(15, 227, 48, 17)
 const LILY_B := Rect2(77, 231, 35, 13)
+# Book 3's kit (game/assets/environment/wilds, made by tools/make_wilds.py).
+const WILDS := "res://assets/environment/wilds/"
+const TREE_PIECES := [[3, 39, 146, 198], [151, 39, 119, 198], [275, 41, 106, 196]]
+## water_islands.png pieces: [x, y, w, h, walking line row].
+const ISLAND_PIECES := [[5, 12, 78, 108, 43], [166, 3, 69, 117, 16], [323, 23, 55, 97, 35], [91, 32, 65, 88, 46], [245, 52, 68, 68, 67]]
+const MUSHROOMS := [[9, 28, 35, 32], [51, 28, 32, 32], [90, 28, 35, 32], [131, 33, 33, 27], [171, 30, 35, 31], [211, 26, 36, 35]]
+const FLOWERS := [[8, 84, 34, 31], [51, 84, 31, 31], [91, 83, 32, 32], [130, 83, 35, 32], [173, 87, 32, 28], [213, 82, 34, 33]]
+
+
+## An island's painting (W4) on its mass: its walking line on the mass's top
+## row, centred on the mass `tiles` wide at `tile_x`.
+func _island_art(parent: Node, tile_x: int, row: int, piece: int, tiles: int) -> void:
+	var r: Array = ISLAND_PIECES[piece]
+	var cx := _t(tile_x + tiles * 0.5)
+	var s := _sprite(parent, WILDS + "water_islands.png", Rect2(r[0], r[1], r[2], r[3]), Vector2(cx - r[2] * 0.5, _t(row) - (r[4] - r[1])))
+	s.name = "Island"
+
+
+## A clump from W4's flora sheet standing on `floor_y`, centred on `x`.
+func _flora(parent: Node, r: Array, x: float, floor_y: float, flip := false) -> void:
+	var s := _sprite(parent, WILDS + "flora.png", Rect2(r[0], r[1], r[2], r[3]), Vector2(x - r[2] * 0.5, floor_y - r[3] + 2))
+	s.name = "Flora"
+	s.flip_h = flip
+
+
 # SF9 and SF11.
 const TRUNK := Rect2(0, 1, 95, 118)
 const FALLS := Rect2(274, 6, 93, 55)       # a ruined aqueduct arch with two falls
@@ -281,30 +323,42 @@ func _lilies(parent: Node, x0: float, x1: float, water_y: float) -> void:
 func _dress() -> void:
 	var behind: Node = _root.get_node("Behind")
 	var placed: Node = _root.get_node("PlacedArt")
-	var w := G + 8.0  # the water's surface
+	var w := WATER_Y  # the water's surface
 	# TEACH. The arch she came through; the terraces; the stall on its arches.
 	_arch_door(behind, -40, G, false)
 	_plant(behind, FERN_LOW, 150, G)
 	_plant(behind, GRASS, 232, _t(28))
 	_plant(behind, FLOWERS_B, 300, _t(26))
-	_piece(behind, TIMBER_GATE, 372, _t(24), "StallFrame")
-	_ground(behind, CRATES, BARREL, 462, _t(24) + 1, 1.0, "Barrel")
-	_ground(behind, CRATES, KEG, 488, _t(24) + 1, 1.0, "Keg")
-	_lantern_post(behind, 580, _t(24))
-	_hanging_lamp(behind, 432, _t(26), 30.0)
-	_hanging_lamp(behind, 560, _t(26), 30.0)
-	_drape(placed, DRAPE, 364, _t(26))
-	_drape(placed, DRAPE_LONG, 470, _t(26))
-	_drape(placed, DRAPE, 590, _t(26))
+	# The stall on its arches: Book 3's W3, its slab's walking line (art row
+	# 101) on the slab's row 24, its piers where STALL_PIERS has them.
+	var stall := _sprite(placed, WILDS + "stall_on_arches.png", Rect2(0, 0, 288, 192), Vector2(_t(22), _t(24) - 101))
+	stall.name = "Stall"
+	_light(behind, Vector2(_t(22) + 82, _t(24) + 40), LAMP, 0.95, 0.85, "StallArchLight")
+	_light(behind, Vector2(_t(22) + 200, _t(24) + 40), LAMP, 0.95, 0.85, "StallArchLight")
+	_light(behind, Vector2(_t(22) + 169, _t(24) - 54), LAMP, 0.8, 0.8, "StallLampLight")
 	_plant(behind, FERN, 690, G)
+	_flora(behind, MUSHROOMS[0], 300, _t(26))
+	_flora(behind, MUSHROOMS[3], 640, G)
+	_flora(behind, FLOWERS[3], 1010, G)
+	_flora(behind, MUSHROOMS[1], _t(88) + 8, _t(25))
+	_flora(behind, MUSHROOMS[5], _t(127), _t(24), true)
+	_flora(behind, MUSHROOMS[4], _t(150), _t(25))
+	_flora(behind, FLOWERS[0], _t(169), _t(23))
+	_flora(behind, MUSHROOMS[2], _t(186), G)
+	_flora(behind, FLOWERS[4], _t(228), G)
+	_flora(behind, MUSHROOMS[0], _t(257), _t(27))
+	_flora(behind, FLOWERS[2], _t(288), _t(27))
+	_flora(behind, MUSHROOMS[3], _t(348), G, true)
+	_flora(behind, FLOWERS[5], _t(392), _t(28))
+	_flora(behind, MUSHROOMS[1], _t(409), _t(27))
+	_flora(behind, FLOWERS[1], _t(430), _t(24))
 	_plant(behind, GRASS_FLOWERS, 880, G, true)
 	_plant(behind, BUSH_LOW, 960, G)
 	# The water pit and the mushroom island (flowers, not red caps).
 	_lilies(behind, _t(64) + 6, _t(78), w)
 	_plant(behind, REED_TALL, _t(64) - 22, G)
 	_plant(behind, REED, _t(78) - 6, G)
-	_plant(behind, FLOWERS_B, _t(68) + 6, _t(29))
-	_plant(behind, FERN_LOW, _t(70) + 4, _t(29), true)
+	_island_art(placed, 68, 29, 0, 5)
 	# The ruin block and its chest, under a small arch.
 	_ground(behind, IS, SMALL_ARCH, _t(84) - 2, _t(25) + 1, 0.95, "BlockArch")
 	_drape(placed, DRAPE_LONG, _t(82) - 4, _t(25) + 8)
@@ -315,9 +369,13 @@ func _dress() -> void:
 	_tracery(behind, _t(124), _t(24))
 	_plant(behind, FERN, _t(117), _t(24), true)
 	# The ravine: a broken aqueduct arch spilling into it, the log across.
-	var falls := _sprite(behind, PL, FALLS, Vector2(_t(134), w - FALLS.size.y + 2.0))
+	var falls := _sprite(behind, PL, FALLS, Vector2(_t(135), w - FALLS.size.y + 2.0))
 	falls.name = "AqueductFalls"
-	_lilies(behind, _t(132) + 4, _t(144), w)
+	_lilies(behind, _t(135) + 4, _t(144), w)
+	# The fallen trunk (W5): its walking line (art row 55, 24 below its piece's
+	# top) on row 24, centred over the ravine, its ends on the banks.
+	var trunk_art := _sprite(placed, WILDS + "trunk_and_root_arch.png", Rect2(6, 31, 181, 74), Vector2(_t(139.5) - 90.0, _t(24) - 24.0))
+	trunk_art.name = "FallenTrunk"
 	_plant(behind, REED_TALL, _t(144) + 2, _t(25), true)
 	_plant(behind, GRASS_FLOWERS, _t(150), _t(25))
 	_plant(behind, FERN_LOW, _t(156), _t(25))
@@ -333,12 +391,14 @@ func _dress() -> void:
 	var tree := _sprite(behind, ENV + "landmark_great_ironbark.png", Rect2(1, 1, 255, 252), Vector2(_t(214) - 128, G - 248))
 	tree.name = "GreatIronbark"
 	tree.modulate = Color(0.86, 0.86, 0.92)
-	# The canopy route's trees: trunks rising out of the hill into the crowns.
-	for c in CANOPY_TREES:
-		var trunk := _sprite(behind, GT, TRUNK, Vector2(_t(c[0]) - TRUNK.size.x * 0.5, _t(27) + 8.0 - TRUNK.size.y))
-		trunk.name = "CanopyTrunk"
-		trunk.set_meta("no_tint", true)
-		trunk.flip_h = int(c[0]) % 2 == 0
+	# The canopy route's trees (W7): each crown's flat top (art row 46) on its
+	# walkway, centred; the trunks run down behind the hill.
+	for c in TREETOPS:
+		var r: Array = TREE_PIECES[c[3]]
+		var cx := _t((c[0] + c[1]) * 0.5)
+		var tree_art := _sprite(behind, WILDS + "treetops.png", Rect2(r[0], r[1], r[2], r[3]), Vector2(cx - r[2] * 0.5, _t(c[2]) - (46 - r[1])))
+		tree_art.name = "Treetop"
+		tree_art.flip_h = c[4]
 	_plant(behind, FERN_LOW, _t(230), G)
 	_drape(placed, DRAPE, _t(236), _t(28) + 2)
 	# The hill: grass, a ruin; the bonus room's lamps.
@@ -348,11 +408,15 @@ func _dress() -> void:
 	_hanging_lamp(behind, _t(247), _t(28), 22.0)
 	_hanging_lamp(behind, _t(255), _t(28), 22.0)
 	# The islands across the second water.
-	_lilies(behind, _t(297) + 4, _t(336), w)
-	for isl in [[301, 28], [310, 26], [319, 29], [328, 27]]:
-		_plant(behind, FLOWERS_C if isl[0] % 2 == 0 else FLOWERS_B, _t(isl[0]) + 10, _t(isl[1]))
+	_lilies(behind, _t(297) + 4, _t(332), w)
+	for isl in ISLAND_ART.slice(1):
+		var m: Array = MASSES.filter(func(mm): return mm[0] == isl[0])[0]
+		_island_art(placed, isl[0], isl[1], isl[2], m[2])
 	_plant(behind, REED_TALL, _t(297) - 30, G)
-	_plant(behind, REED, _t(336) + 2, G, true)
+	_plant(behind, REED, _t(332) + 2, G, true)
+	# Under the water, all along: sunken ruin stone, rubble and reeds (the
+	# mockups' drowned courses and water plants), seen through the surface.
+	_sunken()
 	# FINISH. The last run: grass, a ruin by the pits, a lantern up the terraces.
 	_plant(behind, GRASS, _t(346), G)
 	_plant(behind, BUSH_LOW, _t(366), G)
@@ -360,3 +424,28 @@ func _dress() -> void:
 	_lantern_post(behind, _t(404), _t(27))
 	_plant(behind, FERN_LOW, _t(414), _t(24))
 	_plant(behind, GRASS_FLOWERS, _t(434), _t(24), true)
+
+
+## Pier stone (SF11) and rubble (T2) sunk under the water, reeds and ferns
+## growing up from the bed toward the surface: seen through the water, never
+## crowding the surface itself.
+const SUNK_PIERS := [Rect2(1, 79, 30, 54), Rect2(81, 80, 31, 44), Rect2(42, 141, 29, 44), Rect2(120, 140, 29, 46), Rect2(41, 80, 29, 35), Rect2(2, 141, 28, 37)]
+const RUBBLE := [Rect2(13, 90, 11, 10), Rect2(40, 87, 18, 14), Rect2(74, 90, 12, 9), Rect2(69, 108, 17, 14), Rect2(40, 112, 13, 8)]
+
+func _sunken() -> void:
+	var bed := float(ROOM.end.y * TILE)
+	var x := 40.0
+	var k := 0
+	while x < _t(440):
+		var t := _t(1) * 0.0 + x
+		var on_hill := t >= _t(236) and t < _t(292)
+		if not on_hill:
+			var r: Rect2 = SUNK_PIERS[k % SUNK_PIERS.size()]
+			# A drowned course of stone, its top a tile or two under the surface.
+			_underwater(PL, r, Vector2(x, WATER_Y + 26.0 + float((k * 13) % 22)), k % 2 == 1)
+			var rb: Rect2 = RUBBLE[(k * 3) % RUBBLE.size()]
+			_underwater(ENV_WILDS + "cracked_wall.png", rb, Vector2(x + 40.0, bed - 34.0 - float((k * 7) % 14)))
+			var reed: Rect2 = REED_TALL if k % 3 == 0 else REED
+			_underwater(FLORA, reed, Vector2(x + 70.0, WATER_Y + 40.0 + float((k * 11) % 16)), k % 2 == 0)
+		x += 150.0 + float((k * 37) % 70)
+		k += 1

@@ -6,7 +6,7 @@ extends "res://tools/level_builder.gd"
 ##   godot --headless --path game --script res://tools/build_systems.gd
 ##
 ## West to east (tiles; the floor is row 20): the start, a thorn bed, the first
-## checkpoint, a row of beads, a pit, a chest, a Thornhound's stretch, the
+## checkpoint, a row of beads, a pit, a chest, a rat's stretch, the
 ## second checkpoint, a crate and a cracked wall into a bonus room, a moving
 ## platform over a long pit, a pool, a cocoon, and the level's end.
 
@@ -41,7 +41,7 @@ func _initialize() -> void:
 	_checkpoint(16 * TILE, FLOOR, "sys_cp1")
 	_beads([Vector2(21 * TILE, FLOOR - 12), Vector2(23 * TILE, FLOOR - 12), Vector2(25 * TILE, FLOOR - 12), Vector2(27 * TILE, FLOOR - 12)], "sys_b")
 	_chest(37 * TILE, FLOOR, 6, "sys_chest")
-	_thornhound(54 * TILE, FLOOR, 44 * TILE, 62 * TILE)
+	_lunger(54 * TILE, FLOOR, 44 * TILE, 62 * TILE, "rat")
 	_checkpoint(64 * TILE, FLOOR, "sys_cp2")
 	_crate(69 * TILE, FLOOR)
 	_cracked_wall(Rect2i(76, 17, 2, 3), "sys_crack")
@@ -54,7 +54,7 @@ func _initialize() -> void:
 	_level_end(140 * TILE, FLOOR, 48, 72)
 	_label("thorns", Vector2(8 * TILE, FLOOR - 40))
 	_label("pit", Vector2(30 * TILE, FLOOR - 40))
-	_label("hound", Vector2(50 * TILE, FLOOR - 60))
+	_label("rat", Vector2(50 * TILE, FLOOR - 60))
 	_label("bonus room", Vector2(79 * TILE, 15 * TILE - 4))
 	_level_finish()
 	quit()

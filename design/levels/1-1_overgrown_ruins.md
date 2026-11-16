@@ -1,4 +1,4 @@
-# 1-1 The Overgrown Ruins (blockout approved; first art pass in)
+# 1-1 The Overgrown Ruins (blockout approved; art pass from the kit in)
 
 Builder: `game/tools/build_l1_1.gd` → `game/scenes/levels/l1_1_overgrown_ruins.tscn`.
 Pictures: `docs/levels/1-1/blockout/` (the approved blockout: the poster and
@@ -15,7 +15,8 @@ terraces, a secret route over the treetops, a crate thrown through a cracked
 wall into a bonus game, and nothing out of place.
 
 ## Size and shape
-- 440 × 36 tiles (7,040 × 576 px): about 11 screens long and 1.6 high.
+- 440 × 40 tiles (7,040 × 640 px): about 11 screens long and 1.8 high (40
+  rows so the view holds the water under the walking line).
 - The walking line is row 30 (y 480) unless a beat lifts it; the canopy
   route runs at rows 14 to 16.
 - Start at x 5. The arched doorway out is at x 428, on the end ledge (row 24).
@@ -25,8 +26,8 @@ wall into a bonus game, and nothing out of place.
 | Beat | Tiles | What happens |
 |---|---|---|
 | **TEACH** | 0–94 | Stone terraces (2 up each) onto **the stall on arches** (a crate to carry, a pot), a **nook** under the arches (a pot, 3 beads), a **Mossback** (7 hits, or one thrown crate), **the water pit and the mushroom island** (two gaps of 4), and **the chest on a high ledge** (a 5-tile ledge catch onto a ruin block). |
-| **TEST** | 94–200 | **Checkpoint 1.** Wall terraces (3 up, 3 up) to the plateau and **the first Thornhound**, on flat ground with room to fight. **A fallen log** over a ravine. A gap of 4 up 2 to a ruin mass, then down its steps. The step's east face is **a false wall** (cocoon 1). |
-| **TWIST** | 200–340 | **Checkpoint 2. Two crates.** Carry one to the hill's foot and throw it at **the cracked wall**: a tunnel drops into **the bonus room** under the hill (gather 12 beads in 14 s → cocoon 2 and a spill of Resin). Up on the hill, **a root bank with a crate and a stack of two crates** on it: climbing them crosses the hill, and from the stack's top **the treetop route** is in reach (four treetops at different heights, 8 tiles over the hill so only the crates reach them; gaps of 4, beads all the way, cocoon 3 at its end). On the hill, **the second Thornhound**. Then **the islands at different heights** across the second water (2 up, 2 up, 3 down, 2 up, 3 down; gaps of 4). |
+| **TEST** | 94–200 | **Checkpoint 1.** Wall terraces (3 up, 3 up) to the plateau and **the first rat**, on flat ground with room to fight. **A fallen log** over a ravine. A gap of 4 up 2 to a ruin mass, then down its steps. The step's east face is **a false wall** (cocoon 1). |
+| **TWIST** | 200–340 | **Checkpoint 2. Two crates.** Carry one to the hill's foot and throw it at **the cracked wall**: a tunnel drops into **the bonus room** under the hill (gather 12 beads in 14 s → cocoon 2 and a spill of Resin). Up on the hill, **a root bank with a crate and a stack of two crates** on it: climbing them crosses the hill, and from the stack's top **the treetop route** is in reach (four treetops at different heights, 8 tiles over the hill so only the crates reach them; gaps of 4, beads all the way, cocoon 3 at its end). On the hill, **the second rat**. Then **the islands at different heights** across the second water (2 up, 2 up, 3 down, 2 up, 3 down; gaps of 4). |
 | **FINISH** | 340–440 | **Checkpoint 3.** A Mossback, **a pit** (4), **a thorn bed**, a pit with a step up beyond it, terraces up to the end ledge, **the last chest**, and **the arched doorway**. |
 
 ## Region 1 rules it keeps
@@ -105,17 +106,37 @@ or wobble.
   islands.
 - **FINISH:** a ruin by the pits, a lantern post up the terraces, and the
   arched doorway with its lantern as the level's end (the mockup's).
-- **Stand-ins still:** the Thornhound, the chest, the cracked wall (SF11's
-  pier stone with a drawn crack), the thorns, the HUD, Kleo's carry pose,
-  the log (plank timber).
+- **Stand-ins then** (all but Kleo's carry pose since replaced by the kit,
+  below): the enemy, the chest, the cracked wall, the thorns, the HUD, the
+  log.
 
 **Book 3** (`docs/art-production/platformer-region1-prompt-book.html`,
 published at https://claude.ai/artifact/7mMMdvZHpnai3CM4TWMLuK) asks for
 all of it: W1 to W7 (ruin stone, the stall on arches cut to the collision,
 the islands, the log and root bridge, treetops), T1 to T5
-(chest, cracked wall, brambles, non-red mushrooms, HUD), C1 and C2 (the
-Thornhound, Kleo carrying), B1 and B2 (the far aqueduct, a sky with smaller
+(chest, cracked wall, brambles, non-red mushrooms, HUD), C1 and C2 (a
+first enemy, since replaced by the creative lead's roster; Kleo carrying), B1 and B2 (the far aqueduct, a sky with smaller
 moons). Pilot: W1, W3, C1.
+
+## The art pass, second: the creative lead's kit, water and foreground
+- **The kit (Book 3) is in,** from the generator's raw sheets (the kit's
+  script-normalized exports were set aside): the stall on its arches (W3,
+  with exact pier collision), the five islands (W4; masses resized to the
+  paintings, gaps kept at 4: the mushroom island is 5 wide, the stepping
+  islands 4, 4, 4 and 3, and the second water now 35 wide), the fallen
+  trunk (W5; the ravine narrowed to 9 tiles, the plateau grown to meet it),
+  the treetops (W7: four walkways on three trees, 7, 8, 6 and 7 tiles), the
+  chest, the cracked wall and its rubble, the brambles, the flora (violet and
+  amber mushrooms), the HUD, the Triad sky and the far aqueduct.
+- **Ruin stone** on every mass, its blocks fading with depth.
+- **Water under everything,** two tiles below the walking line (WATER_Y
+  512); the level is 40 rows tall so the view holds a band of it. The pits,
+  the ravine and the gaps are this water. The hill (with the bonus cave)
+  stands on the bed; its faces run down under the surface.
+- **The foreground** is the creative lead's fern and stone bands.
+- **The rat** (from the creative lead's roster) is the enemy that fights,
+  twice: on the plateau and on the hill.
+- Tour and secrets still ALL PASS; the camera shows no slide or wobble.
 
 ## Open for the review
 - The first art pass, in the game (`docs/levels/1-1/art_pass/`).

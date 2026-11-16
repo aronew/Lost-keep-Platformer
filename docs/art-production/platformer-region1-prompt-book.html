@@ -207,14 +207,15 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
     <header class="hero">
       <span class="eyebrow">Lost Keep: Platformer · art production · Book 3</span>
       <h1>The Ironbark Wilds</h1>
-      <p class="lede">Region 1 of the platformer, starting with level 1-1, The Overgrown Ruins: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit and its mushroom island, a chest on a high ledge, crates stacked on a root bank to climb, and a route over the treetops. Plus the pieces the game's systems still draw as stand-ins: the Thornhound, the chest, the cracked wall, the thorns, the health flames, and Kleo carrying a crate.</p>
+      <p class="lede">Region 1 of the platformer, starting with level 1-1, The Overgrown Ruins: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit and its mushroom island, a chest on a high ledge, crates stacked on a root bank to climb, and a route over the treetops. Your kit is in the game now; this book asks for what is still missing: the stone inside each mass, and real frames for your roster's creatures, starting with the rat.</p>
       <div class="meta"><span id="count">0 images</span><span>Base 640 × 360, ×3 to 1080p</span><span>1 tile = 16 px in game</span><span>Masters at ×8 (×4 for backdrops)</span><span>Godot 4.7.2</span></div>
     </header>
 
     <section id="needs">
       <span class="eyebrow">Start</span>
       <h2>What 1-1 needs</h2>
-      <p>Level 1-1's layout is approved and its first art pass is in, dressed from the Ironbark surface kit (Book 1). That kit has the forest, the ruins, the lanterns and the doorway. What it lacks is below: the mockup's chunky ruin stone, set pieces cut to the level's exact shapes, walkable treetops, and everything the systems draw with stand-ins today.</p>
+      <p>Level 1-1's layout is approved and it is now dressed from your kit (the ruin stone, the stall, the islands, the trunk, the treetops, the chest, the cracked wall, the brambles, the flora, the HUD, the aqueduct and the sky), with your water and your fern and stone foreground. Two things are still missing, below: the stone inside each mass (W8), and real frames for the rat (C3).</p>
+      <div class="shots"><figure class="shot"><img src="platformer-attach/G7-game-kit-in-use.jpg" alt="Level 1-1 in the game, dressed from the kit: the stall on its arches, ruin stone terraces, still water across the bottom with ferns and stones in front" width="1280" height="720"></figure></div>
       <div class="shots">
         <figure class="shot">
           <img src="platformer-attach/M1-level-1-mockup.jpg" alt="Mockup of level 1-1: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit with a mushroom island, a chest on a high ledge, an arched doorway" width="1400" height="788">
@@ -239,8 +240,8 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
       <span class="eyebrow">Start</span>
       <h2>How to use this book</h2>
       <div class="pilot">
-        <strong>Start with the pilot: W1, W3 and C1.</strong>
-        <p>W1 decides the level's stone, W3 is its most recognisable set piece, and C1 is the first enemy that fights. Make the rest once those three read well in 1-1.</p>
+        <strong>Next: W8 and C3.</strong>
+        <p>Your kit's W1 to T5, B1 and B2 are in the game. W8 finishes the ruin stone; C3 gives the first enemy that fights real frames. Your other roster creatures get their sheets once their roles are settled (see <code>design/enemies.md</code>).</p>
       </div>
       <ol class="steps">
         <li><div><strong>Attach the images each card lists.</strong> The platformer's references are in <code>docs/art-production/platformer-attach/</code>; the lettered ones (A, B, Z) are Book 1's, in <code>docs/art-production/lostkeep-attach/</code>. The mockup M1 goes with every card.</div></li>
@@ -273,7 +274,7 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
         </ul></div>
         <div class="kv"><h3>Sprites</h3><ul class="checks">
           <li>Creatures and Kleo are animated sheets: every frame on its own cell, feet on one shared line.</li>
-          <li>Animation must feel great: anticipation, a strong key pose, follow-through. The Thornhound's wind-up is the player's warning, so it has to read.</li>
+          <li>Animation must feel great: anticipation, a strong key pose, follow-through. The rat's wind-up is the player's warning, so it has to read.</li>
         </ul></div>
       </div>
       <div class="swatches" id="swatches"></div>
@@ -282,7 +283,7 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
     <section id="pack">
       <span class="eyebrow">Start</span>
       <h2>Images to attach</h2>
-      <p>M, N, G and K are this book's, in <code>docs/art-production/platformer-attach/</code>. A, B and Z are Book 1's, in <code>docs/art-production/lostkeep-attach/</code>.</p>
+      <p>M, N, G, K and E are this book's, in <code>docs/art-production/platformer-attach/</code>. A, B and Z are Book 1's, in <code>docs/art-production/lostkeep-attach/</code>.</p>
       <div class="refs pack" id="pack-list"></div>
     </section>
 
@@ -313,7 +314,7 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
     <section id="creatures" class="group-section">
       <span class="eyebrow">Prompts</span>
       <h2>Creatures and Kleo</h2>
-      <p>Animated sheets. The Thornhound is the first enemy that fights back; Kleo needs new frames to lift, carry and throw a crate.</p>
+      <p>Animated sheets. The rat, from your roster, is the first enemy that fights back (C3). C2, Kleo with a crate, arrived in your kit. The first proposal here, C1 (a Thornhound of my own), is withdrawn: your roster replaces it.</p>
       <div class="cards" id="cards-creatures"></div>
     </section>
     <section id="backdrop" class="group-section">
@@ -342,7 +343,7 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
         <div class="kv"><h3>Sprites</h3><ul class="checks">
           <li>Every frame sits on its own cell, feet on the same line.</li>
           <li>Shrunk to game size, each pose reads as a clear silhouette.</li>
-          <li>The Thornhound's wind-up is obviously a warning.</li>
+          <li>The rat's wind-up is obviously a warning.</li>
         </ul></div>
         <div class="kv"><h3>Backdrops</h3><ul class="checks">
           <li>The left and right edges join.</li>
@@ -376,23 +377,25 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
   }
 
   var AUDIT = [
-    ["Forest ground (earth tops, walls, corners)", "In: Book 1's IB2 and IB6", "ok", "Book 1"],
-    ["Ruin stone for the built ruins: tops, undersides, walls, corners", "Earth stands in", "need", "W1, W2"],
-    ["The timber stall on its stone arches", "Book 1's timber gate, barrels and lanterns on earth piers", "need", "W3"],
-    ["The mushroom island and the stepping islands", "Earth columns with flowers", "need", "W4a, W4b"],
-    ["The fallen log over the ravine, and a root bridge", "Plank timber from the keep kit", "need", "W5a, W5b"],
-        ["Treetops for the canopy route", "SF9's leaf band over its trunk", "need", "W7a, W7b, W7c"],
-    ["The chest", "A drawn stand-in", "need", "T1"],
-    ["The cracked wall", "SF11 pier stone with a drawn crack", "need", "T2"],
-    ["Bramble thorns", "A drawn stand-in", "need", "T3"],
-    ["Mushrooms and flowers in the region's colours (no red)", "Flowers only: the kit's mushrooms are red", "need", "T4"],
-    ["HUD: flames, Resin, cocoons", "Drawn stand-ins", "need", "T5"],
-    ["The Thornhound", "A drawn stand-in, 10 frames", "need", "C1"],
-    ["Kleo lifting, carrying and throwing a crate", "She uses her interact pose", "need", "C2"],
-    ["The far aqueduct layer", "Only small arches in the far forest", "need", "B1"],
-    ["A sky with smaller moons", "Book 1's P1 (large moons)", "need", "B2"],
+    ["Forest ground (earth tops, walls, corners)", "Book 1's IB2 and IB6; 1-1 is ruin stone all through now", "ok", "Book 1"],
+    ["Ruin stone for the built ruins: tops, undersides, walls, corners", "In: your kit's W1, W2, on every mass", "ok", "W1, W2"],
+    ["Ruin stone fill: the blocks inside a mass", "A 16 px course cut from W1's top band, repeated", "need", "W8"],
+    ["The timber stall on its stone arches", "In: your kit's W3, piers cut to its arches", "ok", "W3"],
+    ["The mushroom island and the stepping islands", "In: your kit's islands", "ok", "W4a, W4b"],
+    ["The fallen log over the ravine, and a root bridge", "In: your kit's trunk over the ravine", "ok", "W5a, W5b"],
+    ["Treetops for the canopy route", "In: your kit's trees, four walkways", "ok", "W7a, W7b, W7c"],
+    ["The chest", "In: your kit's three frames", "ok", "T1"],
+    ["The cracked wall", "In: your kit's wall and its rubble", "ok", "T2"],
+    ["Bramble thorns", "In: your kit's brambles", "ok", "T3"],
+    ["Mushrooms and flowers in the region's colours (no red)", "In: your kit's violet and amber caps", "ok", "T4"],
+    ["HUD: flames, Resin, cocoons", "In: your kit's icons", "ok", "T5"],
+    ["Water and the foreground ferns and stones", "In: your water, fern and stone atlases", "ok", "Yours"],
+    ["The rat, the first enemy that fights (from your roster)", "One pose, acted by squash and stretch", "need", "C3"],
+    ["Kleo lifting, carrying and throwing a crate", "In your kit (13); not wired in yet", "ok", "C2"],
+    ["The far aqueduct layer", "In: your kit's aqueduct", "ok", "B1"],
+    ["A sky with smaller moons", "In: your kit's Triad sky", "ok", "B2"],
     ["Lantern posts, the arched doorway, crates, pots, ruins, flora, the Great Ironbark, the backdrops", "In: Book 1", "ok", "Book 1"],
-    ["Water, fog, light shafts, fireflies, glows", "Code", "code", "Stays code by design"]
+    ["Fog, light shafts, fireflies, glows, the water's reflection", "Code", "code", "Stays code by design"]
   ];
 
   var PACK = [
@@ -406,6 +409,9 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
     ["G4", "platformer-attach/G4-game-canopy.jpg", "In the game: the canopy", "The treetop route over the hill (W7)."],
     ["G5", "platformer-attach/G5-game-bonus-room.jpg", "In the game: the bonus room", "The cave under the hill, behind the cracked wall (T2)."],
     ["G6", "platformer-attach/G6-game-islands.jpg", "In the game: the islands", "The stepping islands across the second water (W4)."],
+    ["G7", "platformer-attach/G7-game-kit-in-use.jpg", "In the game: your kit", "1-1 dressed from your kit: the ruin stone, the stall, the water and the fern and stone foreground. New art must sit beside it."],
+    ["E1", "platformer-attach/E1-enemy-roster.jpg", "Your enemy roster", "The twelve creatures. The rat (bottom row) is the first in the game. Goes with every creature card."],
+    ["K3", "platformer-attach/K3-kit-ruin-stone.jpg", "Your kit's ruin stone (W1)", "The approved stone bands. The fill (W8) must match them block for block."],
     ["K1", "platformer-attach/K1-ironbark-kit-in-use.png", "The Ironbark kit in use", "Book 1's pieces already in 1-1: ruins, the great tree's branches and leaves, the aqueduct pier stone, flora, lanterns. New art must sit beside them."],
     ["K2", "platformer-attach/K2-kleo-rescue-interact-sheet.jpg", "Kleo's interact sheet", "Book 2's KL23, for her exact look, scale and sheet layout. Attach to C2."],
     ["A", "lostkeep-attach/A-style-ironbark.jpg", "Ironbark mockup", "Book 1's style target for the region."],
@@ -470,7 +476,7 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
 
   var CARDS = [
     // ------------------------------------------------------------- ruins
-    { id: "W1", group: "ruins", file: "wilds_ruin_stone_bands", title: "Ruin stone: walkable tops and undersides", pilot: true,
+    { id: "W1", group: "ruins", file: "wilds_ruin_stone_bands", title: "Ruin stone: walkable tops and undersides",
       about: "The level's built ruins: every stone terrace, the stall's floor, the ruin block and the plateau. Band 1 is the floor she walks on; band 2 the underside of a slab or overhang.",
       canvas: WIDE, game: "2 bands, 384 × 48 each, repeating", attach: ["M1", "N2", "K1", "G1", "B"],
       text: [
@@ -509,8 +515,23 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
         FADE
       ] },
 
+    { id: "W8", group: "ruins", file: "wilds_ruin_stone_fill", title: "Ruin stone: the fill inside a mass", pilot: true,
+      about: "The blocks inside every ruin mass, behind its lit edges. The game darkens them with depth, so this is one even, seamless tile of the same stone. Today the game repeats a thin strip of W1's top band, which shows as rows.",
+      canvas: "1024×1024 px (art 128 × 128 px at x8)", game: "128 × 128, repeating in both directions", attach: ["K3", "G7", "M1", "B"],
+      background: "Opaque: the stone fills the whole canvas edge to edge.",
+      text: [
+        "TASK: one square, seamless tile of the inside of the ruin stone in the attached K3 (your kit's W1): the same blocks, the same size, the same colours and mortar, filling the whole canvas.",
+        "",
+        STONE.replace("thick moss #4F8A3A / #8DC24E cushioned along every top and dripping a little down the faces, small ferns and a few tiny white flowers.", "a little moss in a few mortar lines only."),
+        "",
+        "- It repeats in BOTH directions: the left edge joins the right, the top joins the bottom, with no visible seam and no repeating row or column.",
+        "- Courses run roughly level but stagger and vary, as in old hand-laid walls: blocks of several widths, a few cracked or missing, a thin root or two threading through the joints.",
+        "- Even light over the whole tile: no fade, no shadow toward any edge, no lit top surface (the game darkens it with depth and paints the edges from W1 and W2).",
+        "- Mid tones only (#4E3E5E to #6E5A7E, mortar #2E2438): darker and calmer than the lit cap course, so it sits behind the edges."
+      ] },
+
     // ------------------------------------------------------------- set pieces
-    { id: "W3", group: "setpieces", file: "wilds_stall_on_arches", title: "The timber stall on stone arches", pilot: true,
+    { id: "W3", group: "setpieces", file: "wilds_stall_on_arches", title: "The timber stall on stone arches",
       about: "The mockup's best-known piece, cut to the level's shape: a stone slab on three piers with two arch openings under it, and a lived-in timber stall on top. Kleo walks on the slab and through the arches.",
       canvas: "2304×1536 px (art 288 × 192 px at x8)", game: "288 × 192, placed over the collision", attach: ["M1", "G1", "K1", "B"],
       text: [
@@ -655,27 +676,23 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
       ] },
 
     // ------------------------------------------------------------- creatures
-    { id: "C1", group: "creatures", file: "wilds_thornhound", title: "The Thornhound", pilot: true,
-      about: "The first enemy that fights back: a forest hound touched by the Blight. It notices Kleo, winds up, lunges, lands in a skid, and flinches when struck. Its wind-up is the player's warning, so it must read.",
-      canvas: "1536×768 px (art 192 × 96 px at x8: 4 columns × 3 rows of 48 × 32 cells)", game: "12 frames of 48 × 32", attach: ["M1", "K1", "B"],
+    { id: "C3", group: "creatures", file: "wilds_rat", title: "The rat (from your roster)", pilot: true,
+      about: "Your roster's rat, the first enemy that fights back in 1-1. Today it is the roster's single pose, squashed and stretched to act its moves. This sheet gives it real frames: it patrols, notices Kleo, winds up, lunges, lands in a skid, flinches when struck, and falls. Its wind-up is the player's warning, so it must read.",
+      canvas: "1536×768 px (art 192 × 96 px at x8: 4 columns × 3 rows of 48 × 32 cells)", game: "10 frames of 48 × 32 (the last two cells empty)", attach: ["E1", "G7", "M1", "B"],
       text: [
-        "TASK: an animation sheet of the Thornhound, 12 frames, facing RIGHT.",
-        "",
-        "THE CREATURE: a lean forest hound about 40 art px long and 22 tall at the shoulder, about Kleo's height at its raised head. Dark plum-grey fur #262034 to #685876, a ridge of pale thorny spines #B8A58A along its back, long muzzle, pale yellow-white eyes. It is touched by the Blight: thin crimson tendrils #8E1E3A / #C2385A threading through the fur of its shoulder and flank (here, and only here, crimson is right: it is the Blight's mark). Wild and dangerous, but an animal, not a demon.",
+        "TASK: an animation sheet of the rat from the attached roster E1 (bottom row, fourth from the left), 10 frames, facing RIGHT. Keep its design exactly: the ragged dusky-brown rat, the torn purple mantle over its back, the long curled tail, the pale yellow eye, the two long front teeth, the same outline and the same few tones. Same size as in the roster: about 44 art px long and 25 tall.",
         "",
         SPRITE_RULES,
-        "- Cells are 48 × 32 art px (384 × 256 px). Its paws stand on a line 2 art px above each cell's bottom edge.",
+        "- Cells are 48 × 32 art px (384 × 256 px). Its feet stand on a line 2 art px above each cell's bottom edge.",
         "",
-        "FRAMES:",
-        "1-4. WALK: a calm, prowling patrol cycle, head low, tail level.",
-        "5. NOTICE: it stops dead, head snapping up, ears pricked, spines lifting.",
-        "6. WIND-UP A: it drops low on its haunches, weight back, head forward, lips curled.",
-        "7. WIND-UP B: lower still, quivering, every spine raised: the clear warning before the leap.",
-        "8. LUNGE A: launching, hind legs driving, body stretched long.",
-        "9. LUNGE B: full stretch in the air, forelegs reaching, jaws open.",
-        "10. LAND: landing in a skid, forelegs braced, dust at its paws (no dust drawn: just the pose).",
-        "11. FLINCH: struck, recoiling, eyes squeezed shut, spines flattened.",
-        "12. DOWN: collapsed on its side, still."
+        "FRAMES (the game plays them in this order; leave cells 11 and 12 empty):",
+        "1-4. WALK: a scurrying patrol, nose low, tail swinging, the mantle rippling.",
+        "5. NOTICE: it stops dead and rears up on its hind legs, nose high, ears pricked, the mantle flaring.",
+        "6. WIND-UP: dropped low on its haunches, weight back, teeth bared, the mantle bristling, tail lashing: the clear warning before the leap.",
+        "7. LUNGE: full stretch in the air, forepaws reaching, jaws open, tail streaming behind.",
+        "8. LAND: landing in a skid, forepaws braced, body low (no dust drawn: just the pose).",
+        "9. FLINCH: struck, recoiling, eyes squeezed shut, the mantle flattened.",
+        "10. DOWN: collapsed on its side, still."
       ] },
     { id: "C2", group: "creatures", file: "kleo_carry_throw", title: "Kleo lifts, carries and throws a crate",
       about: "New frames for Kleo (Book 2's sheet layout): lifting a crate overhead, standing and running with it, throwing it, setting it down. The crate is a key-green guide box, so the game can draw any crate or barrel in her hands.",

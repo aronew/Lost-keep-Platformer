@@ -303,12 +303,14 @@ purple ruins, under a dusk sky with three moons.
 **Enemies of region 1:**
 - **The Mossback** (from Lost Keep): slow and harmless-looking, shoves on
   contact, takes 7 hits.
-- **The Thornhound** (new, the first enemy that fights): a forest hound
-  touched by the Blight (crimson tendrils in its fur: the Blight's colour,
-  rightly). It **notices** Kleo (its ears and head snap toward her), **winds
-  up** (crouches, a clear tell of about half a second), **lunges** (a long
-  leap that hurts), and **flinches** when struck (knocked back, a short
-  stagger). Three or four hits.
+- **The creative lead's roster** (`design/enemies.md`: twelve creatures)
+  replaces my first proposal, the Thornhound. 1-1 uses **the rat** as the
+  first enemy that fights: it **notices** Kleo (stops and rears), **winds
+  up** (crouches and shivers, a clear tell of about half a second),
+  **lunges** (a long leap that hurts), and **flinches** when struck. Four
+  hits, or one thrown crate. Proposed for region 1 too: the bat, the cap
+  crawler, the moss blob, the spiked toad and the gourd chomper (roles in
+  `enemies.md`, for the creative lead to confirm).
 - **Bramble thorns** (a hazard), and **water** (a hazard: Kleo can't swim).
 
 ### On the mockup and the colour rules
@@ -331,6 +333,7 @@ stays the working title.
 - **The systems** (all in the systems arena, `room=sys mode=systems`, 26
   checks): flames and damage, hazards (pits, water, thorns) back to the
   checkpoint, defeat, checkpoints, Resin at risk until banked, the
-  Thornhound, chests, crates to carry and throw, cracked walls, bonus rooms,
+  lunger (the roster's rat), chests, crates to carry and throw, cracked walls, bonus rooms,
   moving platforms, cocoons, the level's end, the HUD.
-- **Level 1-1** in blockout: `design/levels/1-1_overgrown_ruins.md`.
+- **Level 1-1**: blockout approved, the art pass in from the creative lead's
+  kit, water and foreground: `design/levels/1-1_overgrown_ruins.md`.

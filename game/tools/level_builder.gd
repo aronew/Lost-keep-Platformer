@@ -1,6 +1,6 @@
 extends "res://tools/surface_builder.gd"
 ## Shared tools for the platformer's levels, on top of surface_builder.gd: the
-## level's systems (checkpoints, hazards, the Thornhound, chests, crates to
+## level's systems (checkpoints, hazards, the lunging enemy, chests, crates to
 ## carry and throw, cracked walls, moving platforms, cocoons, bonus rooms, the
 ## level's end) and the blockout look.
 ##
@@ -27,6 +27,7 @@ const POST_DARK := Rect2(26, 65, 45, 61)
 const POST_LIT := Rect2(26, 1, 45, 61)
 const POST_LAMP := Vector2(34, 40)   # the lamp, from the post's top left
 const COCOON_SHEET := ENV + "gate_silk_and_cocoon.png"
+const ENV_WILDS := "res://assets/environment/wilds/"
 const COCOON_SEALED := Rect2(167, 26, 35, 82)
 const COCOON_OPEN := Rect2(210, 26, 40, 82)
 const CRATES := ENV + "props_guard_belongings.png"
@@ -48,10 +49,26 @@ func _level_begin(node_name: String, title: String) -> Dictionary:
 		_blockout_sky()
 	else:
 		_build_backdrops()
-		# A level is shorter than Lost Keep's rooms: lower the sky so the three
-		# moons sit whole under the top edge.
-		(_root.get_node("Sky/Art") as Sprite2D).position.y = -50.0
+		# Book 3's B2: the Triad sky with smaller moons (opaque, 256 tall; its
+		# base colour runs on below it).
+		var sky := _root.get_node("Sky") as Parallax2D
+		var sky_art := sky.get_node("Art") as Sprite2D
+		sky_art.texture = load(ENV_WILDS + "triad_sky.png")
+		sky_art.position.y = 0.0
+		sky_art.modulate = Color.WHITE
+		sky.repeat_size = Vector2(768, 0)
+		var base := sky.get_node("Base") as ColorRect
+		base.position = Vector2(0, 255)
+		base.size = Vector2(768, 420)
+		base.color = Color("#3f7270")
+		# Book 3's B1: the far aqueduct, between the far forest and the mid.
+		var aq := _parallax("Aqueduct", Vector2(0.25, 0.15), ENV_WILDS + "far_aqueduct.png", 20.0)
+		_root.move_child(aq, _root.get_node("Mid").get_index())
 	_back_walls()
+	if not blockout:
+		# The levels' ground is the creative lead's ruin stone (Book 3's W1, W2),
+		# not Lost Keep's earth: material 0 for every mass in a level.
+		_earth = _ruin_material()
 	var t := _terrain(tileset)
 	if blockout:
 		# The skin off: the black collision tiles show (as in box view).
@@ -66,8 +83,61 @@ func _level_finish() -> void:
 	if blockout:
 		_edge_shades()
 	else:
-		_surface_finish()
+		_build_atmosphere()
+		_level_foreground()
+		_tint_surface_kit(_root)
+		_edge_shades()
 	_finish()
+
+
+## The ruin stone (Book 3's W1 and W2, cut by tools/make_wilds.py): bands
+## that fade into the dark at every edge, and blocks inside each mass that
+## stay faintly visible as they darken, as in the mockups (RUIN_FADE tiles).
+const RUIN := "res://assets/environment/wilds/terrain/"
+const RUIN_FADE := 6.0
+
+func _ruin_material() -> Resource:
+	var m: Resource = load("res://scripts/world/terrain_material.gd").new()
+	m.fill = load(RUIN + "ruin_fill.png")
+	m.fade_tiles = RUIN_FADE
+	m.top_band = load(RUIN + "ruin_top.png")
+	m.top_line = 15
+	m.top_lit = 64
+	m.under_band = load(RUIN + "ruin_under.png")
+	m.under_line = 25
+	m.wall_band = load(RUIN + "ruin_wall.png")
+	m.wall_face = 31
+	m.corner_top = load(RUIN + "ruin_corner_top.png")
+	m.corner_top_anchor = Vector2(67, 14)
+	m.corner_under = load(RUIN + "ruin_corner_under.png")
+	m.corner_under_anchor = Vector2(77, 77)
+	m.inner_top = load(RUIN + "ruin_inner_top.png")
+	m.inner_top_anchor = Vector2(22, 67)
+	m.inner_under = load(RUIN + "ruin_inner_under.png")
+	m.inner_under_anchor = Vector2(27, 29)
+	m.lip_color = Color(0, 0, 0, 0)
+	m.outline_color = Color(0, 0, 0, 0)
+	ResourceSaver.save(m, "res://scenes/world/terrain_ruin.tres")
+	return load("res://scenes/world/terrain_ruin.tres")
+
+
+## The levels' foreground (the creative lead's): along the bottom of the view,
+## the teal fern band and, nearest, the plum stone band with its fern
+## silhouettes, in their own colours, placed in the world and sliding a little
+## faster than the level; kept under every floor, never hiding where Kleo walks.
+## `main_floor` (px) is the walking line Kleo spends the level on: the bands'
+## feet sit on the screen's bottom edge when she stands there.
+var main_floor := -1.0
+
+func _level_foreground() -> void:
+	_detail_kind = "surface"
+	var view_bottom := -1.0
+	if main_floor >= 0.0:
+		# The camera holds her feet 58 px below the view's centre
+		# (camera_rig.gd's vertical_offset); the view is 360 tall.
+		view_bottom = main_floor - 58.0 + 180.0
+	_fg_bands("ferns", Color(0, 0, 0, 0), ENV_WILDS, true, 0.0, "ForegroundFerns", view_bottom, main_floor)
+	_fg_bands("stones", Color(0, 0, 0, 0), ENV_WILDS, true, 180.0, "ForegroundStones", view_bottom, main_floor)
 
 
 ## A flat sky, light at the bottom: the black box reads against it.
@@ -151,6 +221,13 @@ func _false_wall(node_name: String, hide: Rect2i, face_x: int, rows: Vector2i, f
 	if blockout:
 		fake.visible = true
 		cover.get_node("Clip/FakeSkin").set("skin_visible", false)
+	if water_line > 0.0:
+		# The cover stops at the water: it never paints over it.
+		var clip := cover.get_node("Clip") as Polygon2D
+		var poly := clip.polygon
+		for i in poly.size():
+			poly[i].y = minf(poly[i].y, water_line)
+		clip.polygon = poly
 	return cover
 
 
@@ -212,8 +289,15 @@ func _thorns(x0: float, x1: float, floor_y: float, height := 12.0) -> Area2D:
 		x += 6.0
 		i += 1
 	poly.append(Vector2(x1 - x0, 0))
-	var art := _shape(a, poly, Color("#4a3448"), "Art")
-	art.z_index = 1
+	if blockout:
+		var art := _shape(a, poly, Color("#4a3448"), "Art")
+		art.z_index = 1
+	else:
+		# Book 3's T3: the bramble bed's two ends, side by side.
+		var left := _sprite(a, ENV_WILDS + "brambles.png", Rect2(4, 40, 26, 17), Vector2((x1 - x0) * 0.5 - 26.0, -16.0))
+		left.name = "Bramble"
+		var right := _sprite(a, ENV_WILDS + "brambles.png", Rect2(224, 40, 28, 17), Vector2((x1 - x0) * 0.5, -16.0))
+		right.name = "Bramble"
 	return a
 
 
@@ -253,34 +337,41 @@ func _offset(poly: PackedVector2Array, by: Vector2) -> PackedVector2Array:
 
 # --- Creatures -------------------------------------------------------------------------------------
 
-## A Thornhound on a flat floor, kept to [left_x, right_x] (world px).
-func _thornhound(x: float, floor_y: float, left_x: float, right_x: float) -> Node2D:
-	var h := _node(CharacterBody2D.new(), "Thornhound", _root) as CharacterBody2D
-	h.set_script(load("res://scripts/world/thornhound.gd"))
-	h.position = Vector2(x, floor_y)
-	h.z_index = 7
-	h.set("left_x", left_x)
-	h.set("right_x", right_x)
-	_node(_rect_shape(Vector2(20, 14), Vector2(0, -7)), "Shape", h)
-	var art := _node(Sprite2D.new(), "Art", h) as Sprite2D
-	art.texture = load("res://assets/characters/thornhound/thornhound.png")
-	art.hframes = 10
-	art.centered = false
-	art.position = Vector2(-24, -31)
+## A creature that fights by lunging (`lunger.gd`) on a flat floor, kept to
+## [left_x, right_x] (world px). `sprite`: one of the creative lead's roster
+## (game/assets/characters/roster/, a single pose until its sheet exists).
+const ROSTER := "res://assets/characters/roster/"
+
+func _lunger(x: float, floor_y: float, left_x: float, right_x: float, sprite := "rat") -> Node2D:
+	var tex: Texture2D = load(ROSTER + sprite + ".png")
+	var w := float(tex.get_width())
+	var h := float(tex.get_height())
+	var e := _node(CharacterBody2D.new(), "Lunger_" + sprite, _root) as CharacterBody2D
+	e.set_script(load("res://scripts/world/lunger.gd"))
+	e.position = Vector2(x, floor_y)
+	e.z_index = 7
+	e.set("left_x", left_x)
+	e.set("right_x", right_x)
+	_node(_rect_shape(Vector2(20, 14), Vector2(0, -7)), "Shape", e)
+	var art := _node(Sprite2D.new(), "Art", e) as Sprite2D
+	art.texture = tex
+	# Centred on its feet, so a squash or lean pivots where it stands.
+	art.centered = true
+	art.offset = Vector2(0, -roundf(h * 0.5) + 1.0)
 	var flash := ShaderMaterial.new()
 	flash.shader = load("res://shaders/hit_flash.gdshader")
 	art.material = flash
-	var hb := _node(Area2D.new(), "Hurtbox", h) as Area2D
+	var hb := _node(Area2D.new(), "Hurtbox", e) as Area2D
 	hb.collision_layer = 4
 	hb.collision_mask = 0
 	hb.monitoring = false
-	_node(_rect_shape(Vector2(30, 18), Vector2(0, -10)), "Shape", hb)
-	var touch := _node(Area2D.new(), "Touch", h) as Area2D
+	_node(_rect_shape(Vector2(w - 8.0, h - 6.0), Vector2(0, -h * 0.5)), "Shape", hb)
+	var touch := _node(Area2D.new(), "Touch", e) as Area2D
 	touch.collision_layer = 0
 	touch.collision_mask = 2
 	touch.monitorable = false
-	_node(_rect_shape(Vector2(22, 14), Vector2(4, -9)), "Shape", touch)
-	return h
+	_node(_rect_shape(Vector2(w * 0.55, h * 0.5), Vector2(4, -h * 0.4)), "Shape", touch)
+	return e
 
 
 # --- Things to find, carry and break ---------------------------------------------------------------
@@ -295,9 +386,9 @@ func _chest(x: float, floor_y: float, resin: int, flag: String) -> Node2D:
 	c.set("flag", flag)
 	var art := _node(Sprite2D.new(), "Art", c) as Sprite2D
 	art.texture = load("res://assets/items/chest.png")
-	art.hframes = 2
+	art.hframes = 3  # shut, opening, open (Book 3's T1)
 	art.centered = false
-	art.position = Vector2(-15, -23)
+	art.position = Vector2(-20, -39)
 	var hb := _node(Area2D.new(), "Hurtbox", c) as Area2D
 	hb.collision_layer = 4
 	hb.collision_mask = 0
@@ -358,19 +449,17 @@ func _cracked_wall(r: Rect2i, flag: String) -> StaticBody2D:
 		# Pale cracked stone, so the mark reads against the black box.
 		_shape(art, _box(Rect2(Vector2.ZERO, size)), Color("#6e6482"), "Stone")
 	else:
-		# Stand-in until the cracked-wall card is generated: SF11's pier
-		# stone, its courses, with the crack drawn over (Book 3, P1-CW).
-		var x := 0.0
-		while x < size.x:
-			var y := 0.0
-			while y < size.y:
-				var st := _sprite(art, PL, Rect2(81, 86, minf(30.0, size.x - x), minf(32.0, size.y - y)), Vector2(x, y))
-				st.name = "Stone"
-				y += 32.0
-			x += 30.0
-	_shape(art, PackedVector2Array([Vector2(size.x * 0.3, 0), Vector2(size.x * 0.55, size.y * 0.45), Vector2(size.x * 0.4, size.y * 0.6),
-		Vector2(size.x * 0.7, size.y), Vector2(size.x * 0.62, size.y), Vector2(size.x * 0.33, size.y * 0.62),
-		Vector2(size.x * 0.46, size.y * 0.45), Vector2(size.x * 0.22, 0)]), Color("#2a2234"), "Crack")
+		# Book 3's T2: the cracked stone, centred on the wall, standing on its
+		# floor; it breaks into the sheet's rubble.
+		var cw := _sprite(art, ENV_WILDS + "cracked_wall.png", Rect2(11, 20, 45, 46), Vector2(size.x * 0.5 - 22.0, size.y - 46.0))
+		cw.name = "Stone"
+		w.set_meta("rubble", [Rect2(13, 90, 11, 10), Rect2(40, 87, 18, 14), Rect2(74, 90, 12, 9), Rect2(105, 93, 6, 6),
+			Rect2(13, 112, 8, 7), Rect2(40, 112, 13, 8), Rect2(69, 108, 17, 14), Rect2(102, 112, 12, 8)])
+		w.set_meta("rubble_tex", ENV_WILDS + "cracked_wall.png")
+	if blockout:
+		_shape(art, PackedVector2Array([Vector2(size.x * 0.3, 0), Vector2(size.x * 0.55, size.y * 0.45), Vector2(size.x * 0.4, size.y * 0.6),
+			Vector2(size.x * 0.7, size.y), Vector2(size.x * 0.62, size.y), Vector2(size.x * 0.33, size.y * 0.62),
+			Vector2(size.x * 0.46, size.y * 0.45), Vector2(size.x * 0.22, 0)]), Color("#2a2234"), "Crack")
 	var hb := _node(Area2D.new(), "Hurtbox", w) as Area2D
 	hb.collision_layer = 4
 	hb.collision_mask = 0
@@ -403,12 +492,72 @@ func _cocoon(foot: Vector2, flag: String, who: String, crop := 0.0, parent: Node
 	return c
 
 
+## The water across the bottom of a level (the creative lead's mockups: still
+## water through the lower part of every view, the terraces and islands
+## standing in it, sunken stone and plants under its surface). Its surface is
+## `surface_y` (px); it runs across [x0, x1) for each span (px), down to the
+## level's bottom. Falling in is a hazard, as in any water. In front of the
+## terrain's base, behind Kleo.
+var water_line := 0.0  # set by _water_foreground: the level's water surface
+
+func _water_foreground(surface_y: float, spans: Array) -> void:
+	water_line = surface_y
+	var bottom := float(room.end.y * TILE)
+	var i := 0
+	for sp in spans:
+		var wn := _water("Water%d" % i, Vector2(sp[0], surface_y), Vector2(sp[1] - sp[0], bottom - surface_y), Vector2(40 + i * 31, 40))
+		wn.z_index = 12
+		var surf := wn.get_node("Surface") as ColorRect
+		var m := surf.material as ShaderMaterial
+		# The mockups' water: the creative lead's painted water (its own
+		# ripple and streaks), with the world above reflected lightly in it.
+		m.set_shader_parameter("shallow", Color("#1f5266"))
+		m.set_shader_parameter("deep", Color("#0f2a3a"))
+		m.set_shader_parameter("line_color", Color("#7fc4c8"))
+		if not blockout:
+			var paint: Texture2D = load(ENV_WILDS + "water_paint.png")
+			m.set_shader_parameter("use_paint", true)
+			m.set_shader_parameter("paint", paint)
+			m.set_shader_parameter("paint_size", Vector2(paint.get_size()))
+			m.set_shader_parameter("reflect_strength", 0.32)
+		else:
+			m.set_shader_parameter("reflect_strength", 0.55)
+		i += 1
+
+
+## Where the water stops against a mass that stands on the water bed (a
+## hill), the mass's face runs on down under the water: the ruin stone's wall
+## band, seen through the surface. `faces`: 1 for a face toward the right.
+func _face_under_water(face_x: float, faces: int) -> void:
+	var bottom := float(room.end.y * TILE)
+	var y := water_line - 4.0
+	while y < bottom:
+		var h := minf(252.0, bottom - y)
+		var x := face_x - 31.0 if faces > 0 else face_x - 10.0
+		var band := _underwater(RUIN + "ruin_wall.png", Rect2(0, 0, 41, h), Vector2(x, y), faces < 0)
+		band.z_index = 13
+		y += 252.0
+
+
+## Something seen under the water: tinted toward the water and a little
+## faded, drawn over it (z 13).
+const UNDERWATER_TINT := Color(0.42, 0.62, 0.72, 0.78)
+
+func _underwater(tex_path: String, region: Rect2, pos: Vector2, flip := false) -> Sprite2D:
+	var s := _sprite(_root, tex_path, region, pos)
+	s.name = "Underwater"
+	s.z_index = 13
+	s.modulate = UNDERWATER_TINT
+	s.flip_h = flip
+	return s
+
+
 ## A walkway along the top of a tree's crown: one-way, its leaves (SF9's
 ## canopy band, whose top is flat) laid with their top on the walking line.
 ## In a blockout it is a timber log like the rest.
 const CANOPY := Rect2(112, 184, 256, 61)
 
-func _canopy(x0: float, x1: float, y: float) -> void:
+func _canopy(x0: float, x1: float, y: float, leaves := true) -> void:
 	if blockout:
 		_log(_root, x0, x1, y)
 		return
@@ -416,6 +565,8 @@ func _canopy(x0: float, x1: float, y: float) -> void:
 	var cs := _rect_shape(Vector2(x1 - x0, 8), Vector2((x0 + x1) * 0.5, y + 4.0))
 	cs.one_way_collision = true
 	_node(cs, "Shape", b)
+	if not leaves:
+		return  # the level paints it (a treetop, a fallen trunk)
 	var placed := _root.get_node("PlacedArt")
 	var x := x0 - 8.0
 	var flip := false

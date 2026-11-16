@@ -195,7 +195,8 @@ func _shots() -> void:
 		places = SHOTS_IB04
 	for p in places:
 		_place(p[1], p[2], p[3])
-		await _frames(40)
+		# long enough for a banner set off by the shot before (1.5 s) to fade
+		await _frames(100 if room_id == "l1_1" else 40)
 		await _capture(p[0])
 	get_tree().call_group("box_view", "set_box_view", true)
 	for p in places:
@@ -426,15 +427,15 @@ const SHOTS_L11 := [
 	["01_start_terraces_stall", 12.0, 30, 1],
 	["02_water_pit_mushroom_island", 61.0, 30, 1],
 	["03_chest_block_checkpoint1", 88.0, 25, 1],
-	["04_plateau_thornhound", 112.0, 24, 1],
-	["05_log_and_gap", 146.0, 25, 1],
+	["04_plateau_rat", 112.0, 24, 1],
+	["05_log_and_gap", 139.5, 24, 1],
 	["06_false_wall", 186.0, 30, -1],
 	["07_crates_great_tree", 203.0, 30, 1],
 	["07b_root_bank_crates", 238.5, 27, 1],
 	["08_cracked_wall_hill", 226.0, 30, 1],
-	["09_canopy_route", 255.0, 18, 1],
+	["09_canopy_route", 248.0, 18, 1],
 	["10_bonus_room", 250.0, 34, 1],
-	["11_islands", 310.0, 26, 1],
+	["11_islands", 310.5, 26, 1],
 	["12_pits_thorns", 360.0, 30, 1],
 	["13_end_doorway", 420.0, 24, 1],
 ]
@@ -769,7 +770,7 @@ func _click() -> void:
 
 ## Layers left out of the map: the parallax planes, the foreground silhouettes
 ## (they belong to the camera, not the room), the screen effects and Kleo.
-const MAP_HIDDEN := ["Sky", "Far", "FogFar", "MidFar", "Mid", "FogMid", "Ruins", "Mood", "Foreground", "ForegroundNear", "Screen", "Kleo"]
+const MAP_HIDDEN := ["Sky", "Far", "Aqueduct", "ForegroundFerns", "ForegroundStones", "FogFar", "MidFar", "Mid", "FogMid", "Ruins", "Mood", "Foreground", "ForegroundNear", "Screen", "Kleo"]
 
 
 func _map_hide() -> void:
@@ -1022,7 +1023,7 @@ func _systems() -> void:
 	await _frames(30)
 	check.call("the spilled beads can be gathered", Game.currency >= 4, "Resin %d" % Game.currency)
 
-	# The Thornhound: notice, wind-up, lunge; it fights back; struck, it flinches.
+	# The lunging enemy (the rat): notice, wind-up, lunge; it fights back; struck, it flinches.
 	Game.heal(3)
 	var hound: Node = _find("enemy")[0]
 	_place(44.5, 20)
@@ -1034,7 +1035,7 @@ func _systems() -> void:
 		await _frames(1)
 		if not is_instance_valid(hound):
 			break
-		var st: String = Thornhound.S.keys()[hound.state]
+		var st: String = Lunger.S.keys()[hound.state]
 		seen[st] = true
 		if not shots.has(st) and st in ["NOTICE", "WINDUP", "LUNGE"]:
 			shots[st] = true
@@ -1057,7 +1058,7 @@ func _systems() -> void:
 			if i % 9 == 0:
 				_tap_f("attack")
 		await _frames(1)
-		if is_instance_valid(hound) and hound.state == Thornhound.S.FLINCH:
+		if is_instance_valid(hound) and hound.state == Lunger.S.FLINCH:
 			if not flinched:
 				await _shot("05_hound_flinch")
 			flinched = true
@@ -1223,11 +1224,11 @@ func _tour_l1_1() -> void:
 	res.append(["down off the stack to the hill", await _step_off("move_right", 3960, 27)])
 	await _hold_until(["move_right"], func(): return kleo.global_position.x > 4600.0, 400)
 	res.append(["off the hill", await _step_off("move_right", 4680, 30)])
-	res.append(["island 1 (4 across, 2 up)", await _jump_to(4720, 4822, 4890, 28, 4744)])
-	res.append(["island 2 (4 across, 2 up)", await _jump_to(4862, 4966, 5034, 26, 4886)])
-	res.append(["island 3 (4 across, 3 down)", await _jump_to(5010, 5110, 5178, 29, 5028)])
-	res.append(["island 4 (4 across, 2 up)", await _jump_to(5150, 5254, 5306, 27, 5170)])
-	res.append(["the far bank (4 across, 3 down)", await _jump_to(5292, 5384, 5520, 30, 5302)])
+	res.append(["island 1 (4 across, 2 up)", await _jump_to(4720, 4820, 4875, 28, 4744)])
+	res.append(["island 2 (4 across, 2 up)", await _jump_to(4860, 4948, 5003, 26, 4872)])
+	res.append(["island 3 (4 across, 3 down)", await _jump_to(4990, 5076, 5131, 29, 5000)])
+	res.append(["island 4 (4 across, 2 up)", await _jump_to(5118, 5204, 5243, 27, 5128)])
+	res.append(["the far bank (4 across, 3 down)", await _jump_to(5232, 5316, 5440, 30, 5240)])
 	# FINISH: the pits, the thorns, the step, the terraces, the doorway.
 	res.append(["over the pit (4 across)", await _jump_to(5720, 5864, 5910, 30, 5770)])
 	res.append(["over the thorns", await _jump_to(5900, 5992, 6060, 30, 5916)])
@@ -1339,14 +1340,14 @@ func _secrets_l1_1() -> void:
 	res.append(["onto the crate (2 up)", await _jump_to(3858, 3886, 3910, 22)])
 	res.append(["onto the stack of two (2 up)", await _jump_to(3900, 3924, 3948, 20)])
 	res.append(["up into the first treetop (4 up from the stack)", await _hop_up(18, 0)])
-	res.append(["treetop 2 (4 across, 1 up)", await _jump_to(248.0 * TILE, 257.3 * TILE, 265.7 * TILE, 17, 252.6 * TILE)])
-	res.append(["treetop 3 (4 across, 2 down)", await _jump_to(261.0 * TILE, 270.3 * TILE, 278.7 * TILE, 19, 265.6 * TILE)])
-	res.append(["treetop 4 (4 across, 2 up)", await _jump_to(274.0 * TILE, 283.3 * TILE, 290.7 * TILE, 17, 278.6 * TILE)])
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 289.2 * TILE, 100)
+	res.append(["treetop 2 (4 across, 1 up)", await _jump_to(3968, 4084, 4204, 17, 4008)])
+	res.append(["treetop 3 (4 across, 2 down)", await _jump_to(4150, 4276, 4364, 19, 4200)])
+	res.append(["treetop 4 (4 across, 2 up)", await _jump_to(4300, 4436, 4540, 17, 4360)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 4520.0, 100)
 	_tap("interact")
 	await _wait(60)
 	res.append(["cocoon 3 freed (at the treetops' end)", Game.rescued.has("l11_cocoon3")])
-	res.append(["down off the last treetop, past the hill to the ground", await _step_off("move_right", 291.4 * TILE, 30)])
+	res.append(["down off the last treetop onto the hill", await _step_off("move_right", 4552.0, 27)])
 	# The treetops can't be reached from the hill without the crates.
 	_place(262.0, 27)
 	await _wait(10)

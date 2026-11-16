@@ -45,7 +45,19 @@ func _open(animate: bool) -> void:
 		art.visible = false
 		return
 	var box: Rect2 = get_meta("rect", Rect2(-16, -32, 32, 32))
-	for i in 10:
+	if has_meta("rubble"):
+		# The sheet's own rubble (Book 3's T2), thrown out of the wall.
+		var tex: Texture2D = load(get_meta("rubble_tex"))
+		for r in get_meta("rubble"):
+			var stone := Debris.new()
+			stone.texture = tex
+			stone.region_enabled = true
+			stone.region_rect = r
+			stone.life = randf_range(1.2, 1.8)
+			stone.velocity = Vector2(randf_range(40.0, 170.0) * (1 if randf() > 0.25 else -1), -randf_range(90.0, 220.0))
+			get_parent().add_child(stone)
+			stone.global_position = global_position + box.position + Vector2(randf() * box.size.x, randf() * box.size.y)
+	for i in (0 if has_meta("rubble") else 10):
 		var chunk := Debris.new()
 		chunk.texture = load("res://assets/fx/pixel.png")
 		chunk.scale = Vector2(randf_range(3.0, 6.0), randf_range(3.0, 6.0)).round()

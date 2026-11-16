@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcqv2i1eumo3e"
-path="res://.godot/imported/thornhound.png-47b3de2513358e9d897de1f27c33e81d.ctex"
+uid="uid://br2rua23pnprr"
+path="res://.godot/imported/gourd_chomper.png-ae9314d96bb4231285c2ac7e1c098f7a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/thornhound/thornhound.png"
-dest_files=["res://.godot/imported/thornhound.png-47b3de2513358e9d897de1f27c33e81d.ctex"]
+source_file="res://assets/characters/roster/gourd_chomper.png"
+dest_files=["res://.godot/imported/gourd_chomper.png-ae9314d96bb4231285c2ac7e1c098f7a.ctex"]
 
 [params]
 

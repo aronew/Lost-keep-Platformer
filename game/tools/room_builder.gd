@@ -286,10 +286,19 @@ const FG_BAND_W := 724.0
 
 
 ## `kind` is "crypt" or "forest" (fg_<kind>_bottom_a.png and so on).
-func _fg_bands(kind: String, fog_tint: Color) -> void:
-	var holder := _node(Node2D.new(), "ForegroundBands", _root) as Node2D
+## `dir`: where the band textures are; `own_colour`: keep the band's painted
+## colours (the platformer's bands) rather than darkening it to a silhouette;
+## `shift`: a sideways offset, so two bands at one depth don't line up.
+## `view_bottom` (px, optional): the view's bottom edge when Kleo stands on
+## the main floor; the bottom band's foot sits on the screen's bottom edge
+## there (by default: when the camera is at its lowest). `lowest_floor` (px,
+## optional): the floor the bottom band must stay under (by default the lowest
+## floor in the room).
+func _fg_bands(kind: String, fog_tint: Color, dir := ENV, own_colour := false, shift := 0.0, holder_name := "ForegroundBands",
+		view_bottom := -1.0, lowest_floor := -1.0) -> void:
+	var holder := _node(Node2D.new(), holder_name, _root) as Node2D
 	var top_px := float(room.position.y * TILE)
-	var bot_px := float(room.end.y * TILE)
+	var bot_px := float(room.end.y * TILE) if view_bottom < 0.0 else view_bottom
 	var unlit := CanvasItemMaterial.new()
 	unlit.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 	var view_h := 360.0
@@ -313,13 +322,17 @@ func _fg_bands(kind: String, fog_tint: Color) -> void:
 				# above the room's bottom, "you can't see the floor").
 				lowest = maxf(lowest, c.y * TILE)
 				highest = minf(highest, c.y * TILE)
+	if lowest_floor >= 0.0:
+		lowest = lowest_floor
 	for i in FG_DEPTHS.size():
 		var d: Array = FG_DEPTHS[i]
 		var sc: Vector2 = d[0]
 		var layer := _node(Parallax2D.new(), "FgDepth%d" % (i + 1), holder) as Parallax2D
 		layer.scroll_scale = sc
-		layer.repeat_size = Vector2(FG_BAND_W * 2.0, 0)
-		layer.repeat_times = maxi(3, int(room.size.x * TILE / (FG_BAND_W * 2.0)) + 3)
+		var band_w := float((load(dir + "fg_%s_bottom_a.png" % kind) as Texture2D).get_width())
+		var pair_w := band_w + float((load(dir + "fg_%s_bottom_b.png" % kind) as Texture2D).get_width())
+		layer.repeat_size = Vector2(pair_w, 0)
+		layer.repeat_times = maxi(3, int(room.size.x * TILE / pair_w) + 3)
 		layer.z_index = 27 + i * 2
 		var flip := i == FG_DEPTHS.size() - 1
 		var first: String = d[3]
@@ -329,13 +342,14 @@ func _fg_bands(kind: String, fog_tint: Color) -> void:
 		for part in FG_PARTS:
 			var band_h := 0.0
 			for j in 2:
-				var tex: Texture2D = load(ENV + "fg_%s_%s_%s.png" % [kind, part, order[j]])
+				var tex: Texture2D = load(dir + "fg_%s_%s_%s.png" % [kind, part, order[j]])
 				band_h = maxf(band_h, tex.get_height())
 				var sp := Sprite2D.new()
 				sp.texture = tex
 				sp.centered = false
 				sp.flip_h = flip
-				var x := j * FG_BAND_W + i * 241.0
+				var first_w := float((load(dir + "fg_%s_%s_%s.png" % [kind, part, order[0]]) as Texture2D).get_width())
+				var x := j * first_w + i * 241.0 + shift
 				var y: float
 				# Where a child at layer y shows: y + camera_top * (1 - scroll).
 				# The bottom band's foot sits on the screen's bottom edge when the
@@ -346,7 +360,7 @@ func _fg_bands(kind: String, fog_tint: Color) -> void:
 				else:
 					y = sc.y * top_px - float(d[2]) - _fg_lift(top_px, highest, tex.get_height())
 				sp.position = Vector2(x, y).round()
-				sp.modulate = d[1]
+				sp.modulate = Color.WHITE if own_colour else d[1]
 				if not d[4]:
 					sp.material = unlit
 				_node(sp, "Band" + part.capitalize() + order[j].to_upper(), layer)
@@ -1238,7 +1252,10 @@ func _false_wall(node_name: String, hide: Rect2i, face_x: int, rows: Vector2i, f
 	clip.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 	var skin := _node(Node2D.new(), "FakeSkin", clip)
 	skin.set_script(load("res://scripts/world/terrain_skin.gd"))
-	var area := Rect2i(hide.position - Vector2i(m + 3, m + 3), hide.size + Vector2i(2 * (m + 3), 2 * (m + 3))).intersection(room)
+	# The fake skin measures each cell's depth inside the rock over this area;
+	# it reaches well past the clip, so a fading fill matches the real wall's
+	# at the clip's edge.
+	var area := Rect2i(hide.position - Vector2i(m + 10, m + 10), hide.size + Vector2i(2 * (m + 10), 2 * (m + 10))).intersection(room)
 	skin.set("room_rect", area)
 	skin.set("materials", Array([_earth, _stone], TYPE_OBJECT, &"Resource", load("res://scripts/world/terrain_material.gd")))
 	skin.set("skip_regions", _rects(skip))
