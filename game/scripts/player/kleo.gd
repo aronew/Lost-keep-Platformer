@@ -29,6 +29,16 @@ const HANG := Vector2(6.0, 50.0)
 @export var air_accel := 1200.0
 @export var air_decel := 650.0
 
+@export_group("Stride")
+## Run on without stopping and she finds her stride: faster, with a longer
+## jump (Donkey Kong's roll, Mario's run: speed as the reward for flow). It
+## lasts through jumps while she keeps moving; stopping, turning, a hit or a
+## swing loses it. Height is unchanged: no secret is reached by it alone.
+@export var stride_after := 1.0
+@export var stride_speed := 182.0
+## Below this ground speed the stride is lost.
+@export var stride_keep := 120.0
+
 @export_group("Jump")
 @export var jump_velocity := 312.0
 @export var gravity_up := 864.0
@@ -91,6 +101,9 @@ var solid: TileMapLayer  # the rock; shares its grid with the mass layer
 var _solids: Array[TileMapLayer] = []
 var last_safe := Vector2.ZERO
 
+## True while she runs in her stride.
+var striding := false
+var _run_time := 0.0
 var _input_x := 0.0
 var _coyote := 0.0
 var _jump_buffer := 0.0
@@ -154,6 +167,8 @@ func _physics_process(delta: float) -> void:
 	_jump_held = Input.is_action_pressed("jump")
 	sprite.modulate.a = 0.45 if _invuln > 0.0 and int(_invuln * 20.0) % 2 == 0 else 1.0
 
+	if state != State.NORMAL and _run_time > 0.0:
+		_end_stride()
 	match state:
 		State.NORMAL:
 			_normal(delta)
@@ -180,8 +195,31 @@ func _gravity(delta: float, scale := 1.0) -> void:
 	velocity.y = min(velocity.y + g * scale * delta, max_fall)
 
 
+## The stride builds on the ground at full speed, holds in the air, and ends
+## when she slows, turns or carries something.
+func _stride(delta: float, on_floor: bool) -> void:
+	var with_run := _input_x != 0.0 and signf(_input_x) == signf(velocity.x)
+	if held or _turning or (on_floor and (not with_run or absf(velocity.x) < stride_keep)):
+		_end_stride()
+		return
+	if on_floor:
+		_run_time += delta
+	if not striding and _run_time >= stride_after:
+		striding = true
+		if sprite.animation == "run":
+			sprite.speed_scale = 1.25
+		Fx.dust(self, global_position, Fx.SKID, facing)
+
+
+func _end_stride() -> void:
+	_run_time = 0.0
+	if striding:
+		striding = false
+		sprite.speed_scale = 1.0
+
+
 func _horizontal(delta: float, control := 1.0) -> void:
-	var target := _input_x * run_speed * (carry_speed if held else 1.0)
+	var target := _input_x * (stride_speed if striding else run_speed) * (carry_speed if held else 1.0)
 	var on_floor := is_on_floor()
 	var accel := (ground_accel if on_floor else air_accel) if _input_x != 0.0 else (ground_decel if on_floor else air_decel)
 	velocity.x = move_toward(velocity.x, target, accel * control * delta)
@@ -200,6 +238,7 @@ func _normal(delta: float) -> void:
 				_play("turn")
 			elif not _turning:
 				facing = dir
+	_stride(delta, on_floor)
 	_horizontal(delta, 0.0 if _lock > 0.0 else (0.35 if _turning else 1.0))
 	if _turning:
 		velocity.x = move_toward(velocity.x, 0.0, ground_decel * delta)
@@ -820,6 +859,7 @@ func _play(anim: String, restart := false) -> void:
 	if sprite.animation == anim and sprite.is_playing() and not restart:
 		return
 	sprite.play(anim)
+	sprite.speed_scale = 1.25 if striding and anim == "run" else 1.0
 	if restart:
 		sprite.frame = 0
 		sprite.frame_progress = 0.0
@@ -863,5 +903,5 @@ func _frame_fx() -> void:
 
 
 func debug_text() -> String:
-	return "%s  %s:%d  v(%d,%d)  floor %s" % [State.keys()[state], sprite.animation, sprite.frame,
-		int(velocity.x), int(velocity.y), is_on_floor()]
+	return "%s  %s:%d  v(%d,%d)  floor %s%s" % [State.keys()[state], sprite.animation, sprite.frame,
+		int(velocity.x), int(velocity.y), is_on_floor(), "  STRIDE" if striding else ""]

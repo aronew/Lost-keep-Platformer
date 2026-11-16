@@ -184,8 +184,6 @@ func _teach() -> void:
 # --- TEST: the first enemy that fights (the rat), the log, the gaps, the false wall ------------------------------
 
 func _test() -> void:
-	_checkpoint(_t(94), G, "l11_cp1")
-	_label("CHECKPOINT 1", Vector2(_t(92), G - 76))
 	_label("TEST", Vector2(_t(96), _t(16)))
 	_beads([Vector2(_t(101), _t(27) - 12), Vector2(_t(104), _t(27) - 12), Vector2(_t(107), _t(24) - 12)], "l11_t")
 	_lunger(_t(122), _t(24), _t(108), _t(130), "rat")
@@ -212,8 +210,9 @@ func _test() -> void:
 # --- TWIST: the hill's hidden cave, the treetops, the islands --------------------------------------
 
 func _twist() -> void:
-	_checkpoint(_t(196), G, "l11_cp2")
-	_label("CHECKPOINT 2", Vector2(_t(194), G - 76))
+	# The level's one checkpoint, at its middle: the Guard's banner.
+	_checkpoint(_t(196), G, "l11_mid")
+	_label("MIDWAY BANNER\n(the checkpoint)", Vector2(_t(194), G - 84))
 	_label("TWIST", Vector2(_t(198), _t(8)))
 	_crate(_t(202.5), G, CRATE_B)
 	_label("A CRATE\n(throw it at the rat)", Vector2(_t(200), G - 40))
@@ -233,6 +232,10 @@ func _twist() -> void:
 		Vector2(_t(484), _t(25) - 12), Vector2(_t(487), _t(25) - 12), Vector2(_t(490), _t(25) - 12)])
 	_bonus_door(_t(258.5), floor_b, gather, Vector2(_t(256), floor_b), -1, "ruin-hollow")
 	_label("BONUS 1 ENTRANCE\n(in the hidden cave)", Vector2(_t(250), _t(28) + 2))
+	# The level's great secret, a secret within a secret: Morvath's thorn knot
+	# sleeps in the dark behind the glowing hollow. The hollow takes her to the
+	# bonus every time she walks in; only once it is won does it let her by.
+	_knot(Vector2(_t(259.4), floor_b - 14), "l11_knot")
 	# The great tree by the crates (backdrop only), and the trees whose crowns
 	# carry the canopy route.
 	_backdrop_tree(_t(214), G, _t(12), 64.0, 200.0)
@@ -282,8 +285,6 @@ func _twist() -> void:
 # --- FINISH: a run to the doorway: pits, thorns, a last chest -------------------------------------
 
 func _finish_beat() -> void:
-	_checkpoint(_t(340), G, "l11_cp3")
-	_label("CHECKPOINT 3", Vector2(_t(338), G - 76))
 	_label("FINISH", Vector2(_t(342), _t(16)))
 	_mossback(_t(352), G, _t(344), _t(359))
 	_bead_arc(Vector2(_t(361), G), Vector2(_t(367), G), 26.0, 3, "l11_pit2")

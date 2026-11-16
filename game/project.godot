@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Lost Keep: Platformer"
 config/description="A side-scrolling, level-based action platformer. Kleo of the Ironbark Guard searches Vaelora for her missing people."
-run/main_scene="res://scenes/levels/l1_1_overgrown_ruins.tscn"
+run/main_scene="res://scenes/ui/world_map.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 

@@ -428,33 +428,27 @@ func _rect_shape(size: Vector2, at: Vector2) -> CollisionShape2D:
 
 # --- Checkpoints, hazards, the level's end ---------------------------------------------------
 
-## A checkpoint lantern post standing on `floor_y` at `x` (its left edge).
+## The midway checkpoint: a Guard's banner on a pole standing on `floor_y` at
+## `x` (its left edge), furled until she passes. One a level, at its middle.
 func _checkpoint(x: float, floor_y: float, flag: String) -> Node2D:
 	var c := _node(Node2D.new(), "Checkpoint", _root) as Node2D
 	c.set_script(load("res://scripts/world/checkpoint.gd"))
 	c.position = Vector2(x, floor_y).round()
 	c.z_index = 3
 	c.set("flag", flag)
-	var lamp := Vector2(POST_LAMP.x, -POST_DARK.size.y + 1 + POST_LAMP.y)
-	if daylight and not blockout:
-		# Book 4's lantern posts (D15), unlit and lit; the lamp hangs at their
-		# left, 7 across and 13 down.
-		var dd := _day_sprite(c, "unlit-lantern-post", Vector2(-6, -40))
-		dd.name = "Dark"
-		var ll := _day_sprite(c, "lit-lantern-post", Vector2(-6, -40))
-		ll.name = "Lit"
-		ll.visible = false
-		lamp = Vector2(1, -27)
-	else:
-		var dark := _sprite(c, LANTERN_SHEET, POST_DARK, Vector2(0, -POST_DARK.size.y + 1))
-		dark.name = "Dark"
-		var lit := _sprite(c, LANTERN_SHEET, POST_LIT, Vector2(0, -POST_LIT.size.y + 1))
-		lit.name = "Lit"
-		lit.visible = false
-	var l := _light(c, lamp, LAMP, 1.0, 1.0, "Light")
+	c.set("light_energy", 0.5)
+	for part in [["Dark", 0], ["Lit", 1]]:
+		var s := _node(Sprite2D.new(), part[0], c) as Sprite2D
+		s.texture = load("res://assets/items/banner.png")
+		s.hframes = 3
+		s.frame = part[1]
+		s.centered = false
+		s.position = Vector2(0, -63)
+		s.visible = part[1] == 0
+	var l := _light(c, Vector2(7, -58), LAMP, 0.8, 0.8, "Light")
 	l.energy = 0.0
 	var trig := _node(Area2D.new(), "Trigger", c) as Area2D
-	_node(_rect_shape(Vector2(28, 48), Vector2(POST_LAMP.x, -24)), "Shape", trig)
+	_node(_rect_shape(Vector2(28, 48), Vector2(14, -24)), "Shape", trig)
 	return c
 
 
@@ -720,6 +714,26 @@ func _letter(pos: Vector2, letter: String, flag: String) -> Area2D:
 	return a
 
 
+## The level's great secret: one of Morvath's thorn knots, asleep, hanging at
+## `pos` (px). One a level, hidden with real cunning (ThornKnot).
+func _knot(pos: Vector2, flag: String) -> Area2D:
+	var a := _node(Area2D.new(), "ThornKnot", _root) as Area2D
+	a.set_script(load("res://scripts/world/thorn_knot.gd"))
+	a.set("flag", flag)
+	a.position = pos.round()
+	a.z_index = 9
+	var art := _node(Sprite2D.new(), "Art", a) as Sprite2D
+	art.texture = load("res://assets/items/knot.png")
+	art.hframes = 2
+	var cs := CollisionShape2D.new()
+	var cc := CircleShape2D.new()
+	cc.radius = 9.0
+	cs.shape = cc
+	_node(cs, "Shape", a)
+	_label("THORN KNOT\n(the great secret)", pos + Vector2(-30, -34))
+	return a
+
+
 ## The water across the bottom of a level (the creative lead's mockups: still
 ## water through the lower part of every view, the terraces and islands
 ## standing in it, sunken stone and plants under its surface). Its surface is
@@ -895,7 +909,7 @@ func _bonus_zone(kind: String, area: Rect2i, start: Vector2, token_pos: Vector2,
 			a.position = (p as Vector2).round()
 			var cs := CollisionShape2D.new()
 			var cc := CircleShape2D.new()
-			cc.radius = 7.0
+			cc.radius = 9.0
 			cs.shape = cc
 			_node(cs, "Shape", a)
 			var art := _node(Sprite2D.new(), "Art", a) as Sprite2D

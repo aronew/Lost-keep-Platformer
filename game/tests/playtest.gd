@@ -28,6 +28,7 @@ const ROOMS := {
 	"ib04": "res://scenes/rooms/ironbark_04_gate_road.tscn",
 	"sys": "res://scenes/levels/systems_arena.tscn",
 	"l1_1": "res://scenes/levels/l1_1_overgrown_ruins.tscn",
+	"l1_2": "res://scenes/levels/l1_2_gate_road.tscn",
 }
 const TILE := 16.0
 
@@ -54,6 +55,14 @@ func _ready() -> void:
 			only = arg.substr(5)
 	out_dir = "res://tests/out/" + ("" if room_id == "ib01" else room_id + "/") + mode
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
+	# Tests start from nothing and leave the player's save alone.
+	Game.save_enabled = false
+	Game.flags.clear()
+	Game.currency = 0
+	if room_id == "map":
+		await _map_test()
+		get_tree().quit()
+		return
 	Game.room_host = _swap_room  # doors swap the room under this harness
 	await _swap_room(ROOMS[room_id])
 	await _frames(2)
@@ -73,6 +82,20 @@ func _ready() -> void:
 				await _tour_l1_1()
 			"secrets":
 				await _secrets_l1_1()
+			"shots":
+				await _shots()
+			"map":
+				await _map()
+		get_tree().quit()
+		return
+	if room_id == "l1_2":
+		match mode:
+			"tour":
+				await _tour_l1_2()
+			"secrets":
+				await _secrets_l1_2()
+			"stride":
+				await _stride_l1_2()
 			"shots":
 				await _shots()
 			"map":
@@ -191,6 +214,12 @@ func _shots() -> void:
 	if room_id == "l1_1":
 		places = SHOTS_L11
 		_calm_enemies()
+	if room_id == "l1_2":
+		places = SHOTS_L12
+		_calm_enemies()
+		# The bonus areas' Resin, lit as it is while a bonus runs.
+		for z in _find("bonus_zone"):
+			z._show_beads(true)
 	if room_id == "sys":
 		places = [["01_arena", 20.0, 20, 1], ["02_bonus", 72.0, 20, 1], ["03_platform", 96.0, 20, 1]]
 	if room_id == "ib03":
@@ -204,7 +233,7 @@ func _shots() -> void:
 			room.call("set_area", p[4] if p.size() > 4 else Rect2i())
 		_place(p[1], p[2], p[3])
 		# long enough for a banner set off by the shot before (1.5 s) to fade
-		await _frames(100 if room_id == "l1_1" else 40)
+		await _frames(100 if room_id.begins_with("l1_") else 40)
 		await _capture(p[0])
 	get_tree().call_group("box_view", "set_box_view", true)
 	for p in places:
@@ -436,11 +465,11 @@ func _jump_to(from_x: float, x0: float, x1: float, row: int, takeoff_x := -1.0) 
 const SHOTS_L11 := [
 	["01_start_terraces_stall", 12.0, 30, 1],
 	["02_water_pit_mushroom_island", 61.0, 30, 1],
-	["03_chest_block_checkpoint1", 88.0, 25, 1],
+	["03_chest_block", 88.0, 25, 1],
 	["04_plateau_rat", 112.0, 24, 1],
 	["05_log_and_gap", 139.5, 24, 1],
 	["06_false_wall", 186.0, 30, -1],
-	["07_crate_great_tree", 203.0, 30, 1],
+	["07_midway_banner_crate", 203.0, 30, 1],
 	["07b_root_bank_crates", 238.5, 27, 1],
 	["08_hill_false_wall", 226.0, 30, 1],
 	["09_canopy_route", 248.0, 18, 1],
@@ -1085,7 +1114,7 @@ func _systems() -> void:
 	await _frames(60)
 
 	# The crate: lift it, carry it, throw it at the cracked wall.
-	_place(66.5, 20)
+	_place(65.5, 20)
 	await _frames(10)
 	await _walk_to(67.6 * TILE)
 	await _frames(4)
@@ -1234,7 +1263,6 @@ func _tour_l1_1() -> void:
 	res.append(["ledge catch onto the chest block (5 up)", await _jump_to(1300, 1316, 1436, 25)])
 	res.append(["off the block", await _step_off("move_right", 1448, 30)])
 	# TEST: wall terraces, the plateau, the log, the gap, down past the false wall.
-	res.append(["checkpoint 1 lit", true])
 	res.append(["wall terrace (3 up)", await _jump_to(1575, 1604, 1690, 27)])
 	res.append(["the plateau (3 up)", await _jump_to(1672, 1700, 2100, 24)])
 	await _hold_until(["move_right"], func(): return kleo.global_position.x > 2400.0, 300)
@@ -1273,8 +1301,8 @@ func _tour_l1_1() -> void:
 	for r in res:
 		lines.append("%s %s" % ["PASS" if r[1] else "FAIL", r[0]])
 		all = all and r[1]
-	lines.append("checkpoints lit: %d of 3; flames left %d; Resin on the main line %d" % [
-		_find("checkpoint").filter(func(c): return c.lit).size(), hp, Game.currency])
+	lines.append("the midway banner reached: %s; flames left %d; Resin on the main line %d" % [
+		_find("checkpoint").filter(func(c): return c.lit).size() == 1, hp, Game.currency])
 	lines.append("ALL PASS" if all else "SOME FAILED")
 	_report(lines, "tour")
 
@@ -1345,6 +1373,9 @@ func _secrets_l1_1() -> void:
 			break
 	await _wait(20)
 	res.append(["back out in the cave beside the hollow (x %.0f, y %.0f)" % [kleo.global_position.x, kleo.global_position.y], absf(kleo.global_position.x - 256.0 * TILE) < 12.0 and _floor_at(34)])
+	# The hollow, won, lets her by: the thorn knot sleeps in the dark behind it.
+	await _hold_until(["move_right"], func(): return room.get_node("ThornKnot").is_awake(), 150)
+	res.append(["past the won hollow: Morvath's knot wakes (the great secret)", Game.flags.has("l11_knot") and Game.bonus == null])
 	# Out again: back west over the blocks, a ledge catch up into the tunnel.
 	var over_blocks := await _jump_to(4080.0, 4052.0, 4092.0, 31)
 	over_blocks = over_blocks and await _step_off("move_left", 4040.0, 34)
@@ -1422,3 +1453,385 @@ func _zone(kind: String) -> BonusZone:
 		if z.kind == kind:
 			return z
 	return null
+
+
+# --- Level 1-2 (room=l1_2) ------------------------------------------------------------------------
+
+const SHOTS_L12 := [
+	["01_start_wall_stubs", 14.0, 30, 1],
+	["02_first_water", 62.0, 30, 1],
+	["03_first_floating_island", 96.0, 25, 1],
+	["04_rampart_thorn_knot", 124.0, 24, 1],
+	["05_long_pool_low_path", 160.0, 29, 1],
+	["06_high_path", 150.0, 19, 1],
+	["07_great_island_rat", 176.0, 18, 1],
+	["08_high_path_end_bonus1", 204.0, 20, 1],
+	["09_road_ends_midway_banner", 222.0, 30, 1],
+	["10_old_landing_bonus2", 235.0, 31, 1],
+	["11_floating_islands", 262.0, 22, 1],
+	["12_islands_to_bank", 302.0, 22, 1],
+	["13_thorns_last_water", 340.0, 30, 1],
+	["14_last_islands", 368.0, 25, 1],
+	["15_gatehouse", 420.0, 24, 1],
+	["16_bonus_course", 470.0, 29, 1, Rect2i(452, 16, 40, 24)],
+	["17_bonus_gather", 512.0, 26, 1, Rect2i(496, 16, 40, 24)],
+]
+
+
+## A step up beside her (2 or 3 tiles): the wall's x and the floor's far end, in tiles.
+func _rise(wall: float, far: float, row: int) -> bool:
+	if far > wall:
+		return await _jump_to(wall * TILE - 24.0, wall * TILE + 4.0, far * TILE - 5.0, row)
+	return await _jump_to(wall * TILE + 24.0, far * TILE + 5.0, wall * TILE - 4.0, row)
+
+
+## A hop over a gap from the edge at `edge` to the floor [l0, l1] (tiles).
+func _hop(edge: float, l0: float, l1: float, row: int) -> bool:
+	if l0 > edge:
+		return await _jump_to(edge * TILE - 32.0, l0 * TILE + 4.0, l1 * TILE - 5.0, row, edge * TILE - 8.0)
+	return await _jump_to(edge * TILE + 32.0, l0 * TILE + 5.0, l1 * TILE - 4.0, row, edge * TILE + 8.0)
+
+
+func _off(edge: float, row: int) -> bool:
+	return await _step_off("move_right", edge * TILE + 8.0, row)
+
+
+func _results(res: Array, tail: Array, file: String) -> void:
+	var lines := []
+	var all := true
+	for r in res:
+		lines.append("%s %s" % ["PASS" if r[1] else "FAIL", r[0]])
+		all = all and r[1]
+	lines.append_array(tail)
+	lines.append("ALL PASS" if all else "SOME FAILED")
+	_report(lines, file)
+
+
+## The main line, start to the gateway: every jump the level asks of her.
+func _tour_l1_2() -> void:
+	_calm_enemies()
+	var res := []
+	_start_tour()
+	await _wait(20)
+	# TEACH: the wall stubs, the first water, the first floating island.
+	res.append(["wall stub 1 (2 up)", await _rise(16, 19, 28)])
+	res.append(["stub 2 (4 across)", await _hop(19, 23, 26, 28)])
+	res.append(["stub 3 (4 across, 1 up)", await _hop(26, 30, 33, 27)])
+	res.append(["down to the road", await _off(33, 30)])
+	res.append(["the first water: island 1 (4 across, 1 up)", await _hop(60, 64, 69, 29)])
+	res.append(["island 2 (4 across, 1 up)", await _hop(69, 73, 77, 28)])
+	res.append(["the far bank (4 across, 2 down)", await _hop(77, 81, 86, 30)])
+	res.append(["the bank (3 up)", await _rise(86, 90, 27)])
+	res.append(["the higher bank (2 up)", await _rise(90, 94, 25)])
+	res.append(["the first floating island (4 across, 2 up)", await _hop(94, 98, 110, 23)])
+	res.append(["off its far end to the road (7 down)", await _off(110, 30)])
+	# TEST: the rampart, then the long pool by its small islands.
+	res.append(["rampart terrace (3 up)", await _rise(118, 122, 27)])
+	res.append(["terrace (3 up)", await _rise(122, 126, 24)])
+	res.append(["the tower's top (3 up)", await _rise(126, 132, 21)])
+	res.append(["down the east step (4 down)", await _off(132, 25)])
+	res.append(["down to the road (5 down)", await _off(136, 30)])
+	var pool := [[140, 143, 148, 29], [148, 152, 156, 28], [156, 160, 163, 26], [163, 167, 171, 29],
+		[171, 175, 181, 28], [181, 185, 188, 27], [188, 192, 196, 29], [196, 200, 210, 30]]
+	for k in pool.size():
+		var h: Array = pool[k]
+		res.append(["the long pool: hop %d of 8 (to row %d)" % [k + 1, h[3]], await _hop(h[0], h[1], h[2], h[3])])
+	res.append(["the far bank's block (3 up)", await _rise(210, 216, 27)])
+	res.append(["down to the road", await _off(216, 30)])
+	# TWIST: the road ends; the floating islands are the way.
+	res.append(["terrace (3 up)", await _rise(224, 228, 27)])
+	res.append(["terrace (3 up)", await _rise(228, 232, 24)])
+	var isl := [[232, 236, 246, 22], [246, 250, 256, 24], [256, 260, 286, 22], [286, 290, 295, 24], [295, 299, 307, 22], [307, 311, 316, 25]]
+	for k in isl.size():
+		var h: Array = isl[k]
+		res.append(["floating island %d of 6 (to row %d)" % [k + 1, h[3]], await _hop(h[0], h[1], h[2], h[3])])
+	res.append(["down to the far bank (5 down)", await _off(316, 30)])
+	# FINISH: thorns, stones, islands, the pillar, the gatehouse.
+	res.append(["over the thorns", await _jump_to(5276, 5368, 5436, 30, 5292)])
+	var fin := [[344, 348, 352, 29], [352, 356, 360, 27], [360, 364, 374, 25], [374, 378, 384, 23], [384, 388, 392, 26], [392, 396, 404, 30]]
+	for k in fin.size():
+		var h: Array = fin[k]
+		res.append(["the last water: hop %d of 6 (to row %d)" % [k + 1, h[3]], await _hop(h[0], h[1], h[2], h[3])])
+	res.append(["the end terrace (3 up)", await _rise(404, 414, 27)])
+	res.append(["the gate's ledge (3 up)", await _rise(414, 426, 24)])
+	var end: Node = _find("level_end")[0]
+	await _hold_until(["move_right"], func(): return end.done, 300)
+	await _wait(10)
+	res.append(["through the gateway: the level ends", end.done])
+	res.append(["the midway banner flies (the level's one checkpoint)", _find("checkpoint").size() == 1 and _find("checkpoint")[0].lit])
+	_results(res, ["flames left %d; Resin on the main line %d" % [Game.health, Game.currency]], "tour")
+
+
+func _bonus_over() -> void:
+	for i in 240:
+		await _step()
+		if Game.bonus == null and kleo.state == Kleo.State.NORMAL:
+			break
+	await _wait(20)
+
+
+## The secrets: the letters, the high path and bonus 1, the old landing and
+## bonus 2, the false wall, the chests.
+func _secrets_l1_2() -> void:
+	_calm_enemies()
+	var res := []
+	_start_tour()
+	await _wait(20)
+	# Letter K, over the first water: the main line's jump takes it.
+	_place(57.0, 30)
+	await _wait(6)
+	await _hop(60, 64, 69, 29)
+	res.append(["to the second island", await _hop(69, 73, 77, 28)])
+	if not _letter_taken("K"):
+		await _hop_up(28)
+	res.append(["letter K (over the first water)", _letter_taken("K")])
+	# The chest on the first floating island.
+	_place(103.0, 23)
+	await _wait(10)
+	_tap("attack")
+	await _wait(40)
+	res.append(["the chest on the first floating island opens", _find("chest")[0].opened])
+	# The floating island can't be reached from the road under it.
+	_place(104.0, 30)
+	await _wait(10)
+	await _hop_up(23)
+	res.append(["from the road, the floating island is out of reach", _floor_at(30)])
+	# The thorn knot: out of reach from the terrace under it, reached by
+	# turning back west from the tower's top.
+	_place(123.5, 24, -1)
+	await _wait(10)
+	await _hop_up(18, -1)
+	await _wait(20)
+	res.append(["from the terrace, the knot's island is out of reach", not room.get_node("ThornKnot").is_awake() and not _floor_at(18)])
+	_place(128.0, 21, -1)
+	await _wait(10)
+	res.append(["west from the tower's top to the knot's island (3 across, 3 up)", await _hop(126, 119, 123, 18)])
+	await _hold_until(["move_left"], func(): return room.get_node("ThornKnot").is_awake(), 120)
+	res.append(["Morvath's knot wakes (the great secret)", Game.flags.has("l12_knot")])
+	# The risky Resin on the long pool: a drop onto a small low stone, a step back up.
+	_place(169.0, 29)
+	await _wait(10)
+	var before := Game.currency
+	res.append(["off the stone's edge onto the low stone (2 down)", await _step_off("move_right", 171.0 * TILE + 2.0, 31)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 173.3 * TILE, 100)
+	res.append(["its risky Resin (3 beads)", Game.currency - before >= 3])
+	res.append(["back up onto the wide stone (1 across, 3 up)", await _hop(174, 175, 181, 28)])
+	# The high path: from the tower's top over the big floating islands.
+	_place(129.0, 21)
+	await _wait(10)
+	res.append(["high path: island 1 (4 across, 2 up)", await _hop(132, 136, 148, 19)])
+	res.append(["island 2 (4 across, 2 up)", await _hop(148, 152, 160, 17)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 154.0 * TILE, 100)
+	await _wait(8)
+	_tap("attack")
+	await _wait(40)
+	res.append(["its chest opens", _find("chest")[1].opened])
+	res.append(["the great island (4 across, 1 down)", await _hop(160, 164, 188, 18)])
+	res.append(["island 4 (4 across, 2 up)", await _hop(188, 192, 198, 16)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 195.5 * TILE, 100)
+	res.append(["letter L (on the high path)", _letter_taken("L")])
+	res.append(["the last island (4 across, 4 down)", await _hop(198, 202, 208, 20)])
+	var course: BonusZone = _find("bonus_zone").filter(func(z): return z.token.flag == "l12_token1")[0]
+	await _hold_until(["move_right"], func(): return course.running(), 200)
+	res.append(["the hollow at the high path's end takes her to bonus 1", course.running()])
+	await _wait(10)
+	var run := await _hop(458, 462, 465, 28)
+	run = run and await _hop(465, 469, 472, 29)
+	run = run and await _hop(472, 476, 479, 27)
+	run = run and await _hop(479, 483, 486, 29)
+	run = run and await _hop(486, 489, 492, 27)
+	res.append(["bonus 1: across the pillars", run])
+	res.append(["bonus 1: all %d Resin taken on the way (%d left, %.1f s to spare)" % [course.beads.get_child_count(), course.remaining(), maxf(course._left, 0.0)], course.remaining() == 0])
+	_bead_report(course)
+	await _hop_up(27)
+	res.append(["bonus 1's token (a hop on the last pillar)", Game.flags.has("l12_token1")])
+	await _bonus_over()
+	res.append(["back out beside the hollow", absf(kleo.global_position.x - 205.5 * TILE) < 3.0 and _floor_at(20)])
+	res.append(["off the island's end onto the bank's block (7 down; the hollow, won, lets her by)", await _off(210, 27)])
+	# The old landing under the bank's edge: bonus 2.
+	_place(230.0, 24)
+	await _wait(10)
+	res.append(["off the bank's edge onto the step in its face (3 down)", await _off(232, 27)])
+	res.append(["down to the old landing (4 down)", await _off(234, 31)])
+	var gather: BonusZone = _find("bonus_zone").filter(func(z): return z.token.flag == "l12_token2")[0]
+	await _hold_until(["move_right"], func(): return gather.running(), 200)
+	res.append(["the glowing hollow under the island takes her to bonus 2", gather.running()])
+	await _wait(10)
+	var hops := await _rise(502, 506, 28)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 504.8 * TILE, 100)
+	hops = hops and await _hop(506, 510, 515, 26)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 514.2 * TILE, 100)
+	await _hold_until(["move_left"], func(): return kleo.global_position.x <= 512.7 * TILE, 100)
+	await _hop_up(26)
+	hops = hops and await _hop(515, 519, 523, 28)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 521.0 * TILE, 100)
+	await _hop_up(28)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 521.8 * TILE, 100)
+	hops = hops and await _hop(523, 527, 536, 26)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 533.0 * TILE, 200)
+	await _hop_up(26)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 534.6 * TILE, 200)
+	await _wait(6)
+	res.append(["bonus 2: block to block", hops])
+	res.append(["bonus 2: all %d Resin gathered in time (%d left, %.1f s to spare)" % [gather.beads.get_child_count(), gather.remaining(), maxf(gather._left, 0.0)], gather.remaining() == 0])
+	_bead_report(gather)
+	await _hold_until(["move_left"], func(): return kleo.global_position.x <= 531.8 * TILE, 100)
+	await _hop_up(26)
+	res.append(["bonus 2's token (a hop at the last block)", Game.flags.has("l12_token2")])
+	await _bonus_over()
+	res.append(["back out on the landing beside the hollow", absf(kleo.global_position.x - 236.2 * TILE) < 3.0 and _floor_at(31)])
+	res.append(["back up the step in the bank's face (a 4-tile ledge catch)", await _jump_to(234.6 * TILE, 232.0 * TILE + 3.0, 234.0 * TILE - 4.0, 27)])
+	res.append(["back up onto the bank (3 up)", await _rise(232, 228, 24)])
+	# The false wall in the end terrace: letter E.
+	_place(400.0, 30)
+	await _wait(10)
+	var cover: Node = room.get_node("GateWall")
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 406.5 * TILE, 200)
+	await _wait(40)
+	res.append(["the false wall fades while she is inside", cover.modulate.a < 0.1])
+	res.append(["letter E (behind the false wall)", _letter_taken("E")])
+	await _hold_until(["move_left"], func(): return kleo.global_position.x < 401.0 * TILE, 200)
+	await _wait(70)
+	res.append(["the wall closes again once she leaves", cover.modulate.a > 0.95])
+	# Letter O, over the last water: the main line's jump takes it.
+	_place(357.5, 27)
+	await _wait(10)
+	res.append(["up to the floating island (4 across, 2 up)", await _hop(360, 364, 374, 25)])
+	res.append(["letter O (over the jump)", _letter_taken("O")])
+	res.append(["all four letters: K-L-E-O", Game.letters_found() == 4])
+	_place(419.0, 24)
+	await _wait(10)
+	_tap("attack")
+	await _wait(40)
+	res.append(["the chest by the gateway opens", _find("chest")[2].opened])
+	_results(res, ["letters found: %d of 4; bonus tokens: %d of %d" % [Game.letters_found(), Game.tokens_found(), Game.level_tokens.size()]], "secrets")
+
+
+func _bead_report(zone: BonusZone) -> void:
+	for b in zone.beads.get_children():
+		if not b.get_meta("taken", false):
+			print("  bead left at ", b.global_position)
+
+
+## Kleo's stride: how long it takes to find, how fast it is, how far it jumps.
+func _stride_l1_2() -> void:
+	_calm_enemies()
+	for e in _find("enemy"):
+		e.visible = false
+	_start_tour()
+	var lines := []
+	# A plain running jump first, from a short run-up (no stride).
+	_place(36.0, 30)
+	await _wait(10)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 38.5 * TILE, 200)
+	_press("move_right")
+	_press("jump")
+	var x0 := kleo.global_position.x
+	var plain_stride: bool = kleo.striding
+	for i in 120:
+		await _step()
+		if kleo.is_on_floor() and i > 4:
+			break
+	var plain := kleo.global_position.x - x0
+	_release_all()
+	await _wait(30)
+	# Then with the stride: a long run-up.
+	_place(34.5, 30)
+	await _wait(10)
+	_press("move_right")
+	var frames := 0
+	for i in 200:
+		await _step()
+		frames += 1
+		if kleo.striding:
+			break
+	var found_at := kleo.global_position.x - 34.5 * TILE
+	await _wait(12)
+	var speed := absf(kleo.velocity.x)
+	_press("jump")
+	x0 = kleo.global_position.x
+	for i in 120:
+		await _step()
+		if kleo.is_on_floor() and i > 4:
+			break
+	var far := kleo.global_position.x - x0
+	var kept: bool = kleo.striding
+	_release_all()
+	await _wait(20)
+	var lost: bool = not kleo.striding
+	lines.append("a plain running jump: %.0f px (%.2f tiles), stride %s" % [plain, plain / TILE, plain_stride])
+	lines.append("the stride is found after %.2f s and %.0f px (%.1f tiles) of running" % [frames / 60.0, found_at, found_at / TILE])
+	lines.append("stride speed %.0f px/s (run %.0f)" % [speed, kleo.run_speed])
+	lines.append("a stride jump: %.0f px (%.2f tiles)" % [far, far / TILE])
+	var res := [["no stride from a short run-up", not plain_stride], ["the stride is found on a long run", speed > kleo.run_speed + 20.0],
+		["a stride jump is longer than a plain one", far > plain + 16.0], ["the stride lasts through the jump", kept],
+		["stopping loses it", lost]]
+	var all := true
+	for r in res:
+		lines.append("%s %s" % ["PASS" if r[1] else "FAIL", r[0]])
+		all = all and r[1]
+	lines.append("ALL PASS" if all else "SOME FAILED")
+	_report(lines, "stride")
+
+
+# --- The world map and the save file (room=map) --------------------------------------------------
+
+var _entered := ""
+
+func _note_entered(scene: String) -> void:
+	_entered = scene
+
+
+func _key(action: String) -> void:
+	# Pressed at the start of a frame, so the map's _process sees it as new.
+	await get_tree().process_frame
+	Input.action_press(action)
+	await _frames(2)
+	Input.action_release(action)
+	await _frames(20)
+
+
+func _map_test() -> void:
+	var res := []
+	Game.save_path = "user://test_save.json"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Game.save_path))
+	Game.save_enabled = true
+	Game.new_game()
+	var map: Node = load(Game.MAP_SCENE).instantiate()
+	add_child(map)
+	await _frames(10)
+	await _capture("01_new_game")
+	res.append(["a new game: 1-1 is open, 1-2 is shut", Game.stop_open(0) and not Game.stop_open(1)])
+	await _key("move_right")
+	res.append(["she can't travel to a shut stop", map._stop == 0])
+	# 1-1 played: done, three letters, a token, the knot; and loose flags.
+	for f in ["level_done_L1_1_OvergrownRuins", "l11_letter_k", "l11_letter_l", "l11_letter_o", "l11_token1", "l11_knot",
+			"l12_letter_k", "l12_a_0", "l12_cp1"]:
+		Game.flags[f] = true
+	Game.currency = 57
+	Game.save_game()
+	await _frames(4)
+	await _capture("02_after_1_1")
+	var r: Dictionary = Game.record(0)
+	res.append(["1-1's record: done, K L - O, 1 of 2 tokens, the knot awake",
+		r["done"] and r["letters"] == [true, true, false, true] and r["tokens"] == 1 and r["knot"]])
+	res.append(["1-2 opens once 1-1 is done", Game.stop_open(1) and not Game.stop_open(2)])
+	# The save holds what the map keeps score of, and nothing else.
+	Game.flags.clear()
+	Game.currency = 0
+	Game.load_game()
+	res.append(["saved and loaded: the record and the Resin come back", Game.record(0) == r and Game.currency == 57])
+	res.append(["beads and checkpoints are not saved", not Game.flags.has("l12_a_0") and not Game.flags.has("l12_cp1")])
+	await _key("move_right")
+	res.append(["she travels on to 1-2", map._stop == 1])
+	await _frames(30)
+	await _capture("03_at_1_2")
+	Game.flags["l12_a_0"] = true
+	Game.room_host = _note_entered
+	await _key("jump")
+	await _frames(40)
+	res.append(["jump enters the level she stands on", _entered == Game.LEVELS[1]["scene"]])
+	res.append(["entering puts the level's beads back and keeps its letters", not Game.flags.has("l12_a_0") and Game.flags.has("l12_letter_k")])
+	Game.save_enabled = false
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Game.save_path))
+	_results(res, [], "map")

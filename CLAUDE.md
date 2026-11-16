@@ -17,13 +17,65 @@ earlier game, **Lost Keep** (GitHub `aronew/Lostkeep`, branch
 change it. In a cloud session it can be cloned beside this repo:
 `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch claude/world-designer https://github.com/aronew/lostkeep /home/user/aronew/lostkeep`.
 
+## Start here: where the project stands (2026-11)
+
+**What we are doing.** Building region 1 level by level, to the methods of
+Donkey Kong Country 1 to 3 and Super Mario. The creative lead asked for
+those games to be studied and their methods put into this one; the study is
+`design/research/platformer-fun.md` (sourced, with what each finding means
+here), and its rules now live in `design/game-structure.md` §5. **Read the
+research before designing or changing a level.**
+
+**The loop, as it works today.** The game opens on **the world map**. Kleo
+walks to a stop and enters a level; the level has four beats on one idea,
+one **midway banner** (the only checkpoint), four **letters**, two **bonus
+areas** (Resin rushes), and one **thorn knot** (the great secret). Its end
+marks it done, saves, and returns to the map, which shows what is found and
+what is missing in every level.
+
+**State of each piece.**
+| Piece | State |
+|---|---|
+| 1-1 The Overgrown Ruins | Playable, dressed in the dusk kit under daylight. Waiting for Book 4's bright-day art and the creative lead's play |
+| 1-2 The Gate Road | A **blockout**, awaiting review. No art until it is approved |
+| 1-3 to 1-5, 1-S, 1-B | Not started (stops on the map, dim) |
+| World map, save file | Built; the map's look is a stand-in |
+| Kleo's stride | Built; untuned by play |
+| Stand-in sprites | Letters, token, thorn knot, banner, the map (`tools/make_standins.py`) |
+
+**What the creative lead has decided in review** (binding; details in
+"Lessons" below): bright and readable; hardly any platforms; letters, not
+cocoons; bonus areas are Resin rushes; **one checkpoint at the middle,
+never a lantern**; blockout first, art last.
+
+**Nothing built this session has been played by a person.** The scripted
+tests prove every jump can be made and every secret reached; they say
+nothing about whether it is fun. Treat the stride's numbers, the single
+checkpoint's difficulty and the knots' hiding places as proposals.
+
+**What to do next, in order.**
+1. Take the creative lead's review of the 1-2 blockout and of this
+   session's additions (the questions are at the end of
+   `design/levels/1-2_gate_road.md`).
+2. Give 1-2's twist the chain treatment its long pool got
+   (`design/levels/ratings.md` says why).
+3. When Book 4's sheets arrive: process, place, judge in the game (1-1).
+4. 1-2's art pass once its layout is approved; then 1-3, blockout first.
+5. Convert 1-1's two bonus areas to Resin rushes if the creative lead wants.
+
+**Before anything runs:** install Godot 4.7.2 and import (see "Open items").
+In a cloud session, the `lost-keep-platformer` environment does both at
+start.
+
 ## Read before working
 
 | File | What it holds |
 |---|---|
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
-| `design/levels/` | One spec per level, with its validation (1-1 so far) |
+| `design/levels/` | One spec per level, with its validation (1-1; 1-2, a blockout) |
+| `design/research/platformer-fun.md` | **The research:** what makes 2D platformers fun (DKC 1 to 3, Super Mario), sourced, with what each finding means here and which are built |
+| `design/levels/ratings.md` | The levels' ratings board (×, △, ○, ◎) and the checklist every level is held to |
 | `design/enemies.md` | The creative lead's enemy roster: names, proposed roles, what is in the game |
 | `docs/mockups/platformer/bright_day/` | **The target look of region 1 now:** six bright daytime mockups (orange earth, grey ruin stone, green grass, great trees, clear water, blue sky) |
 | `docs/mockups/platformer/outdoor_level_1_mockup.webp` | Level 1-1's first mockup (its layout; the look is now `bright_day/`) |
@@ -159,7 +211,7 @@ art/source/               the generator's sheets, unchanged (ironbark/, kleo/)
 tools/                    Python: art processing, map and room checks
 game/                     the Godot project
   project.godot           640x360, integer scale, GL Compatibility; autoload Game;
-                          the main scene (Play) is level 1-1
+                          the main scene (Play) is the world map
   scripts/player/kleo.gd  Kleo's controller and tuning
   scripts/core/           game.gd (the Game autoload), camera_rig.gd
   scripts/fx/             dust, arcs, sparks, debris
@@ -170,7 +222,10 @@ game/                     the Godot project
                           the platformer's systems: checkpoint, hazard_area,
                           lunger, chest, carriable (+ carry_handle),
                           cracked_wall, moving_platform, letter,
-                          bonus_zone, bonus_door, bonus_token, level_end
+                          bonus_zone, bonus_door, bonus_token, level_end,
+                          thorn_knot
+  scripts/ui/             world_map.gd (the map: stops, records, travel)
+  scenes/ui/              world_map.tscn (the game opens on it)
   shaders/                terrain fill, water, fog, glow, vignette, hit flash
   scenes/player/          kleo.tscn and her frames
   scenes/rooms/           the carried-over rooms (built by their builders)
@@ -179,7 +234,8 @@ game/                     the Godot project
   scenes/world/           the blockout tileset, terrain materials
   tools/                  room_builder.gd (shared base), surface_builder.gd,
                           level_builder.gd (the systems and the blockout look),
-                          build_l1_1.gd (level 1-1), build_systems.gd (the
+                          build_l1_1.gd (level 1-1), build_l1_2.gd (level 1-2's
+                          blockout), build_systems.gd (the
                           systems arena), build_test_room.gd (IB-01),
                           build_ib03.gd, build_ib04.gd
   tests/                  playtest.gd/.tscn (scripted play + captures), framelog
@@ -227,9 +283,12 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   (`State.DOWN`, the death animation) and comes back at the checkpoint with
   her flames refilled. No lives, no game over. A fall below the level's
   bottom edge is a pit (`Room._physics_process`).
-- **Checkpoints** (`checkpoint.gd`, `_checkpoint`): an unlit lantern post
-  that catches light as she passes; it refills her flames and **banks her
-  Resin**. Resin taken since the last checkpoint is at risk: a fall puts
+- **The checkpoint** (`checkpoint.gd`, `_checkpoint`): **one a level, at
+  its middle, and not a lantern** (the creative lead: "there should be a
+  middle point where you get a checkpoint; I don't want lanterns, they look
+  bad"). It is a Guard's banner on a pole (`items/banner.png`, a stand-in):
+  furled until she passes, then flying; it refills her flames and **banks
+  her Resin**. Resin taken since the last checkpoint is at risk: a fall puts
   those beads back where they hung (`Pickup.restore`, `Game.take_resin`).
   The level's start counts as a checkpoint.
 - **The lunger** (`lunger.gd`, `_lunger(x, floor, left, right, sprite)`):
@@ -265,7 +324,10 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   (top centre), all of them brings out the token. "course": a run of jumps
   to the token. The token is the prize (`Game.take_token`); then back out
   beside the entrance. Out of time or a fall: no harm, back out, try again.
-  Won stays won (the entrance says so). Two per level.
+  Won stays won (the entrance says so). Two per level. **A Resin rush**
+  (the creative lead's, 1-2's two): a gather with a ton of beads along the
+  arcs of its jumps (`_arc_pts` in `build_l1_2.gd`); the countdown shows how
+  many are left, and winning pays the Resin out (`Game.add_currency`).
 - **Moving platforms** (`moving_platform.gd`, `_mover`): one-way timber on
   layer 7, eased in and out of each stop, pausing at the ends; optionally
   waiting for her to step on. Use only for something that really moves (a
@@ -276,9 +338,32 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   level; touching one takes it (`Game.take_letter`; the HUD's letters, top
   right); all four is a burst of Resin. (They replace the cocoons: the
   creative lead found rescuing from cocoons "dumb".)
+- **The thorn knot** (`thorn_knot.gd`, `_knot`): each level's one great
+  secret (DKC2's DK coin): one of Morvath's knots, asleep, hidden with more
+  cunning than anything else; touching it wakes it for good
+  (`Game.take_knot`; the HUD's icon, top right). 1-1: behind bonus 1's
+  hollow, which lets her by only once the bonus is won. 1-2: on an island
+  back west of the rampart's tower, the one time she must turn back.
+- **Kleo's stride** (`kleo.gd`: `stride_after`, `stride_speed`): a second of
+  unbroken running and she runs at 182 px/s (140 plain) and jumps 8.3 tiles
+  (6.4 plain). It holds through jumps while she keeps moving; stopping,
+  turning, a hit or a swing ends it. Length, never height. **Design every
+  required gap for the plain jump**; the stride is the skilled player's
+  shortcut. `room=l1_2 mode=stride` measures it.
 - **The level's end** (`level_end.gd`, `_level_end`): she walks on through,
-  the view dims, the tally shows (Resin, letters, tokens). No world map yet,
-  so it stops there.
+  the view dims, the tally shows (Resin, letters, tokens, the knot), the
+  level is marked done and saved, and she is back on the world map
+  (`Game.finish_level`).
+- **The world map and the save** (`scripts/ui/world_map.gd`, `Game.LEVELS`):
+  the game opens on the map: region 1's seven stops along a road, Kleo
+  walking between them (left, right; jump enters; F4 opens every built stop
+  for a review). A stop opens when the one before is done. Under each stop
+  is its record: letters, tokens, knot, found or missing. `Game.keeper()`
+  names the flags that are saved (`user://save.json`): each level's done
+  mark, letters, tokens and knot, plus the Resin. Everything else a level
+  remembers is wiped by `Game.enter_level`. Esc leaves a level for the map.
+  **A new level needs an entry in `Game.LEVELS`.** `room=map mode=map` tests
+  it. The map's look is a stand-in.
 - **The art for the systems** comes from the creative lead's Book 3 kit
   (`tools/make_wilds.py`): the chest (3 frames), the HUD lanterns, the Resin
   drop (6 turning frames), the cracked wall and its rubble, the brambles,
@@ -428,8 +513,8 @@ cd game
 xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playtest.tscn -- room=ib03 mode=tour
 ```
 
-- Levels: `l1_1` (`mode=tour`: the main line; `mode=secrets`: every secret,
-  letter, bonus area and chest; `shots`; `map`) and `sys`, the systems arena
+- Levels: `l1_1` and `l1_2` (`mode=tour`: the main line; `mode=secrets`:
+  every secret, letter, bonus area and chest; `shots`; `map`) and `sys`, the systems arena
   (`mode=systems`; run it with `--max-fps 60` too). Rooms: `ib01`
   (default), `ib03`, `ib04`. Output: `game/tests/out/<room>/<mode>/`.
 - **Pictures for a blockout review:** `mode=shots` (one in-game shot per
@@ -448,7 +533,9 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   `python3 tools/check_room.py ib03` (floors, steps, mass thickness, exits,
   coverage, traps) and `python3 tools/blockout_map.py ib03` (a labelled
   black-box map for blockout reviews).
-- A new level needs an entry in `ROOMS` in `game/tests/playtest.gd` and
+- The map and save: `room=map mode=map`. Kleo's stride: `room=l1_2
+  mode=stride`.
+- A new level needs an entry in `Game.LEVELS`, in `ROOMS` in `game/tests/playtest.gd` and
   `tools/check_room.py`, its scripted lines, and its routes in
   `stitch_map.py`.
 - After any change to shared code (the builder, Kleo, the camera, `Game`),
@@ -529,16 +616,58 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 - **No straight seams or hard light/dark lines inside a mass:** stone fades
   into the dark gradually.
 
+- **From the research** (`design/research/platformer-fun.md`; the rules are
+  in `design/game-structure.md` §5; the levels' marks in
+  `design/levels/ratings.md`): one idea a level in four beats; **inside a
+  beat a chain, no two challenges in a row the same**, with one rest;
+  **Resin never lies** (a bead over a drop means ground below) and some of
+  it is a dare; every secret has a tell and a level's tells differ; one
+  great secret a level; the map keeps score.
+- **One checkpoint a level, at the middle, never a lantern** (the creative
+  lead): a banner for now.
+- **Bonus areas are Resin rushes** (the creative lead): a ton of Resin along
+  the jumps; all of it wins the token.
+
+## The day kit (the Sunlit Woodland kit, Book 4, delivered)
+`art/source/day/` holds it unchanged; `tools/make_day.py` runs the kit's own
+`export_kit.py` on its `sources/` with averaged downscales and each sheet's
+own colours (the kit's export dropped pixels and snapped every colour to
+fixed ramps: red trunks, blue leaves), and checks the result against the
+kit's `atlas.json`. Output: `game/assets/environment/day/` (the native
+sheets, `terrain/day_*`, `fg_day_bottom_a/b`, `day_atlas.json`) and the
+letters, token and HUD icon strips. In `level_builder.gd`: `_day(name)` looks
+a piece up in the atlas, `_day_sprite` / `_day_ground` place one,
+`_day_material()` is the ground (earth all the way in, `DAY_EARTH_DEEP`),
+`_day_backdrops()` the sky and forests; checkpoints, crates, thorns, bonus
+hollows and the end doorway use the kit by day. 1-1 is dressed by
+`_dress_day()`; its stall is gone (it "looks out of place with the new tile
+set"): the slab is an earth terrace on earth piers (`DAY_PIERS`), which the
+creative lead approved ("the slab looks good like that").
+`docs/mockups/platformer/world_map/` holds the creative lead's map mockup
+(a map screen for each region's levels).
+
 ## Open items
 - **Level 1-1: lit as bright day, letters and two bonus areas in, awaiting
   the creative lead's play** (`design/levels/1-1_overgrown_ruins.md`,
   pictures in `docs/levels/1-1/art_pass/`). Its art is still Book 3's dusk
   kit under daylight; **Book 4** (`platformer-region1-day-prompt-book.html`)
   asks for the bright-day kit after the six `bright_day/` mockups. As its
-  sheets arrive: process them, place them, judge in the game. Then 1-2:
-  blockout first.
+  sheets arrive: process them, place them, judge in the game.
+- **Level 1-2, The Gate Road: a blockout, awaiting the creative lead's
+  review** (`design/levels/1-2_gate_road.md`, pictures in
+  `docs/levels/1-2/blockout/`): hopping over water, stone islands then the
+  big floating islands. No art until the layout is approved. It opens on
+  the map once 1-1 is done (F4 on the map opens it at once).
+- Godot isn't in the cloud image: a session installs 4.7.2 from the
+  engine's GitHub release (`Godot_v4.7.2-stable_linux.x86_64.zip`) and runs
+  `godot --headless --path game --import` once before anything else.
 - In the art pass: `_tint_surface_kit` skips sprites with the `no_tint` meta
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax
   layers, so judge the look in `mode=shots`.
-- No world map or save file yet; the level's end stops on its tally.
+- **To be played and tuned by the creative lead:** Kleo's stride (how soon,
+  how fast), the single midway checkpoint (levels are harder with one), the
+  thorn knots' hiding places, the world map's stand-in look and the banner
+  stand-in. What waking every knot does is undecided.
+- 1-1's two bonus areas are still the old kinds (12 beads; a course), not
+  Resin rushes.

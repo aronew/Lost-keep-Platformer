@@ -103,13 +103,13 @@ honest (Kleo's envelope is in `CLAUDE.md`):
 
 | Region | Widest required gap | Smallest landing | Timing | Enemies | Checkpoints |
 |---|---|---|---|---|---|
-| 1 | 4 tiles (a standing jump does it) | 3 tiles | Generous, nothing chases | One at a time | 3 per level |
-| 2 | 5 tiles | 2 tiles | Platforms move slowly, in sight | Pairs | 3 |
-| 3 | 6 tiles (a running jump) | 2 tiles | Timed hazards (geysers) | Ranged enemies added | 3 |
-| 4 | Running jump into a wall jump | 2 tiles, sinking | Water rises on a clock | Mixed groups | 2–3 |
-| 5 | Glides of 12+ tiles | 1 tile | Machines in sequence | Armoured Carapax | 2–3 |
-| 6 | Grapple chains over open sky | Knots only | Crumbling spires, wind | Flyers | 2 |
-| 7 | Everything chained, no rest between | 1 tile | Tight | Everything | 2 |
+| 1 | 4 tiles (a standing jump does it) | 3 tiles | Generous, nothing chases | One at a time | 1, at the middle |
+| 2 | 5 tiles | 2 tiles | Platforms move slowly, in sight | Pairs | 1, at the middle |
+| 3 | 6 tiles (a running jump) | 2 tiles | Timed hazards (geysers) | Ranged enemies added | 1, at the middle |
+| 4 | Running jump into a wall jump | 2 tiles, sinking | Water rises on a clock | Mixed groups | 1, at the middle |
+| 5 | Glides of 12+ tiles | 1 tile | Machines in sequence | Armoured Carapax | 1, at the middle |
+| 6 | Grapple chains over open sky | Knots only | Crumbling spires, wind | Flyers | 1, at the middle |
+| 7 | Everything chained, no rest between | 1 tile | Tight | Everything | 1, at the middle |
 
 Later regions also combine: a region's twist is often an earlier region's
 idea meeting the new ability (a glide through region 3's ember geysers in the
@@ -135,6 +135,15 @@ lights dark corners and pulses near hidden letters and bonus entrances).
 first plan to keep the kit lean; Memory-Meld survives as the story's Reveal.
 They can come back as late additions if the kit feels thin.
 
+**Her stride** (built, to be tuned by the creative lead's play; from the
+research: Donkey Kong's roll, Mario's run). Run on for a second without
+stopping and Kleo finds her stride: about a third faster (182 px/s against
+140), with a jump of 8.3 tiles against 6.4. It lasts through jumps while she
+keeps moving; stopping, turning, a hit or a swing loses it. It adds length,
+never height, so no secret is reached by it alone; it is speed as the reward
+for flow, and the way a skilled player skips a stone. Levels are still
+designed for the plain jump: every required gap can be made without it.
+
 ## 5. How a level is laid out
 
 ### Size
@@ -149,16 +158,26 @@ They can come back as late additions if the kit feels thin.
 
 ### Four beats: teach, test, twist, finish
 Every level has **one idea** (a machine, a hazard, an enemy, or the new
-ability) and plays it in four beats, separated by checkpoints:
+ability) and plays it in four beats:
 
 1. **Teach** (about 1 screen in, no danger of falling): show the idea on its
    own where failing costs nothing. A moving platform first moves over solid
    ground before it ever crosses a pit.
-2. **Test** (checkpoint 1): the idea with a real cost: a pit, water, thorns.
-3. **Twist** (checkpoint 2): the idea turned (it moves the other way, it
+2. **Test**: the idea with a real cost: a pit, water, thorns.
+3. **Twist**: the idea turned (it moves the other way, it
    carries an enemy, it combines with something learned before).
-4. **Finish** (checkpoint 3 on long levels): a short flourish that runs it at
-   speed, then **the level's end**.
+4. **Finish**: a short flourish that runs it at speed, then **the level's
+   end**.
+
+The beats are no longer opened by checkpoints: there is one, at the middle
+(below), between the test and the twist.
+
+**Inside a beat, a chain** (from the research,
+`design/research/platformer-fun.md` §3, Super Mario World's way): a beat is
+a run of small challenges on its idea, and **no two in a row are the same**.
+Each is the last one made harder (a wider gap, a smaller landing) or the last
+one with something added (a height, an enemy, a drop). The chain rises, with
+one place to rest in it.
 
 ### The land, and things to do in it (the creative lead, after Donkey Kong Country)
 "Donkey Kong has a cool style of land, wall terraces and platforms, it also has
@@ -197,7 +216,10 @@ lanterns in tree hollows).
   out and the token appears) and **course** (a short run of jumps: reach the
   token at its end in time). The prize is **a bonus token**. Out of time or
   a fall: no harm, back out beside the entrance, try again. **Two per
-  level.**
+  level.** From 1-2 on, the creative lead's **Resin rush**: "a ton of resin
+  where you need to jump and try and get all the resin; if you're able to
+  get it all you get a token": a gather with beads along the arc of every
+  jump, whose Resin is hers to keep when she wins.
 - **Secret routes high above:** over the treetops, along a ruin's top:
   reached by something a curious player notices (beads climbing a crate
   stack, a raised bank), paid off with Resin, a letter or a bonus entrance.
@@ -207,12 +229,16 @@ lanterns in tree hollows).
   crate is where someone would have left it; every secret has a reason to be
   there. In the blockout, backdrop shapes show what holds each piece up.
 
-### Checkpoints
-- **A lantern post** Kleo lights by walking past it (amber, warm safety). It
-  saves her place in the level and refills her health.
-- **2 to 3 per level**, about **60 to 90 seconds of play apart**, always
-  **before** a hard section, never after it. A checkpoint is never more than
-  one hard jump sequence behind her.
+### The checkpoint: one, at the middle
+- **One checkpoint a level, at its middle** (the creative lead, 2026-11:
+  "there should be a middle point where you get a checkpoint; I don't want
+  lanterns, they look bad"), as Donkey Kong Country's star barrel and
+  Mario's midway gate. It is **an Ironbark Guard's banner on a pole**,
+  furled until Kleo passes it; then it unfurls and flies. It saves her place
+  in the level, refills her flames and banks her Resin. (A stand-in sprite
+  until the creative lead's art.)
+- It stands **before** the level's hard half, on safe ground.
+- The level's start is the other place she can come back to.
 
 ### Lives or checkpoints: **checkpoints, no lives**
 **Proposed:** no lives and no game over. Hurt costs health; **falling in a
@@ -249,6 +275,15 @@ Each level hides:
   a burst of Resin (25 for now).
 - **2 bonus areas**, each won for **a bonus token** (§5, the land).
 - **2 to 4 Resin caches** off the path: chests and hidden hollows.
+- **One great secret: Morvath's thorn knot** (from the research, Donkey Kong
+  Country 2's DK coin): one of her knots, asleep, hidden with more cunning
+  than anything else in the level. Touching it wakes it: the amber-gold eye
+  opens and stays open. The best hiding places turn the player's own habits
+  against them (1-1: behind a bonus entrance that only lets her by once the
+  bonus is won; 1-2: back the way she came, the one time the game asks her
+  to go left). What the knots do when all are awake is undecided
+  (**Proposed:** Morvath's test at the Foundry gate is gentler, or they open
+  a last secret).
 - **In X-4 or X-5, a hidden exit** to the region's secret level.
 
 Tells, always: motes drifting into a false wall, moss on its stones, a Resin
@@ -259,6 +294,21 @@ bead trail leading off the path, a faint Anima glow at a bonus entrance.
 the Lost World), and **each region's boss frees its captives**: beating the
 boss sends the people held there to the Refuge, where they open their
 services.
+
+### Rules for secrets and Resin (from the research)
+- **Resin never lies.** A bead over a drop means safe ground under it. Beads
+  in a line show a real jump. A bead out of reach marks a real secret. Never
+  a bead over a death.
+- **Risky Resin beside the safe line:** a few beads where taking them is a
+  small dare (a low stone, a drop and a climb back). The player chooses the
+  difficulty one jump at a time.
+- **Secrets are meant to be found:** each has a tell, and the tells differ:
+  motes into a wall, beads leading off the path, a glow, the secret itself
+  in plain sight but out of reach. Not the same one every time (Donkey Kong
+  Country 3's mistake).
+- **The game keeps score, per level**, on the world map: what is found and
+  what is missing.
+- **Searching is never punished:** looking round costs time, not flames.
 
 ### Resin on the way
 Beads lead along the main path in short trails (DKC's bananas): they show
@@ -290,9 +340,18 @@ and beauty.
 
 ## 7. The hub: the Refuge
 
-- **The world map** of Vaelora is the menu: a painted map with each region's
-  levels as stops along a path, cleared ones lit amber. The Refuge sits on
-  it between every region and can be visited any time.
+- **The world map** of Vaelora is the menu: each region's levels are stops
+  along a road. **Built for region 1** (a stand-in look): Kleo walks stop to
+  stop; a stop opens when the one before it is done; a cleared stop's
+  banner flies. **Under each stop, its record:** the letters K-L-E-O, the
+  two bonus tokens and the thorn knot, each shown found or missing: the
+  hunt kept in view (from the research: players hunt what they can see is
+  missing). The game opens on the map; a level's end leads back to it; Esc
+  leaves a level for it.
+- **The save file** holds what the map keeps score of and nothing else: each
+  level's done mark, letters, tokens and knot, and the Resin. Beads, chests
+  and the checkpoint start afresh every time a level is entered.
+- The Refuge will sit on the map between regions.
 - **The Refuge is a walkable place**, a small handcrafted level with no
   danger, in the forest edge east of the Lost Keep. It starts nearly empty
   with a single campfire; every rescue adds someone, and the stalls open as
@@ -363,3 +422,11 @@ stays the working title.
   platforms, letters, the level's end, the HUD.
 - **Level 1-1**: blockout approved, the art pass in from the creative lead's
   kit, water and foreground: `design/levels/1-1_overgrown_ruins.md`.
+- **Level 1-2**: a blockout, awaiting review:
+  `design/levels/1-2_gate_road.md`.
+- **From the research** (`design/research/platformer-fun.md`): the world map
+  with each level's record, the save file, Morvath's thorn knot (one a
+  level), Kleo's stride, the chain inside a beat and risky Resin (1-2's
+  long pool), and the rules above. **And from the creative lead:** the Resin
+  rush bonus areas, and one midway checkpoint a level, a banner, not a
+  lantern.

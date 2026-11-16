@@ -74,10 +74,15 @@ func begin(kleo: Kleo, door: Node) -> void:
 	_show_beads(kind == "gather")
 	token.show_token(kind == "course")
 	_left = time_limit
-	Game.show_timer("%d" % ceili(_left))
+	_show_time()
 	await Game.fade_to(0.0, 0.25)
 	Game.banner(title, 0.9)
 	state = S.RUNNING
+	# A bead she already stands in (she walked on through the fade) is hers.
+	if beads:
+		for b in beads.get_children():
+			if (b as Area2D).monitoring and (b as Area2D).overlaps_body(kleo):
+				_on_bead(kleo, b as Area2D)
 
 
 func _process(delta: float) -> void:
@@ -90,9 +95,17 @@ func _process(delta: float) -> void:
 	if state != S.RUNNING or Game.respawning:
 		return
 	_left -= delta
-	Game.show_timer("%d" % ceili(maxf(_left, 0.0)))
+	_show_time()
 	if _left <= 0.0:
 		fail("Out of time")
+
+
+## The countdown, and in a gather how much Resin is still to find.
+func _show_time() -> void:
+	var text := "%d" % ceili(maxf(_left, 0.0))
+	if kind == "gather" and remaining() > 0:
+		text += "   %d left" % remaining()
+	Game.show_timer(text)
 
 
 func _show_beads(on: bool) -> void:
@@ -135,6 +148,9 @@ func _on_token() -> void:
 		return
 	state = S.ENDING
 	Game.show_timer("")
+	# Won: the Resin she gathered is hers to keep.
+	if kind == "gather" and beads:
+		Game.add_currency(beads.get_child_count())
 	Game.banner("Bonus!", 0.9)
 	Game.shake(0.15)
 	await get_tree().create_timer(1.0).timeout
