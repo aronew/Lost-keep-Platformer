@@ -26,7 +26,7 @@ wall into a bonus game, and nothing out of place.
 |---|---|---|
 | **TEACH** | 0–94 | Stone terraces (2 up each) onto **the stall on arches** (a crate to carry, a pot), a **nook** under the arches (a pot, 3 beads), a **Mossback** (7 hits, or one thrown crate), **the water pit and the mushroom island** (two gaps of 4), and **the chest on a high ledge** (a 5-tile ledge catch onto a ruin block). |
 | **TEST** | 94–200 | **Checkpoint 1.** Wall terraces (3 up, 3 up) to the plateau and **the first Thornhound**, on flat ground with room to fight. **A fallen log** over a ravine. A gap of 4 up 2 to a ruin mass, then down its steps. The step's east face is **a false wall** (cocoon 1). |
-| **TWIST** | 200–340 | **Checkpoint 2. Two crates.** Carry one to the hill's foot and throw it at **the cracked wall**: a tunnel drops into **the bonus room** under the hill (gather 12 beads in 14 s → cocoon 2 and a spill of Resin). Or climb **the great tree's branches** to **the canopy route** over the hill (five treetops at different heights, gaps of 4, beads all the way, cocoon 3 at its end). On the hill, **the second Thornhound**. Then **the islands at different heights** across the second water (2 up, 2 up, 3 down, 2 up, 3 down; gaps of 4). |
+| **TWIST** | 200–340 | **Checkpoint 2. Two crates.** Carry one to the hill's foot and throw it at **the cracked wall**: a tunnel drops into **the bonus room** under the hill (gather 12 beads in 14 s → cocoon 2 and a spill of Resin). Up on the hill, **a root bank with a crate and a stack of two crates** on it: climbing them crosses the hill, and from the stack's top **the treetop route** is in reach (four treetops at different heights, 8 tiles over the hill so only the crates reach them; gaps of 4, beads all the way, cocoon 3 at its end). On the hill, **the second Thornhound**. Then **the islands at different heights** across the second water (2 up, 2 up, 3 down, 2 up, 3 down; gaps of 4). |
 | **FINISH** | 340–440 | **Checkpoint 3.** A Mossback, **a pit** (4), **a thorn bed**, a pit with a step up beyond it, terraces up to the end ledge, **the last chest**, and **the arched doorway**. |
 
 ## Region 1 rules it keeps
@@ -36,7 +36,10 @@ wall into a bonus game, and nothing out of place.
   block's 5 (a ledge catch, taught on safe ground) and the bonus room's way
   out (a 4-tile catch).
 - Floating and moving platforms: none here (moving platforms are 1-4's idea).
-  The branches and canopy are one-way timber, as in the mockups' logs.
+  Hardly any platforms (the creative lead, after DKC): height comes from
+  terraces, a root bank and a stack of crates; the only things she stands on
+  that aren't ground are the fallen log and the treetops. (A first version
+  climbed four floating branches up the great tree; replaced.)
 
 ## Secrets and Resin
 - **Cocoons (3):** 1 behind the false wall (Wren, a Rootling baker), 2 the
@@ -62,8 +65,9 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 - `mode=secrets`: **ALL PASS**, 25 checks: both chests; the false wall fades
   while she is inside and closes when she leaves; a crate lifted, carried and
   thrown breaks the cracked wall; the bonus game won with about 8 s to spare;
-  back out over the blocks and up the 4-tile catch; the branch ladder, the
-  five canopy jumps; all 3 cocoons freed.
+  back out over the blocks and up the 4-tile catch; the crates up to the
+  treetops, the treetop jumps, and that the treetops can't be reached from
+  the hill without the crates; all 3 cocoons freed.
 - `mode=shots` (in-game blockout pictures of each beat) and `mode=map`, then
   `python3 tools/stitch_map.py l1_1` and
   `python3 tools/level_poster.py l1_1` for the poster.
@@ -96,19 +100,19 @@ or wobble.
   a ruined door on the ruin mass; ivy over the false wall's face (its tell,
   with the draught).
 - **TWIST:** the Great Ironbark (with Morvath's closed-eye knots) behind the
-  branch ladder; the canopy route on SF9's leaf band, whose top is flat, over
+  root bank and crate stack on the hill; the treetop route on SF9's leaf band, whose top is flat, over
   twisted trunks with vines; lanterns in the bonus room; flowers on the
   islands.
 - **FINISH:** a ruin by the pits, a lantern post up the terraces, and the
   arched doorway with its lantern as the level's end (the mockup's).
 - **Stand-ins still:** the Thornhound, the chest, the cracked wall (SF11's
   pier stone with a drawn crack), the thorns, the HUD, Kleo's carry pose,
-  the branch walkways (plank timber), the log (plank timber).
+  the log (plank timber).
 
 **Book 3** (`docs/art-production/platformer-region1-prompt-book.html`,
 published at https://claude.ai/artifact/7mMMdvZHpnai3CM4TWMLuK) asks for
 all of it: W1 to W7 (ruin stone, the stall on arches cut to the collision,
-the islands, the log and root bridge, branch walkways, treetops), T1 to T5
+the islands, the log and root bridge, treetops), T1 to T5
 (chest, cracked wall, brambles, non-red mushrooms, HUD), C1 and C2 (the
 Thornhound, Kleo carrying), B1 and B2 (the far aqueduct, a sky with smaller
 moons). Pilot: W1, W3, C1.

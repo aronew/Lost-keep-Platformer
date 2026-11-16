@@ -50,7 +50,7 @@ Within each region:
 | Stop | Role |
 |---|---|
 | X-1 | **Arrival.** The region's look and its new ability, taught gently. Short. |
-| X-2 | **The signature machine** (moving platforms of the region's own kind). |
+| X-2 | **The signature machine**: the region's own moving thing (a raft, a lift, a rolling log), used sparingly. |
 | X-3 | **The vertical level**: a climb, about 2 screens wide and 4 to 5 high. |
 | X-4 | **The signature hazard**, with the region's enemies at full strength. |
 | X-5 | **The gauntlet:** everything the region taught, mixed and twisted. Hides the secret exit. |
@@ -63,7 +63,7 @@ The vertical level can move (X-2 or X-4) where a region's story wants it.
 
 | # | Region | Biome and look | Teaches | Boss | Reward |
 |---|---|---|---|---|---|
-| 1 | **The Ironbark Wilds** | Teal forest, overgrown purple stone ruins, aqueducts, pools, dusk under three moons | Run, jump, ledge catch, the combo, water and pits, chests, false walls, the first moving platforms | **The Keep's fallen warden** | **Ironbark Ward** |
+| 1 | **The Ironbark Wilds** | Teal forest, overgrown purple stone ruins, aqueducts, pools, dusk under three moons | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
 | 2 | **The Hearth-Plains** | Golden fields at late afternoon, silk orchards, windmills, Rootling villages, hay barns, butterflies | The Ward (parry, bash-dash), bounce silk, windmill sails, hay carts | **The Silk Mother** | **Barkgrip** |
 | 3 | **The Dusk-Drifter Wastes** | Ash dunes and glass flats under a violet dusk, slate canyons, nomad caravans, bone-white ruins, ember vents (orange and gold, never red) | Barkgrip (wall cling, wall jump) in canyons; sinking ash, ember geysers, wind | **The Cinder Warden** | **Emberwick** |
 | 4 | **Thornveil** (Fen-Stalker) | A lush swamp of giant roots and stilt huts, glowing fungi, fireflies; the first crimson Blight veins | Emberwick (burn bramble and silk, light braziers); rising and sinking water, sinking lily pads | **The Thornveil Reaper** | **Wing-Cloak** |
@@ -166,9 +166,17 @@ this: `docs/mockups/platformer/natural_traversal/` (a log across a ravine,
 a root arch over water, stepped stone terraces, crates on the ledges,
 lanterns in tree hollows).
 
-- **The land:** long runs of ground, **wall terraces** (steps of 2 or 3 tiles,
-  in stone or earth), hills and banks, and platforms only where they are
-  something real: a fallen log, a root bridge, a branch, a timber raft.
+- **Hardly any platforms** (the creative lead: "they hardly ever use
+  platforms ... they use a lot of what's in the environment already like
+  raising the ground, stacking boxes, or use floating islands"). Height
+  comes from the world itself: **raised ground** (banks, mounds, root
+  shelves), **wall terraces** (steps of 2 or 3 tiles, in stone or earth),
+  **stacked crates** (solid boxes, 2 tiles each, climbed like steps:
+  `_box_stack`), **stone pillars and islands** standing in water, and
+  **floating islands**. Things you stand on that aren't ground are always
+  something real: a fallen log, a root bridge, a treetop, a raft. A floating
+  plank is never the answer; a moving one only where something really moves
+  (a raft, a lift).
 - **Carry and throw:** crates and barrels stand where people left them.
   Kleo lifts one (interact), carries it overhead (a little slower, a little
   lower jump, no ledge catches), and throws it (attack): flat and fast, about
@@ -179,9 +187,10 @@ lanterns in tree hollows).
   the time runs out) whose prize is a cocoon and a spill of Resin. Failing
   costs nothing: step out and back in to try again.
 - **Secret routes high above:** over the treetops, along a ruin's top:
-  reached by something a curious player notices (beads climbing a tree, a
-  branch within reach), paid off with Resin and often a cocoon.
-- **Nothing out of place:** every platform is a branch, a log, a stone; every
+  reached by something a curious player notices (beads climbing a crate
+  stack, a raised bank), paid off with Resin and often a cocoon. In 1-1:
+  a root bank on the hill, a crate, a stack of two, then the treetops.
+- **Nothing out of place:** everything she stands on is ground, stone, a log or a treetop; every
   crate is where someone would have left it; every secret has a reason to be
   there. In the blockout, backdrop shapes show what holds each piece up.
 
@@ -286,7 +295,7 @@ purple ruins, under a dusk sky with three moons.
 | 1-1 | **The Overgrown Ruins** | Run, jump, ledge catch, the combo, a water pit, chests, a false wall | **The mockup:** purple stone ruins in a teal forest, a timber stall on stone arches, a water pit crossed by a mushroom island, a chest on a high ledge, an arched doorway out, a far aqueduct, the black plant band along the bottom. Built new, on IB-03's kit |
 | 1-2 | **The Gate Road** | Hopping over water: small islands, then the big floating islands above | Lost Keep's IB-04 (its pool with six islands and the high path), made longer and horizontal |
 | 1-3 | **The Ruin Gardens** | The first vertical level: terraces, flights and floating islands climbing the hill to the cliff's arch | Lost Keep's IB-03 (already a climb), made 2 screens wide and 4 high |
-| 1-4 | **The Aqueduct** | Moving platforms: stone slabs and timber lifts along the aqueduct, first over ground, then over the gorge | New; the aqueduct of the mockup's backdrop, walked on |
+| 1-4 | **The Aqueduct** | Things that really move: a raft on the aqueduct's channel and a counterweighted timber lift, first over ground, then over the gorge | New; the aqueduct of the mockup's backdrop, walked on |
 | 1-5 | **The Lantern Clearing** | The gauntlet: everything, the fighting enemy in numbers, at dusk turning to night; hides the secret exit | Lost Keep's IB-01 (the guard post), the way to the Keep |
 | 1-S | **The Hollow Oak** | A secret level inside the Great Ironbark | New |
 | 1-B | **The Keep Gate** | The fallen warden in the Keep's outer courtyard, under open sky | New |

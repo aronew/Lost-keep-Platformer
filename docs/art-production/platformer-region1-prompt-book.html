@@ -193,7 +193,7 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
       <span class="group">Prompts</span>
       <a href="#ruins">Ruin stone</a>
       <a href="#setpieces">Set pieces</a>
-      <a href="#trees">The trees</a>
+      <a href="#trees">The treetops</a>
       <a href="#things">Things that act</a>
       <a href="#creatures">Creatures and Kleo</a>
       <a href="#backdrop">Backdrop</a>
@@ -207,14 +207,14 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
     <header class="hero">
       <span class="eyebrow">Lost Keep: Platformer · art production · Book 3</span>
       <h1>The Ironbark Wilds</h1>
-      <p class="lede">Region 1 of the platformer, starting with level 1-1, The Overgrown Ruins: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit and its mushroom island, a chest on a high ledge, a great tree to climb and a route over the treetops. Plus the pieces the game's systems still draw as stand-ins: the Thornhound, the chest, the cracked wall, the thorns, the health flames, and Kleo carrying a crate.</p>
+      <p class="lede">Region 1 of the platformer, starting with level 1-1, The Overgrown Ruins: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit and its mushroom island, a chest on a high ledge, crates stacked on a root bank to climb, and a route over the treetops. Plus the pieces the game's systems still draw as stand-ins: the Thornhound, the chest, the cracked wall, the thorns, the health flames, and Kleo carrying a crate.</p>
       <div class="meta"><span id="count">0 images</span><span>Base 640 × 360, ×3 to 1080p</span><span>1 tile = 16 px in game</span><span>Masters at ×8 (×4 for backdrops)</span><span>Godot 4.7.2</span></div>
     </header>
 
     <section id="needs">
       <span class="eyebrow">Start</span>
       <h2>What 1-1 needs</h2>
-      <p>Level 1-1's layout is approved and its first art pass is in, dressed from the Ironbark surface kit (Book 1). That kit has the forest, the ruins, the lanterns and the doorway. What it lacks is below: the mockup's chunky ruin stone, set pieces cut to the level's exact shapes, walkable branches and treetops, and everything the systems draw with stand-ins today.</p>
+      <p>Level 1-1's layout is approved and its first art pass is in, dressed from the Ironbark surface kit (Book 1). That kit has the forest, the ruins, the lanterns and the doorway. What it lacks is below: the mockup's chunky ruin stone, set pieces cut to the level's exact shapes, walkable treetops, and everything the systems draw with stand-ins today.</p>
       <div class="shots">
         <figure class="shot">
           <img src="platformer-attach/M1-level-1-mockup.jpg" alt="Mockup of level 1-1: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit with a mushroom island, a chest on a high ledge, an arched doorway" width="1400" height="788">
@@ -300,8 +300,8 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
     </section>
     <section id="trees" class="group-section">
       <span class="eyebrow">Prompts</span>
-      <h2>The trees</h2>
-      <p>The great tree she climbs by its branches, and the trees whose crowns carry the secret route over the hill. Both need flat walking lines inside natural shapes.</p>
+      <h2>The treetops</h2>
+      <p>The trees whose crowns carry the secret route over the hill. She reaches them by climbing a root bank and a stack of crates, not platforms: as in Donkey Kong Country, the way up is the world itself. Each crown needs a flat walking line inside a natural shape.</p>
       <div class="cards" id="cards-trees"></div>
     </section>
     <section id="things" class="group-section">
@@ -381,8 +381,7 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
     ["The timber stall on its stone arches", "Book 1's timber gate, barrels and lanterns on earth piers", "need", "W3"],
     ["The mushroom island and the stepping islands", "Earth columns with flowers", "need", "W4a, W4b"],
     ["The fallen log over the ravine, and a root bridge", "Plank timber from the keep kit", "need", "W5a, W5b"],
-    ["Branch walkways on the great tree", "Plank timber across the Great Ironbark", "need", "W6"],
-    ["Treetops for the canopy route", "SF9's leaf band over its trunk, with a gap between", "need", "W7a, W7b, W7c"],
+        ["Treetops for the canopy route", "SF9's leaf band over its trunk", "need", "W7a, W7b, W7c"],
     ["The chest", "A drawn stand-in", "need", "T1"],
     ["The cracked wall", "SF11 pier stone with a drawn crack", "need", "T2"],
     ["Bramble thorns", "A drawn stand-in", "need", "T3"],
@@ -575,43 +574,33 @@ ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; 
       ] },
 
     // ------------------------------------------------------------- trees
-    { id: "W6", group: "trees", file: "wilds_branch_walkways", title: "Branch walkways for the great tree",
-      about: "Four branches she climbs up the Great Ironbark, alternating sides, three tiles apart. Book 1's branches meander too much to stand on: these are flat along the top.",
-      canvas: "2048×1024 px (art 256 × 128 px at x8)", game: "4 branches, 128 × 24 each, in one column", attach: ["K1", "G3", "A", "B"],
-      text: [
-        "TASK: four thick branches of the Great Ironbark (the great tree with the hanging lantern and closed-eye bark knots in K1 and A), each 128 art px long, on one transparent canvas, stacked in ONE COLUMN at the left: each branch in its own band 32 art px tall (bands at art y = 0, 32, 64 and 96), with the rest of the canvas to the right left empty so nothing touches.",
-        "- Each branch is seen from the side, growing out of the trunk on its LEFT end (a thick, broken-off root of bark there, as if cut where it meets the trunk) and tapering to the right.",
-        "- Its walking line is a perfectly straight horizontal line along the top at art y = 4 within its own 24 px height, along the whole length: the top of the bark is worn flat and covered in moss where people have walked.",
-        "- Below the line: gnarled bark matching the Great Ironbark's (#3A2420 to #8A5A3C), a few moss drapes and short vines hanging no lower than the bottom of the branch's own 32 px band, leaves sprouting at the tip.",
-        "- Make the four different: one with a lantern hanging from it (flame only), one with a bird's nest, one forked at the tip, one with a small closed-eye knot of pale bark #B8A58A with an amber-gold seam (Morvath's; never red)."
-      ] },
-    { id: "W7a", group: "trees", file: "wilds_treetop_224", title: "Treetop, 224 wide",
-      about: "The secret route over the hill runs along the tops of five trees; the game flips these three to make five. Make this one first: W7b and W7c match it.",
-      canvas: "2048×2048 px (art 256 × 256 px at x8)", game: "one tree, crown 224 wide", attach: ["M1", "N3", "G4", "K1", "B"],
+    { id: "W7a", group: "trees", file: "wilds_treetop_a", title: "Treetop A, 160 wide",
+      about: "The secret route over the hill runs along the tops of four trees, reached by climbing a crate stack (no platforms); the game flips these three to make four. Make this one first: W7b and W7c match it.",
+      canvas: "2048×2048 px (art 256 × 256 px at x8)", game: "one tree, crown 160 wide", attach: ["M1", "N3", "G4", "K1", "B"],
       text: [
         "TASK: one whole tree on a transparent canvas, centred, from its roots at the canvas's bottom edge to its crown.",
-        "- Crown width: 224 art px. The crown's top is a perfectly straight horizontal walking line along the middle of its width (all but the outer 8 art px each side), at art y = 40: dense leaves clipped flat on top like a hedge, a few leaves overlapping the line, so she can run along the treetop. The crown's sides and underside are natural and leafy, hanging lower in places.",
+        "- Crown width: 160 art px. The crown's top is a perfectly straight horizontal walking line along the middle of its width (all but the outer 8 art px each side), at art y = 40: dense leaves clipped flat on top like a hedge, a few leaves overlapping the line, so she can run along the treetop. The crown's sides and underside are natural and leafy, hanging lower in places.",
         "- Under the crown, the trunk: twisted, mossy, 24 to 32 art px thick, reaching from the crown's underside down to the canvas's bottom edge, roots spreading at its foot. Vines hang from the crown over the trunk's top.",
         "- Leaves in M1's deep teal-green (#1F4A4A, #2E6A50, #4F8A3A, highlights #8DC24E), bark #3A2420 to #6A4430.",
         "- It stands behind a hill in the game: only the crown and the upper trunk are seen in full."
       ] },
-    { id: "W7b", group: "trees", file: "wilds_treetop_176", title: "Treetop, 176 wide",
-      about: "The secret route over the hill runs along the tops of five trees; the game flips these three to make five. Matches the attached approved W7a.",
-      canvas: "2048×2048 px (art 256 × 256 px at x8)", game: "one tree, crown 176 wide", attach: ["Your approved W7a", "M1", "G4", "B"],
+    { id: "W7b", group: "trees", file: "wilds_treetop_b", title: "Treetop B, 160 wide",
+      about: "The secret route over the hill runs along the tops of four trees, reached by climbing a crate stack (no platforms); the game flips these three to make four. Matches the attached approved W7a.",
+      canvas: "2048×2048 px (art 256 × 256 px at x8)", game: "one tree, crown 160 wide", attach: ["Your approved W7a", "M1", "G4", "B"],
       text: [
         "TASK: one whole tree on a transparent canvas, centred, from its roots at the canvas's bottom edge to its crown.",
-        "- Crown width: 176 art px. The crown's top is a perfectly straight horizontal walking line along the middle of its width (all but the outer 8 art px each side), at art y = 40: dense leaves clipped flat on top like a hedge, a few leaves overlapping the line, so she can run along the treetop. The crown's sides and underside are natural and leafy, hanging lower in places.",
+        "- Crown width: 160 art px. The crown's top is a perfectly straight horizontal walking line along the middle of its width (all but the outer 8 art px each side), at art y = 40: dense leaves clipped flat on top like a hedge, a few leaves overlapping the line, so she can run along the treetop. The crown's sides and underside are natural and leafy, hanging lower in places.",
         "- Under the crown, the trunk: twisted, mossy, 24 to 32 art px thick, reaching from the crown's underside down to the canvas's bottom edge, roots spreading at its foot. Vines hang from the crown over the trunk's top.",
         "- Leaves in M1's deep teal-green (#1F4A4A, #2E6A50, #4F8A3A, highlights #8DC24E), bark #3A2420 to #6A4430.",
         "- It stands behind a hill in the game: only the crown and the upper trunk are seen in full.",
         "- Match the attached approved W7a exactly in leaves, bark and finish; give it a different shape (a different twist to the trunk, a different spread to the crown)."
       ] },
-    { id: "W7c", group: "trees", file: "wilds_treetop_160", title: "Treetop, 160 wide",
-      about: "The secret route over the hill runs along the tops of five trees; the game flips these three to make five. Matches the attached approved W7a.",
-      canvas: "2048×2048 px (art 256 × 256 px at x8)", game: "one tree, crown 160 wide", attach: ["Your approved W7a", "M1", "G4", "B"],
+    { id: "W7c", group: "trees", file: "wilds_treetop_c", title: "Treetop C, 144 wide",
+      about: "The secret route over the hill runs along the tops of four trees, reached by climbing a crate stack (no platforms); the game flips these three to make four. Matches the attached approved W7a.",
+      canvas: "2048×2048 px (art 256 × 256 px at x8)", game: "one tree, crown 144 wide", attach: ["Your approved W7a", "M1", "G4", "B"],
       text: [
         "TASK: one whole tree on a transparent canvas, centred, from its roots at the canvas's bottom edge to its crown.",
-        "- Crown width: 160 art px. The crown's top is a perfectly straight horizontal walking line along the middle of its width (all but the outer 8 art px each side), at art y = 40: dense leaves clipped flat on top like a hedge, a few leaves overlapping the line, so she can run along the treetop. The crown's sides and underside are natural and leafy, hanging lower in places.",
+        "- Crown width: 144 art px. The crown's top is a perfectly straight horizontal walking line along the middle of its width (all but the outer 8 art px each side), at art y = 40: dense leaves clipped flat on top like a hedge, a few leaves overlapping the line, so she can run along the treetop. The crown's sides and underside are natural and leafy, hanging lower in places.",
         "- Under the crown, the trunk: twisted, mossy, 24 to 32 art px thick, reaching from the crown's underside down to the canvas's bottom edge, roots spreading at its foot. Vines hang from the crown over the trunk's top.",
         "- Leaves in M1's deep teal-green (#1F4A4A, #2E6A50, #4F8A3A, highlights #8DC24E), bark #3A2420 to #6A4430.",
         "- It stands behind a hill in the game: only the crown and the upper trunk are seen in full.",

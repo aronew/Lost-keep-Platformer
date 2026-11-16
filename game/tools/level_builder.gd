@@ -324,6 +324,24 @@ func _crate(x: float, floor_y: float, region := CRATE_B) -> CharacterBody2D:
 	return c
 
 
+## A stack of `count` crates standing on `floor_y`, centred on `x`: solid
+## boxes left where people stacked them (Donkey Kong Country's way of raising
+## the ground), climbed like steps. They can't be carried (see `_crate`).
+func _box_stack(x: float, floor_y: float, count: int, region := CRATE_A) -> StaticBody2D:
+	var b := _node(StaticBody2D.new(), "BoxStack", _root) as StaticBody2D
+	b.position = Vector2(x, floor_y).round()
+	b.z_index = 6
+	b.collision_layer = 1
+	b.collision_mask = 0
+	var h := 32.0  # two tiles a box, so a stack's top lies on the tile grid
+	for k in count:
+		var art := _sprite(b, CRATES, region, Vector2(-roundf(region.size.x * 0.5), -h * (k + 1) - 1.0))
+		art.name = "Box"
+		art.flip_h = k % 2 == 1
+	_node(_rect_shape(Vector2(32, h * count), Vector2(0, -h * count * 0.5)), "Shape", b)
+	return b
+
+
 ## A cracked wall over the tiles `r` (x, y, w, h): solid until a thrown crate
 ## breaks it.
 func _cracked_wall(r: Rect2i, flag: String) -> StaticBody2D:

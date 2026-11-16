@@ -246,7 +246,10 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   cocoon and Resin); fail, step out and in to try again. Won stays won.
 - **Moving platforms** (`moving_platform.gd`, `_mover`): one-way timber on
   layer 7, eased in and out of each stop, pausing at the ends; optionally
-  waiting for her to step on.
+  waiting for her to step on. Use only for something that really moves (a
+  raft, a lift).
+- **Stacked crates** (`_box_stack`): solid boxes, 2 tiles each, climbed like
+  steps (DKC's raised ground); they can't be carried.
 - **Cocoons** (`cocoon.gd`, `_cocoon`): interact to free the one inside
   (`Game.rescue`; a line on screen; the HUD's cocoons, top right). Three per
   level.
@@ -435,9 +438,11 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 - **Floating islands on a path sit at different heights** so a run doesn't
   feel straight; vary heights around the big pieces rather than swapping them
   for small ones.
-- **Platforms are deliberate.** Build with large floor masses and big
-  floating islands, with platforms where the platforming is the point. Never
-  fill space with dozens of small platforms.
+- **Hardly any platforms** (the creative lead, after Donkey Kong Country).
+  Height comes from the environment: raised ground, wall terraces, stacked
+  crates (`_box_stack`), stone pillars and islands in water, big floating
+  islands. Anything else she stands on is something real (a fallen log, a
+  root bridge, a treetop, a raft). Never a ladder of floating planks.
 - **Floating platforms are painted pieces, never floor tiles.**
 - **No straight seams or hard light/dark lines inside a mass:** stone fades
   into the dark gradually.

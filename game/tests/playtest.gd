@@ -430,8 +430,9 @@ const SHOTS_L11 := [
 	["05_log_and_gap", 146.0, 25, 1],
 	["06_false_wall", 186.0, 30, -1],
 	["07_crates_great_tree", 203.0, 30, 1],
+	["07b_root_bank_crates", 238.5, 27, 1],
 	["08_cracked_wall_hill", 226.0, 30, 1],
-	["09_canopy_route", 238.0, 14, 1],
+	["09_canopy_route", 255.0, 18, 1],
 	["10_bonus_room", 250.0, 34, 1],
 	["11_islands", 310.0, 26, 1],
 	["12_pits_thorns", 360.0, 30, 1],
@@ -1215,7 +1216,11 @@ func _tour_l1_1() -> void:
 	res.append(["down to the ground", await _step_off("move_right", 2920, 30)])
 	# TWIST: past the crates, up onto the hill, over the islands.
 	await _hold_until(["move_right"], func(): return kleo.global_position.x > 3600.0, 400)
-	res.append(["up onto the hill (3 up)", await _jump_to(3740, 3784, 4600, 27)])
+	res.append(["up onto the hill (3 up)", await _jump_to(3740, 3780, 3820, 27)])
+	res.append(["up the root bank (3 up)", await _jump_to(3800, 3828, 3870, 24)])
+	res.append(["onto the crate (2 up)", await _jump_to(3858, 3886, 3910, 22)])
+	res.append(["onto the stack of two (2 up)", await _jump_to(3900, 3924, 3948, 20)])
+	res.append(["down off the stack to the hill", await _step_off("move_right", 3960, 27)])
 	await _hold_until(["move_right"], func(): return kleo.global_position.x > 4600.0, 400)
 	res.append(["off the hill", await _step_off("move_right", 4680, 30)])
 	res.append(["island 1 (4 across, 2 up)", await _jump_to(4720, 4822, 4890, 28, 4744)])
@@ -1328,26 +1333,25 @@ func _secrets_l1_1() -> void:
 	res.append(["back up into the tunnel (a 4-tile ledge catch)", await _jump_to(242.6 * TILE, 236.5 * TILE, 241.5 * TILE, 30)])
 	await _hold_until(["move_left"], func(): return kleo.global_position.x < 233.0 * TILE, 200)
 	res.append(["out of the hill", kleo.global_position.x < 234.0 * TILE and _floor_at(30)])
-	# The branch ladder up the great tree, and the canopy route over the hill.
-	_place(211.0, 30)
+	# The root bank and the crates on the hill, up to the treetop route.
+	_place(240.0, 24)
 	await _wait(10)
-	res.append(["branch 1", await _hop_up(27, 0)])
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 215.0 * TILE, 60)
-	res.append(["branch 2", await _hop_up(24, 0)])
-	await _hold_until(["move_left"], func(): return kleo.global_position.x <= 213.8 * TILE, 60)
-	res.append(["branch 3", await _hop_up(21, 0)])
-	res.append(["branch 4", await _hop_up(18, 0)])
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 218.8 * TILE, 60)
-	res.append(["into the canopy", await _hop_up(15, 0)])
-	res.append(["canopy 2 (4 across, 1 up)", await _jump_to(226.0 * TILE, 236.3 * TILE, 245.7 * TILE, 14, 231.6 * TILE)])
-	res.append(["canopy 3 (4 across, 2 down)", await _jump_to(241.0 * TILE, 250.3 * TILE, 261.7 * TILE, 16, 245.5 * TILE)])
-	res.append(["canopy 4 (4 across, 2 up)", await _jump_to(257.0 * TILE, 266.3 * TILE, 275.7 * TILE, 14, 261.6 * TILE)])
-	res.append(["canopy 5 (4 across, 1 down)", await _jump_to(271.0 * TILE, 280.3 * TILE, 289.7 * TILE, 15, 275.6 * TILE)])
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 287.4 * TILE, 100)
+	res.append(["onto the crate (2 up)", await _jump_to(3858, 3886, 3910, 22)])
+	res.append(["onto the stack of two (2 up)", await _jump_to(3900, 3924, 3948, 20)])
+	res.append(["up into the first treetop (4 up from the stack)", await _hop_up(18, 0)])
+	res.append(["treetop 2 (4 across, 1 up)", await _jump_to(248.0 * TILE, 257.3 * TILE, 265.7 * TILE, 17, 252.6 * TILE)])
+	res.append(["treetop 3 (4 across, 2 down)", await _jump_to(261.0 * TILE, 270.3 * TILE, 278.7 * TILE, 19, 265.6 * TILE)])
+	res.append(["treetop 4 (4 across, 2 up)", await _jump_to(274.0 * TILE, 283.3 * TILE, 290.7 * TILE, 17, 278.6 * TILE)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 289.2 * TILE, 100)
 	_tap("interact")
 	await _wait(60)
-	res.append(["cocoon 3 freed (at the canopy's end)", Game.rescued.has("l11_cocoon3")])
-	res.append(["down off the canopy's end onto the hill", await _step_off("move_right", 290.5 * TILE, 27)])
+	res.append(["cocoon 3 freed (at the treetops' end)", Game.rescued.has("l11_cocoon3")])
+	res.append(["down off the last treetop, past the hill to the ground", await _step_off("move_right", 291.4 * TILE, 30)])
+	# The treetops can't be reached from the hill without the crates.
+	_place(262.0, 27)
+	await _wait(10)
+	var hop_ok := await _hop_up(19, 0)
+	res.append(["from the hill alone, the treetops are out of reach", not hop_ok and _floor_at(27)])
 	# The last chest.
 	_place(417.0, 24)
 	await _wait(10)

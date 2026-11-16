@@ -41,6 +41,7 @@ const ROCK := [
 	[176, 26, 6, 4, 0],      # a step down (3 down): the false wall's face is its east side
 	# TWIST: the hill (the cracked wall in its foot, the bonus room under it)
 	[236, 27, 56, 3, 0],     # the hill (3 up)
+	[239, 24, 8, 3, 0],      # a raised root bank on the hill (3 up): crates on it lead to the treetops
 	# FINISH: the last stretch and the way out
 	[384, 28, 10, 2, 0],     # a block past the second pit (2 up)
 	[400, 27, 40, 3, 0],     # the end terrace (3 up)
@@ -66,6 +67,12 @@ const MASSES := [
 	[319, 29, 5, 7, 0],
 	[328, 27, 4, 9, 0],
 ]
+
+
+## The canopy route: [x0, x1, row] of each treetop (8 rows over the hill at
+## its lowest, so only the crates reach it), and its trees' centres and rows.
+const TREETOPS := [[244, 253, 18], [257, 266, 17], [270, 279, 19], [283, 291, 17]]
+const CANOPY_TREES := [[248.5, 18], [261.5, 17], [274.5, 19], [287, 17]]
 
 
 func _initialize() -> void:
@@ -169,31 +176,32 @@ func _twist() -> void:
 		Vector2(_t(255), _t(31) - 24), Vector2(_t(251), _t(29) + 4), Vector2(_t(244), _t(29) + 4)],
 		Vector2(_t(257.5), floor_b - 4), "l11_bonus", "l11_cocoon2", "Oren, an Ironbark scout", 14.0)
 	_label("BONUS ROOM: gather 12 beads\nin 14 s (cocoon 2)", Vector2(_t(243), _t(34) + 4))
-	# The great tree whose branches she climbs, and the trees whose crowns
-	# carry the canopy route (backdrop only: no collision).
+	# The great tree by the crates (backdrop only), and the trees whose crowns
+	# carry the canopy route.
 	_backdrop_tree(_t(214), G, _t(12), 64.0, 200.0)
-	for c in [[225, 15], [241, 14], [256, 16], [271, 14], [285, 15]]:
+	for c in CANOPY_TREES:
 		_backdrop_tree(_t(c[0]), _t(27), _t(c[1]) - 4, 22.0, 190.0)
 	_backdrop(_box(Rect2(_t(23), _t(18), _t(16), 6)))  # the stall's roof
 	_backdrop(_box(Rect2(_t(24), _t(18), 4, _t(6))))
 	_backdrop(_box(Rect2(_t(37), _t(18), 4, _t(6))))
-	# The branch ladder up the great tree, to the canopy route over the hill.
-	for b in [[208, 216, 27], [213, 221, 24], [207, 215, 21], [212, 220, 18]]:
-		_log(_root, _t(b[0]), _t(b[1]), _t(b[2]))
-	_beads([Vector2(_t(212), _t(27) - 12), Vector2(_t(217), _t(24) - 12), Vector2(_t(211), _t(21) - 12), Vector2(_t(216), _t(18) - 12)], "l11_ladder")
-	_label("BRANCHES UP THE GREAT TREE", Vector2(_t(222), _t(22)))
-	# The canopy: leaf tops at different heights, gaps of 4, beads all the way.
-	var canopy := [[218, 232, 15], [236, 246, 14], [250, 262, 16], [266, 276, 14], [280, 290, 15]]
+	# The way up to the treetops is the environment, not platforms (the
+	# creative lead, after Donkey Kong Country): the root bank on the hill,
+	# a crate on it, a stack of two beside it, then the first treetop.
+	_box_stack(_t(243.6), _t(24), 1)   # top on row 22
+	_box_stack(_t(246), _t(24), 2)     # top on row 20, flush with the bank's east end
+	_beads([Vector2(_t(240.5), _t(24) - 12), Vector2(_t(243.6), _t(22) - 12), Vector2(_t(246), _t(20) - 12)], "l11_boxes")
+	_label("ROOT BANK + STACKED CRATES\n(the way up)", Vector2(_t(236), _t(21)))
+	# The canopy: treetops at different heights, gaps of 4, beads all the way.
 	var i := 0
-	for c in canopy:
+	for c in TREETOPS:
 		_canopy(_t(c[0]), _t(c[1]), _t(c[2]))
-		_beads([Vector2(_t(c[0] + 3), _t(c[2]) - 12), Vector2(_t((c[0] + c[1]) * 0.5), _t(c[2]) - 12), Vector2(_t(c[1] - 3), _t(c[2]) - 12)], "l11_canopy%d" % i)
+		_beads([Vector2(_t(c[0] + 2), _t(c[2]) - 12), Vector2(_t((c[0] + c[1]) * 0.5), _t(c[2]) - 12), Vector2(_t(c[1] - 2), _t(c[2]) - 12)], "l11_canopy%d" % i)
 		i += 1
-	_cocoon(Vector2(_t(288), _t(15) - 2), "l11_cocoon3", "Ysolde, a Hearth-Plains weaver")
-	_label("CANOPY ROUTE (secret, over the treetops)", Vector2(_t(236), _t(10)))
-	_label("cocoon 3", Vector2(_t(285), _t(9)))
+	_cocoon(Vector2(_t(289.5), _t(17) - 2), "l11_cocoon3", "Ysolde, a Hearth-Plains weaver")
+	_label("CANOPY ROUTE (secret, over the treetops)", Vector2(_t(252), _t(11)))
+	_label("cocoon 3", Vector2(_t(287), _t(11)))
 	# The hill: the second Thornhound.
-	_thornhound(_t(272), _t(27), _t(246), _t(289))
+	_thornhound(_t(272), _t(27), _t(248), _t(289))
 	_label("THORNHOUND", Vector2(_t(262), _t(27) - 40))
 	# The second water: islands at different heights, gaps of 4.
 	_water("IslandWater", Vector2(_t(297), G + 8), Vector2(_t(39), _t(6) - 8), Vector2(200, 30))
@@ -326,11 +334,11 @@ func _dress() -> void:
 	tree.name = "GreatIronbark"
 	tree.modulate = Color(0.86, 0.86, 0.92)
 	# The canopy route's trees: trunks rising out of the hill into the crowns.
-	for c in [[225, 15], [241, 14], [256, 16], [271, 14], [285, 15]]:
+	for c in CANOPY_TREES:
 		var trunk := _sprite(behind, GT, TRUNK, Vector2(_t(c[0]) - TRUNK.size.x * 0.5, _t(27) + 8.0 - TRUNK.size.y))
 		trunk.name = "CanopyTrunk"
 		trunk.set_meta("no_tint", true)
-		trunk.flip_h = c[0] % 2 == 0
+		trunk.flip_h = int(c[0]) % 2 == 0
 	_plant(behind, FERN_LOW, _t(230), G)
 	_drape(placed, DRAPE, _t(236), _t(28) + 2)
 	# The hill: grass, a ruin; the bonus room's lamps.
