@@ -24,6 +24,7 @@ change it. In a cloud session it can be cloned beside this repo:
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
 | `design/levels/` | One spec per level, with its validation (1-1; 1-2, a blockout) |
+| `design/research/platformer-fun.md` | Research notes: what makes 2D platformers fun (DKC 1 to 3, Super Mario), with sources, and suggestions for this game (not yet decisions) |
 | `design/enemies.md` | The creative lead's enemy roster: names, proposed roles, what is in the game |
 | `docs/mockups/platformer/bright_day/` | **The target look of region 1 now:** six bright daytime mockups (orange earth, grey ruin stone, green grass, great trees, clear water, blue sky) |
 | `docs/mockups/platformer/outdoor_level_1_mockup.webp` | Level 1-1's first mockup (its layout; the look is now `bright_day/`) |
