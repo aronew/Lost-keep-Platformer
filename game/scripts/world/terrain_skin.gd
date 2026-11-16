@@ -51,6 +51,9 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 	set(v):
 		skip_regions = v
 		_queue_rebuild()
+## False: this skin paints over layers another skin owns (a false wall's), so
+## it never shows or hides the collision layers itself.
+@export var owns_layers := true
 ## Turn off to see the bare black box (F1 in game).
 @export var skin_visible := true:
 	set(v):
@@ -58,7 +61,8 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 		for n in _layers_nodes():
 			n.visible = v
 		# In the game the black tiles are only collision; they show in box view.
-		if not Engine.is_editor_hint():
+		# A false wall's own skin paints a copy and leaves the layers alone.
+		if not Engine.is_editor_hint() and owns_layers:
 			for layer in [solid_layer, mass_layer]:
 				if layer:
 					layer.visible = not v

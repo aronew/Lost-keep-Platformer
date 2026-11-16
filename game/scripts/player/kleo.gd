@@ -4,10 +4,17 @@ extends CharacterBody2D
 ##
 ## Base kit: run, a variable-height jump with coyote time and buffering, a ledge
 ## grab that climbs through a handstand, and a four-hit sword combo that steps
-## her forward with every swing, plus up, air and down strikes. All numbers are
-## in pixels; one tile is 16 px. The measured envelope is in design/pillars.md.
+## her forward with every swing, plus up, air and down strikes. She can pick up
+## a crate or barrel (interact), carry it overhead, and throw it (attack). All
+## numbers are in pixels; one tile is 16 px. The measured envelope is in
+## CLAUDE.md.
+##
+## Health is Game's (lantern flames). A hit costs one; a hazard (a pit, deep
+## water, thorns) costs one and sends her back to the last checkpoint; losing
+## the last flame is a defeat: she falls, and comes back at the checkpoint with
+## her flames refilled.
 
-enum State { NORMAL, ATTACK, LEDGE_HANG, LEDGE_CLIMB, HURT, REST, LOCKED }
+enum State { NORMAL, ATTACK, LEDGE_HANG, LEDGE_CLIMB, HURT, REST, LOCKED, DOWN }
 
 const TILE := 16.0
 const HALF_W := 5.0
@@ -44,6 +51,13 @@ const HANG := Vector2(6.0, 50.0)
 
 @export_group("Combat")
 @export var attack_buffer_time := 0.22
+
+@export_group("Carry")
+## While she carries something overhead she runs and jumps a little less.
+@export var carry_speed := 0.86
+@export var carry_jump := 0.93
+## A throw: flat and fast, forward and a little up (about 9 tiles before it lands).
+@export var throw_velocity := Vector2(300.0, -90.0)
 
 ## Each attack: hit windows (animation frames), the hitbox (facing right, origin
 ## at her feet), forward lunges {frame: speed}, the frame from which the next hit
@@ -101,6 +115,8 @@ var _toward_time := 0.0
 var _invuln := 0.0
 var _rest_shrine: Node = null
 var _safe_timer := 0.0
+## What she carries overhead (a Carriable), or null.
+var held: Node = null
 
 
 func _ready() -> void:
@@ -165,7 +181,7 @@ func _gravity(delta: float, scale := 1.0) -> void:
 
 
 func _horizontal(delta: float, control := 1.0) -> void:
-	var target := _input_x * run_speed
+	var target := _input_x * run_speed * (carry_speed if held else 1.0)
 	var on_floor := is_on_floor()
 	var accel := (ground_accel if on_floor else air_accel) if _input_x != 0.0 else (ground_decel if on_floor else air_decel)
 	velocity.x = move_toward(velocity.x, target, accel * control * delta)
@@ -200,7 +216,7 @@ func _normal(delta: float) -> void:
 	if _jump_buffer > 0.0 and _coyote > 0.0 and _lock <= 0.0:
 		_jump_buffer = 0.0
 		_coyote = 0.0
-		velocity.y = -jump_velocity
+		velocity.y = -jump_velocity * (carry_jump if held else 1.0)
 		_jumping = true
 		_turning = false
 		_play("jump", true)
@@ -213,8 +229,12 @@ func _normal(delta: float) -> void:
 		_jumping = false
 	_gravity(delta)
 
+	# With something held, attack throws it (down + attack sets it down).
+	if held and _attack_buffer > 0.0 and _lock <= 0.0:
+		_attack_buffer = 0.0
+		_throw(on_floor and Input.is_action_pressed("move_down"))
 	# Attack.
-	if _attack_buffer > 0.0 and _lock <= 0.0:
+	if _attack_buffer > 0.0 and _lock <= 0.0 and held == null:
 		_attack_buffer = 0.0
 		if Input.is_action_pressed("move_up"):
 			_start_attack("attack_up")
@@ -234,7 +254,7 @@ func _normal(delta: float) -> void:
 		if _try_interact():
 			return
 
-	if not on_floor and velocity.y > -60.0 and _try_ledge():
+	if not on_floor and velocity.y > -60.0 and held == null and _try_ledge():
 		return
 
 	move_and_slide()
@@ -283,7 +303,7 @@ func _standing_on_tiles() -> bool:
 
 func _choose_animation() -> void:
 	var a := sprite.animation
-	var busy := sprite.is_playing() and a in ["land", "land_hard", "run_stop", "run_start", "turn", "idle_yawn", "jump", "interact"]
+	var busy := sprite.is_playing() and a in ["land", "land_hard", "run_stop", "run_start", "turn", "idle_yawn", "jump", "interact", "rescue"]
 	if is_on_floor():
 		var moving := absf(velocity.x) > 12.0 or _input_x != 0.0
 		if a == "land_hard" and busy:
@@ -546,13 +566,18 @@ func _hanging(delta: float) -> void:
 
 # --- Being hit, resting, water ------------------------------------------------------
 
-## Take a blow that pushes her in `push_dir` (-1 left, 1 right).
-func hurt(push_dir: int, heavy := false) -> void:
-	if _invuln > 0.0 or state in [State.LOCKED, State.REST]:
+## Take a blow that pushes her in `push_dir` (-1 left, 1 right). It costs
+## `damage` flames; the last one lost is a defeat.
+func hurt(push_dir: int, heavy := false, damage := 1) -> void:
+	if _invuln > 0.0 or state in [State.LOCKED, State.REST, State.DOWN] or Game.respawning:
 		return
 	if push_dir == 0:
 		push_dir = -facing
 	_end_attack()
+	_drop_held()
+	if Game.damage(damage) <= 0:
+		_defeat(push_dir)
+		return
 	state = State.HURT
 	facing = -push_dir
 	_invuln = 0.9
@@ -608,6 +633,8 @@ func place(pos: Vector2, face: int) -> void:
 	_was_on_floor = true
 	state = State.NORMAL
 	_end_attack()
+	held = null
+	_lock = 0.0
 	_play("idle", true)
 
 
@@ -632,6 +659,13 @@ func use_object() -> void:
 	_play("interact", true)
 
 
+## Play a one-off pose in place (freeing a cocoon), holding her still for `hold` s.
+func perform(anim: String, hold: float) -> void:
+	_lock = hold
+	velocity.x = 0.0
+	_play(anim, true)
+
+
 ## Kneel at a Prism shrine until the player moves.
 func rest_at(shrine: Node) -> void:
 	state = State.REST
@@ -648,21 +682,109 @@ func _resting() -> void:
 		_play("rest_rise", true)
 
 
-## Deep water: she can't swim yet, so she is lifted back to safe ground.
+## Deep water: she can't swim, so it is a hazard.
 func enter_water() -> void:
-	if state == State.LOCKED:
+	hazard("water")
+
+
+## A hazard: a pit, deep water, thorns. It costs a flame and sends her back to
+## the last checkpoint (Game.respawn); if it was her last, it is a defeat.
+func hazard(kind: String) -> void:
+	if state in [State.LOCKED, State.DOWN] or Game.respawning:
 		return
+	_end_attack()
+	_drop_held()
 	state = State.LOCKED
-	velocity = Vector2.ZERO
-	Fx.dust(self, global_position + Vector2(0, -2), Fx.LANDING, facing)
-	await Game.fade_to(1.0, 0.25)
-	global_position = last_safe
-	_air_top = global_position.y
-	_was_on_floor = true
-	_play("idle", true)
-	await get_tree().create_timer(0.15).timeout
-	await Game.fade_to(0.0, 0.3)
-	state = State.NORMAL
+	match kind:
+		"water":
+			velocity = Vector2(velocity.x * 0.2, 40.0)
+			Fx.dust(self, global_position + Vector2(0, -2), Fx.LANDING, facing)
+			Fx.burst(self, global_position + Vector2(0, -4), Color(0.55, 0.85, 0.9), 14, 120.0)
+			_play("fall")
+		"thorns":
+			velocity = Vector2.ZERO
+			_play("hurt", true)
+			Game.hitstop(0.06)
+			Game.shake(0.25)
+			Fx.burst(self, global_position + Vector2(0, -12), Color(0.85, 0.75, 0.6), 10, 90.0)
+		_:  # a pit: she is already falling out of the view
+			velocity = Vector2(0.0, velocity.y)
+	var left := Game.damage(1)
+	if kind == "water":
+		# sink a little before the fade
+		var tw := create_tween()
+		tw.tween_property(self, "global_position:y", global_position.y + 10.0, 0.25)
+	await get_tree().create_timer(0.35 if kind != "pit" else 0.1).timeout
+	if left <= 0:
+		await Game.respawn(self, true)
+	else:
+		await Game.respawn(self, false)
+	_invuln = 1.0
+
+
+## Her last flame is gone: she falls, and comes back at the checkpoint.
+func _defeat(push_dir: int) -> void:
+	state = State.DOWN
+	_drop_held()
+	velocity = Vector2(push_dir * 90.0, -150.0)
+	_play("death", true)
+	Game.hitstop(0.1)
+	Game.shake(0.45)
+	var t := 0.0
+	while t < 1.3:
+		await get_tree().physics_frame
+		var d := get_physics_process_delta_time()
+		t += d
+		_gravity(d)
+		if is_on_floor():
+			velocity.x = move_toward(velocity.x, 0.0, 600.0 * d)
+		move_and_slide()
+	await Game.respawn(self, true)
+	_invuln = 1.0
+
+
+func is_down() -> bool:
+	return state == State.DOWN or Game.respawning
+
+
+# --- Carrying -------------------------------------------------------------------------
+
+## Lift something up overhead (a Carriable calls this when she uses it).
+func pick_up(thing: Node) -> void:
+	if held or state != State.NORMAL:
+		return
+	held = thing
+	_lock = 0.22
+	velocity.x = 0.0
+	_play("interact", true)
+
+
+func _throw(set_down: bool) -> void:
+	var thing := held
+	held = null
+	_lock = 0.16
+	_play("interact", true)
+	if set_down:
+		thing.call("set_down", global_position + Vector2(facing * 14, 0))
+	else:
+		var v := Vector2(throw_velocity.x * facing + velocity.x * 0.35, throw_velocity.y)
+		thing.call("throw", v)
+		Fx.dust(self, global_position, Fx.RUN, facing)
+
+
+## Let go of what she carries (a hit, a fall): it drops where she is.
+func _drop_held() -> void:
+	if held and is_instance_valid(held):
+		held.call("drop")
+	held = null
+
+
+## Where a carried thing sits: over her head, bobbing with her stride.
+func carry_point() -> Vector2:
+	var bob := 0.0
+	if sprite.animation == "run":
+		bob = -1.0 if sprite.frame % 4 < 2 else 0.0
+	return global_position + Vector2(0, -36 + bob)
 
 
 # --- Animation ---------------------------------------------------------------------
@@ -691,8 +813,9 @@ func _on_animation_finished() -> void:
 			state = State.NORMAL
 			_play("idle")
 		"knockback", "hurt":
-			state = State.NORMAL
-			_play("idle")
+			if state == State.HURT:
+				state = State.NORMAL
+				_play("idle")
 		"idle_yawn":
 			_play("idle")
 		_:

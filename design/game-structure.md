@@ -1,8 +1,10 @@
-# Game structure (draft v0.1, for the creative lead's approval)
+# Game structure (v0.2, approved by the creative lead)
 
-> Nothing is built until this is approved. Where a choice is mine rather than
-> yours, it's marked **Proposed** with the reason, so you can overrule it.
-> Open questions are collected at the end.
+> Approved as written ("Approved, start on the systems then the 1-1
+> blockout"), with their additions from Donkey Kong Country folded in (§5:
+> the land, things to carry and throw, cracked walls and bonus games, secret
+> routes high above). Choices marked **Proposed** were mine; they stand
+> unless the creative lead overrules them.
 
 ## 1. The shape of the game
 
@@ -155,6 +157,34 @@ ability) and plays it in four beats, separated by checkpoints:
 4. **Finish** (checkpoint 3 on long levels): a short flourish that runs it at
    speed, then **the level's end**.
 
+### The land, and things to do in it (the creative lead, after Donkey Kong Country)
+"Donkey Kong has a cool style of land, wall terraces and platforms, it also has
+secret routes like above on top of trees ... also you can pick things up and
+throw them break a wall go into a secret mini game ... everything feels
+pretty natural to the environment nothing out of place." Their mockups of
+this: `docs/mockups/platformer/natural_traversal/` (a log across a ravine,
+a root arch over water, stepped stone terraces, crates on the ledges,
+lanterns in tree hollows).
+
+- **The land:** long runs of ground, **wall terraces** (steps of 2 or 3 tiles,
+  in stone or earth), hills and banks, and platforms only where they are
+  something real: a fallen log, a root bridge, a branch, a timber raft.
+- **Carry and throw:** crates and barrels stand where people left them.
+  Kleo lifts one (interact), carries it overhead (a little slower, a little
+  lower jump, no ledge catches), and throws it (attack): flat and fast, about
+  9 tiles. It fells a weak enemy at once and smashes on what it hits.
+- **Cracked walls:** pale, cracked stone that her sword only rings off. A
+  thrown crate breaks it open, usually into **a bonus room**.
+- **Bonus rooms:** a little game against the clock (gather every bead before
+  the time runs out) whose prize is a cocoon and a spill of Resin. Failing
+  costs nothing: step out and back in to try again.
+- **Secret routes high above:** over the treetops, along a ruin's top:
+  reached by something a curious player notices (beads climbing a tree, a
+  branch within reach), paid off with Resin and often a cocoon.
+- **Nothing out of place:** every platform is a branch, a log, a stone; every
+  crate is where someone would have left it; every secret has a reason to be
+  there. In the blockout, backdrop shapes show what holds each piece up.
+
 ### Checkpoints
 - **A lantern post** Kleo lights by walking past it (amber, warm safety). It
   saves her place in the level and refills her health.
@@ -194,6 +224,7 @@ Each level hides:
   One is usually on the path's edge, one behind a false wall, and one off the
   path above or below (a high ledge, a drop that looks like a pit and isn't).
 - **2 to 4 Resin caches** off the path: chests and hidden hollows.
+- **Often a bonus room** behind a cracked wall (§5, the land).
 - **In X-4 or X-5, a hidden exit** to the region's secret level.
 
 Tells, always: motes drifting into a false wall, moss on its stones, a Resin
@@ -279,18 +310,18 @@ The mockup is the look of 1-1, with three changes the colour language needs:
 - Its **minimap** is dropped: a platformer level doesn't need one. The HUD is
   flames (top left), Resin, and cocoons found (x/3).
 
-## 9. Open questions for you
+## 9. Decided at approval
+All seven questions were approved as proposed: 7 stops per region (49 in
+all); checkpoints and no lives, with Resin since the last checkpoint dropped
+on a fall; the region order and the boss rewards; three cocoons per level as
+the main collectible; 1-1 new after the mockup, IB-04 as 1-2, IB-03 the
+vertical 1-3; a world map plus a walkable Refuge; "Lost Keep: Platformer"
+stays the working title.
 
-1. **7 per region (5 + secret + boss), 49 in all**, or do you want more?
-2. **Checkpoints and no lives**, with Resin since the last checkpoint dropped
-   on a fall: yes?
-3. **The region order** (Ironbark, Hearth-Plains, Dusk-Drifter, Thornveil,
-   Foundry, High-Spire, Anima Vats) and **which boss gives which ability**.
-4. **Cocoons as the main collectible** (3 per level), each a rescued person
-   in the Refuge?
-5. **1-1 as a new level after the mockup**, with IB-04 becoming 1-2 and IB-03
-   the vertical 1-3? (You'd suggested IB-03 and IB-04 as 1-1 and 1-2; I'd put
-   the mockup first since it's the target look, and IB-03, already a climb,
-   is the natural vertical level.)
-6. **A world map plus a walkable Refuge** as the hub?
-7. **The game's name.** "Lost Keep: Platformer" is a working title.
+## 10. What is built (see `CLAUDE.md` for how)
+- **The systems** (all in the systems arena, `room=sys mode=systems`, 26
+  checks): flames and damage, hazards (pits, water, thorns) back to the
+  checkpoint, defeat, checkpoints, Resin at risk until banked, the
+  Thornhound, chests, crates to carry and throw, cracked walls, bonus rooms,
+  moving platforms, cocoons, the level's end, the HUD.
+- **Level 1-1** in blockout: `design/levels/1-1_overgrown_ruins.md`.

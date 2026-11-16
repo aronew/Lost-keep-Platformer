@@ -23,7 +23,9 @@ change it. In a cloud session it can be cloned beside this repo:
 |---|---|
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
+| `design/levels/` | One spec per level, with its validation (1-1 so far) |
 | `docs/mockups/platformer/outdoor_level_1_mockup.webp` | **The target look of level 1-1** |
+| `docs/mockups/platformer/natural_traversal/` | The creative lead's DKC-style traversal mockups: natural land, logs and roots over water, terraces, crates |
 | `docs/mockups/ironbark_surface/` | The "Moonlit" mockups behind Lost Keep's surface look |
 | `docs/art-production/*-prompt-book.html` | Copy-ready image prompts (Book 1 Ironbark, Book 2 Kleo), references in `lostkeep-attach/` |
 | `art/source/ironbark/REVIEW.md` | The state of the generated Ironbark art |
@@ -146,7 +148,8 @@ Lost Keep's folder layout is kept so its tools still work.
 
 ```
 CLAUDE.md                 this file
-design/                   game-structure.md (the plan), rooms/ (room specs)
+design/                   game-structure.md (the plan), levels/ (level specs),
+                          rooms/ (the carried-over rooms' specs)
 docs/mockups/             the creative lead's mockups (platformer/ is this game's)
 docs/art-production/      prompt books + reference images (lostkeep-attach/)
 docs/rooms/               review images of the carried-over rooms
@@ -160,17 +163,26 @@ game/                     the Godot project
   scripts/world/          room, room_exit, breakable, pickup, interactable,
                           secret_cover, lantern_light, mossback, moat_water,
                           terrain_skin, terrain_material, prism_shrine, stranger,
-                          back_wall, guard_lift, practice_post, winch
+                          back_wall, guard_lift, practice_post, winch;
+                          the platformer's systems: checkpoint, hazard_area,
+                          thornhound, chest, carriable (+ carry_handle),
+                          cracked_wall, moving_platform, cocoon, bonus_room,
+                          level_end
   shaders/                terrain fill, water, fog, glow, vignette, hit flash
   scenes/player/          kleo.tscn and her frames
-  scenes/rooms/           built scenes (made by the builders: don't hand-edit
-                          a scene you will rebuild)
+  scenes/rooms/           the carried-over rooms (built by their builders)
+  scenes/levels/          the levels and the systems arena (built by theirs;
+                          don't hand-edit a scene you will rebuild)
   scenes/world/           the blockout tileset, terrain materials
   tools/                  room_builder.gd (shared base), surface_builder.gd,
-                          build_test_room.gd (IB-01), build_ib03.gd, build_ib04.gd
+                          level_builder.gd (the systems and the blockout look),
+                          build_l1_1.gd (level 1-1), build_systems.gd (the
+                          systems arena), build_test_room.gd (IB-01),
+                          build_ib03.gd, build_ib04.gd
   tests/                  playtest.gd/.tscn (scripted play + captures), framelog
-  assets/                 characters (kleo, mossback, stranger), items (resin),
-                          fx, world (blockout tiles), environment/ironbark
+  assets/                 characters (kleo, mossback, stranger, thornhound),
+                          items (resin, chest), ui (flames, cocoon icon), fx,
+                          world (blockout tiles), environment/ironbark
 ```
 
 **What came over from Lost Keep and what didn't.** Only the outdoor
@@ -195,10 +207,68 @@ the first levels until those are built.
 
 ---
 
+## The systems (how play works)
+
+All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
+`room=sys mode=systems`: 26 checks) and placed by helpers in
+`game/tools/level_builder.gd`.
+
+- **Health is lantern flames** (`Game.health`, amber, top left; 3 to start).
+  A hit costs one (`Kleo.hurt(dir, heavy, damage)`), then about a second of
+  invulnerability. **A hazard** (`Kleo.hazard(kind)`: a pit, deep water,
+  thorns) costs one and sends her back to the last checkpoint
+  (`Game.respawn`). **The last flame lost is a defeat**: she falls
+  (`State.DOWN`, the death animation) and comes back at the checkpoint with
+  her flames refilled. No lives, no game over. A fall below the level's
+  bottom edge is a pit (`Room._physics_process`).
+- **Checkpoints** (`checkpoint.gd`, `_checkpoint`): an unlit lantern post
+  that catches light as she passes; it refills her flames and **banks her
+  Resin**. Resin taken since the last checkpoint is at risk: a fall puts
+  those beads back where they hung (`Pickup.restore`, `Game.take_resin`).
+  The level's start counts as a checkpoint.
+- **The Thornhound** (`thornhound.gd`, `_thornhound`): patrols its stretch,
+  notices her (stops, head up), stalks, winds up (crouch and shiver, 0.5 s),
+  lunges (a heavy hit), lands in a skid open to a counter; struck, it
+  flinches and its wind-up breaks. 4 sword hits (a finisher counts 2), or
+  one thrown crate. It never leaves `[left_x, right_x]`. The Mossback still
+  ambles and shoves (now a flame per shove).
+- **Chests** (`chest.gd`, `_chest`): strike one and it spills its Resin in an
+  arc (`Pickup.launch`); beads bounce once and hang where they settle.
+- **Carry and throw** (`carriable.gd`, `_crate`): interact lifts a crate
+  overhead (`Kleo.held`; slower, lower jump, no ledge catch); attack throws
+  it flat and fast (`throw_velocity`, about 9 tiles); down + attack sets it
+  down. It smashes on what it meets and strikes what it hits
+  (`"attack": "throw"`). Used crates come back when she respawns.
+- **Cracked walls** (`cracked_wall.gd`, `_cracked_wall`): solid; the sword
+  rings off; a thrown crate breaks them open.
+- **Bonus rooms** (`bonus_room.gd`, `_bonus_room`): step in and the beads
+  light and a countdown starts (top centre); gather all for the prize (a
+  cocoon and Resin); fail, step out and in to try again. Won stays won.
+- **Moving platforms** (`moving_platform.gd`, `_mover`): one-way timber on
+  layer 7, eased in and out of each stop, pausing at the ends; optionally
+  waiting for her to step on.
+- **Cocoons** (`cocoon.gd`, `_cocoon`): interact to free the one inside
+  (`Game.rescue`; a line on screen; the HUD's cocoons, top right). Three per
+  level.
+- **The level's end** (`level_end.gd`, `_level_end`): she walks on through,
+  the view dims, the tally shows. No world map yet, so it stops there.
+- **Stand-in art** (`tools/make_standins.py`): the Thornhound, the chest, the
+  flames and the cocoon icon are drawn there until the real sheets are
+  generated. Kleo has no carry pose yet (she uses `interact`).
+
 ## How a level is built in Godot
 
 Levels are built the way Lost Keep built rooms (the builders still say
-"room"; a level is a long room).
+"room"; a level is a long room, a Room with `is_level` set). A level's
+builder extends `level_builder.gd` and calls `_level_begin(node, title)`,
+its pieces, then `_level_finish()`.
+
+**Blockout first:** with `blockout = true` (the default) a level shows its
+black box (the skin off: `skin_visible = false`) on a flat pale sky, no
+vignette, with the real or stand-in sprites of everything that acts, muted
+backdrop shapes for what holds each piece up (`_backdrop_tree`), and labels
+for each beat (`_label`). A false wall's cover is plain rock in a blockout.
+Set `blockout = false` once the layout is approved, and dress it.
 
 - **From a plan, in tiles** (a tile is 16 px; base resolution 640×360,
   integer-scaled): rock rectangles, spaces carved out, masses put back,
@@ -284,7 +354,16 @@ cd game
 xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playtest.tscn -- room=ib03 mode=tour
 ```
 
-- Rooms: `ib01` (default), `ib03`, `ib04`. Output: `game/tests/out/<room>/<mode>/`.
+- Levels: `l1_1` (`mode=tour`: the main line; `mode=secrets`: every secret,
+  cocoon and chest; `shots`; `map`) and `sys`, the systems arena
+  (`mode=systems`; run it with `--max-fps 60` too). Rooms: `ib01`
+  (default), `ib03`, `ib04`. Output: `game/tests/out/<room>/<mode>/`.
+- **Pictures for a blockout review:** `mode=shots` (one in-game shot per
+  beat), then `mode=map`, `python3 tools/stitch_map.py l1_1` and
+  `python3 tools/level_poster.py l1_1` (the whole level folded into four
+  strips, with the walked routes: amber the main line, teal the secrets;
+  `room_art` instead of `room_routes` previews the earth skin on it). Copy
+  the ones to show into `docs/levels/<level>/`.
 - `mode=tour` (the main line, scripted), `upper` (optional lines, ways back),
   `doors`, `enemy` (the Mossback), `shots` (screenshots, art and black box),
   `map` (the whole level), `measure` (Kleo's numbers), `edge`, `click`,
@@ -356,9 +435,13 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   into the dark gradually.
 
 ## Open items
-- `design/game-structure.md` awaits the creative lead's approval. **No level
-  is built until it is approved.**
-- After approval: the systems (Kleo's health and damage, hazards that cost
-  health and return her to the last checkpoint, checkpoints, a fighting
-  enemy, chests that spill Resin, moving platforms, the level's end), then
-  level 1-1 after the mockup: black box first, pictures, approval, then art.
+- **Level 1-1's blockout awaits the creative lead's review**
+  (`design/levels/1-1_overgrown_ruins.md`, pictures in `docs/levels/1-1/`).
+  After approval: its art pass after the mockup, then 1-2 (IB-04's Gate
+  Road, reworked) the same way.
+- Art the systems need (stand-ins now): the Thornhound's sheet (walk,
+  notice, wind-up, lunge, land, flinch, down), a chest (shut, open), Kleo
+  lifting, carrying and throwing, the HUD flames, a cracked-wall piece in
+  the ruins' stone, an unlit/lit checkpoint post if `props_lanterns` isn't
+  enough. Add the cards to the prompt books.
+- No world map or save file yet; the level's end stops on its tally.

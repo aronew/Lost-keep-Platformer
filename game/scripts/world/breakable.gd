@@ -88,31 +88,13 @@ func _break(dir: int, power: int) -> void:
 func _drop_resin(at: Vector2) -> void:
 	if resin <= 0:
 		return
-	var room := get_tree().current_scene
+	var room: Node = Game.level
 	var key := "drop_%s_%d_%d" % [room.name if room else "", int(global_position.x), int(global_position.y)]
 	for i in resin:
 		var flag := "%s_%d" % [key, i]
 		if Game.flags.has(flag):
 			continue
-		var p := Area2D.new()
-		p.name = "Resin"
-		p.set_script(load("res://scripts/world/pickup.gd"))
-		p.set("value", 1)
-		p.set("flag", flag)
-		p.z_index = 15
-		var cs := CollisionShape2D.new()
-		var cc := CircleShape2D.new()
-		cc.radius = 6.0
-		cs.shape = cc
-		p.add_child(cs)
-		var art_node := Sprite2D.new()
-		art_node.name = "Art"
-		art_node.texture = load("res://assets/items/resin.png")
-		art_node.hframes = 6
-		art_node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		var m := CanvasItemMaterial.new()
-		m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
-		art_node.material = m
-		p.add_child(art_node)
-		p.position = (at + Vector2(i * 8 - (resin - 1) * 4, -4)).round()
+		var p := Pickup.make(1, flag)
 		get_parent().add_child(p)
+		p.global_position = (at + Vector2(i * 8 - (resin - 1) * 4, -4)).round()
+		p.launch(Vector2(randf_range(-40.0, 40.0), -150.0))

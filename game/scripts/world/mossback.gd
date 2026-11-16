@@ -2,8 +2,8 @@ class_name Mossback
 extends Node2D
 ## A Mossback: a mossy boulder on little legs, the gardens' gentle grazer and
 ## the game's first enemy. It ambles back and forth along its floor, stops to
-## rest, and never chases. Walking into it earns a shove; it takes seven sword
-## hits to put down.
+## rest, and never chases. Walking into it earns a shove (and costs a flame);
+## it takes seven sword hits to put down, or one thrown crate.
 ##
 ## The node sits at its feet (the floor line). It walks between `left_x` and
 ## `right_x` (world px) and needs no physics body: its floor is flat.
@@ -64,14 +64,19 @@ func _physics_process(delta: float) -> void:
 	# Bumping into it shoves her back. It doesn't mean it.
 	if _stun <= 0.0:
 		for body in touch.get_overlapping_bodies():
-			if body is Kleo:
-				body.hurt(1 if body.global_position.x >= global_position.x else -1)
+			if body is Kleo and not body.is_down():
+				var push := 1 if body.global_position.x >= global_position.x else -1
+				body.hurt(push)
+				# Then it stops, startled, and turns away to graze elsewhere: it
+				# never walks on into her.
+				dir = -push
+				_rest = 1.6
 
 
 func take_hit(hit: Dictionary) -> bool:
 	if dead:
 		return false
-	hits += 1
+	hits += hits_to_kill if str(hit.get("attack", "")) == "throw" else 1
 	var from := int(hit.get("dir", 1))
 	var mat := art.material as ShaderMaterial
 	if mat:

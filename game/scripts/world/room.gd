@@ -10,6 +10,13 @@ const TILE := 16
 
 @export var room_rect := Rect2i(0, 0, 120, 40)
 @export var spawn := Vector2(224, 384)
+## A level of the platformer (as opposed to a carried-over Lost Keep room): it
+## shows the whole HUD and ends at a LevelEnd.
+@export var is_level := false
+@export var level_name := ""
+
+## Falling this far below the room's bottom edge is a pit.
+const PIT_DEPTH := 40.0
 
 @onready var kleo: Kleo = $Kleo
 @onready var camera: CameraRig = $Camera
@@ -28,6 +35,7 @@ func _ready() -> void:
 		kleo.place(door.global_position, int(door.get_meta("facing", 1)))
 	else:
 		kleo.place(spawn, 1)
+	Game.level_begin(self, kleo.global_position, kleo.facing)
 	camera.target = kleo
 	camera.limit_left = room_rect.position.x * TILE
 	camera.limit_top = room_rect.position.y * TILE
@@ -36,6 +44,11 @@ func _ready() -> void:
 	# The camera eases into these edges itself; the limits above are only a backstop.
 	camera.bounds = Rect2(Vector2(room_rect.position * TILE), Vector2(room_rect.size * TILE))
 	camera.snap_to_target()
+
+
+func _physics_process(_delta: float) -> void:
+	if kleo and kleo.global_position.y > (room_rect.end.y * TILE) + PIT_DEPTH:
+		kleo.hazard("pit")
 
 
 func set_box_view(on: bool) -> void:

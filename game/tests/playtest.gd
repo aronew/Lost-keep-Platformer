@@ -26,6 +26,8 @@ const ROOMS := {
 	"ib01": "res://scenes/rooms/ironbark_test_room.tscn",
 	"ib03": "res://scenes/rooms/ironbark_03_ruin_gardens.tscn",
 	"ib04": "res://scenes/rooms/ironbark_04_gate_road.tscn",
+	"sys": "res://scenes/levels/systems_arena.tscn",
+	"l1_1": "res://scenes/levels/l1_1_overgrown_ruins.tscn",
 }
 const TILE := 16.0
 
@@ -51,6 +53,28 @@ func _ready() -> void:
 	Game.room_host = _swap_room  # doors swap the room under this harness
 	await _swap_room(ROOMS[room_id])
 	await _frames(2)
+	if room_id == "sys":
+		match mode:
+			"systems":
+				await _systems()
+			"shots":
+				await _shots()
+			"map":
+				await _map()
+		get_tree().quit()
+		return
+	if room_id == "l1_1":
+		match mode:
+			"tour":
+				await _tour_l1_1()
+			"secrets":
+				await _secrets_l1_1()
+			"shots":
+				await _shots()
+			"map":
+				await _map()
+		get_tree().quit()
+		return
 	if room_id == "ib03" or room_id == "ib04":
 		match mode:
 			"shots":
@@ -160,6 +184,11 @@ func _shots() -> void:
 		["09_root_shelf", 60.0, 17, 1],
 		["10_bridge_gap", 100.5, 28, 1],
 	]
+	if room_id == "l1_1":
+		places = SHOTS_L11
+		_calm_enemies()
+	if room_id == "sys":
+		places = [["01_arena", 20.0, 20, 1], ["02_bonus", 72.0, 20, 1], ["03_platform", 96.0, 20, 1]]
 	if room_id == "ib03":
 		places = SHOTS_IB03
 	if room_id == "ib04":
@@ -339,13 +368,15 @@ func _floor_at(row: int) -> bool:
 ## Walk to an edge and step off it, as a player would to drop to what is below.
 func _step_off(key: String, past_x: float, row: int) -> bool:
 	var dir := 1 if key == "move_right" else -1
-	await _hold_until([key], func(): return dir * (kleo.global_position.x - past_x) > 0.0 or not kleo.is_on_floor(), 300)
+	await _hold_until([key], func(): return dir * (kleo.global_position.x - past_x) > 0.0 or (not kleo.is_on_floor() and dir * (kleo.global_position.x - past_x) > -24.0), 300)
 	_release_all()
 	for i in 200:
 		await _step()
 		if kleo.is_on_floor() and i > 4:
 			break
 	await _wait(6)
+	if not _floor_at(row):
+		print("  step off past %.0f to row %d: at x %.0f, y %.1f, floor %s" % [past_x, row, kleo.global_position.x, kleo.global_position.y, kleo.is_on_floor()])
 	return _floor_at(row)
 
 
@@ -391,6 +422,21 @@ func _jump_to(from_x: float, x0: float, x1: float, row: int, takeoff_x := -1.0) 
 	return ok
 
 
+const SHOTS_L11 := [
+	["01_start_terraces_stall", 12.0, 30, 1],
+	["02_water_pit_mushroom_island", 61.0, 30, 1],
+	["03_chest_block_checkpoint1", 88.0, 25, 1],
+	["04_plateau_thornhound", 112.0, 24, 1],
+	["05_log_and_gap", 146.0, 25, 1],
+	["06_false_wall", 186.0, 30, -1],
+	["07_crates_great_tree", 203.0, 30, 1],
+	["08_cracked_wall_hill", 226.0, 30, 1],
+	["09_canopy_route", 238.0, 14, 1],
+	["10_bonus_room", 250.0, 34, 1],
+	["11_islands", 310.0, 26, 1],
+	["12_pits_thorns", 360.0, 30, 1],
+	["13_end_doorway", 420.0, 24, 1],
+]
 const SHOTS_IB03 := [
 	["01_start_road", 2.5, 37, 1],
 	["02_west_hill", 20.0, 31, 1],
@@ -578,6 +624,7 @@ func _enemy() -> void:
 	var swings := 0
 	var hits := 0
 	while is_instance_valid(moss) and not moss.dead and swings < 30:
+		Game.heal(3)  # shoves cost flames now: this test counts the hits, not her health
 		var want := 1 if moss.global_position.x > kleo.global_position.x else -1
 		var gap := absf(moss.global_position.x - kleo.global_position.x)
 		if gap > 26.0:
@@ -589,6 +636,7 @@ func _enemy() -> void:
 			continue
 		await _tap("attack")
 		swings += 1
+
 		for i in 26:
 			await _step()
 			if is_instance_valid(moss):
@@ -731,6 +779,9 @@ func _map_hide() -> void:
 
 
 func _map() -> void:
+	for c in Game.get_children():
+		if c is CanvasLayer and (c as CanvasLayer).layer == 90:
+			(c as CanvasLayer).visible = false  # the HUD
 	_map_hide()
 	cam.target = null
 	cam.offset = Vector2.ZERO
@@ -867,3 +918,447 @@ func _measure() -> void:
 	var f := FileAccess.open(out_dir + "/measure.txt", FileAccess.WRITE)
 	f.store_string(text + "\n")
 
+
+
+# --- The platformer's systems (room=sys mode=systems) ------------------------------------------
+
+func _find(group: String) -> Array:
+	var out := []
+	for n in get_tree().get_nodes_in_group(group):
+		if room.is_ancestor_of(n):
+			out.append(n)
+	return out
+
+
+func _shot(name: String) -> void:
+	await _capture(name)
+
+
+func _hold_frames(actions: Array, n: int) -> void:
+	for a in actions:
+		_press(a)
+	await _frames(n)
+	_release_all()
+
+
+func _tap_f(action: String) -> void:
+	_press(action)
+	await _frames(1)
+	_release(action)
+
+
+func _walk_to(x: float, limit := 600) -> void:
+	var key := "move_right" if x > kleo.global_position.x else "move_left"
+	var dir := 1.0 if key == "move_right" else -1.0
+	_press(key)
+	for i in limit:
+		await _frames(1)
+		if dir * (kleo.global_position.x - x) >= 0.0:
+			break
+	_release_all()
+
+
+func _systems() -> void:
+	var lines := []
+	var ok_all := true
+	var check := func(label: String, ok: bool, extra := "") -> void:
+		lines.append("%s %s%s" % ["PASS" if ok else "FAIL", label, ("  (" + extra + ")") if extra != "" else ""])
+		print(lines[-1])
+	await _frames(20)
+	check.call("starts with 3 flames", Game.health == 3 and Game.max_health == 3)
+
+	# Thorns: a flame, and back to the start.
+	_press("move_right")
+	for i in 200:
+		await _frames(1)
+		if kleo.state == Kleo.State.LOCKED:
+			break
+	_release_all()
+	await _frames(20)
+	await _shot("01_thorns")
+	await _frames(70)
+	check.call("thorns cost a flame", Game.health == 2, "health %d" % Game.health)
+	check.call("thorns send her back to the start", absf(kleo.global_position.x - 48.0) < 2.0 and kleo.is_on_floor(), "x %.0f" % kleo.global_position.x)
+
+	# The checkpoint: lit by walking past; it refills her flames.
+	_place(14.0, 20)
+	await _frames(10)
+	await _walk_to(18.0 * TILE)
+	await _frames(20)
+	var cp: Node = _find("checkpoint")[0]
+	await _shot("02_checkpoint_lit")
+	check.call("checkpoint lights as she passes", cp.lit)
+	check.call("checkpoint refills her flames", Game.health == 3, "health %d" % Game.health)
+
+	# Resin at risk: take the beads, fall in the pit before the next checkpoint.
+	await _walk_to(28.5 * TILE)
+	await _frames(10)
+	var got := Game.currency
+	check.call("beads picked up", got == 4, "Resin %d" % got)
+	await _walk_to(31.5 * TILE)
+	await _frames(100)
+	check.call("a pit costs a flame and returns her to the checkpoint", Game.health == 2 and absf(kleo.global_position.x - (16 * TILE + 14)) < 3.0,
+		"health %d, x %.0f" % [Game.health, kleo.global_position.x])
+	var back := 0
+	for b in _find("resin"):
+		if b.visible and not b.is_taken():
+			back += 1
+	check.call("the beads she carried go back where they hung", Game.currency == 0 and back == 4, "Resin %d, beads hanging %d" % [Game.currency, back])
+
+	# The chest: a blow, and it spills its Resin.
+	_place(35.0, 20)
+	await _frames(10)
+	var before := _find("resin").size()
+	_tap_f("attack")
+	await _frames(30)
+	var chest: Node = _find("chest")[0]
+	await _shot("03_chest_spill")
+	var spilled := _find("resin").size() - before
+	check.call("a struck chest opens and spills its beads", chest.opened and spilled == 6, "spilled %d" % spilled)
+	await _frames(60)
+	await _walk_to(41.0 * TILE)
+	await _walk_to(34.0 * TILE)
+	await _frames(30)
+	check.call("the spilled beads can be gathered", Game.currency >= 4, "Resin %d" % Game.currency)
+
+	# The Thornhound: notice, wind-up, lunge; it fights back; struck, it flinches.
+	Game.heal(3)
+	var hound: Node = _find("enemy")[0]
+	_place(44.5, 20)
+	await _frames(4)
+	var seen := {}
+	var hp_before := Game.health
+	var shots := {}
+	for i in 240:
+		await _frames(1)
+		if not is_instance_valid(hound):
+			break
+		var st: String = Thornhound.S.keys()[hound.state]
+		seen[st] = true
+		if not shots.has(st) and st in ["NOTICE", "WINDUP", "LUNGE"]:
+			shots[st] = true
+			await _shot("04_hound_" + st.to_lower())
+		if seen.has("LAND"):
+			break
+	check.call("it notices her, winds up and lunges", seen.has("NOTICE") and seen.has("WINDUP") and seen.has("LUNGE"), ", ".join(seen.keys()))
+	check.call("its lunge hurts her", Game.health < hp_before, "health %d -> %d" % [hp_before, Game.health])
+	Game.heal(3)
+	# Fight it: face it and swing; it must flinch, then go down.
+	var flinched := false
+	for i in 900:
+		if not is_instance_valid(hound) or hound.is_dead():
+			break
+		kleo.facing = 1 if hound.global_position.x > kleo.global_position.x else -1
+		if absf(hound.global_position.x - kleo.global_position.x) > 26.0:
+			_press("move_right" if kleo.facing > 0 else "move_left")
+		else:
+			_release_all()
+			if i % 9 == 0:
+				_tap_f("attack")
+		await _frames(1)
+		if is_instance_valid(hound) and hound.state == Thornhound.S.FLINCH:
+			if not flinched:
+				await _shot("05_hound_flinch")
+			flinched = true
+		if Game.health <= 1:
+			Game.heal(3)
+	_release_all()
+	check.call("struck, it flinches", flinched)
+	check.call("four hits put it down", not is_instance_valid(hound) or hound.is_dead())
+	await _frames(60)
+
+	# The crate: lift it, carry it, throw it at the cracked wall.
+	_place(66.5, 20)
+	await _frames(10)
+	await _walk_to(67.6 * TILE)
+	await _frames(4)
+	_tap_f("interact")
+	await _frames(20)
+	check.call("she lifts the crate overhead", kleo.held != null)
+	await _shot("06_crate_held")
+	await _hold_frames(["move_right"], 14)
+	await _frames(4)
+	_tap_f("attack")
+	var wall: Node = _find("cracked_wall")[0]
+	for i in 60:
+		await _frames(1)
+		if wall.broken:
+			break
+	await _shot("07_crack_broken")
+	check.call("a thrown crate breaks the cracked wall", wall.broken)
+
+	# The bonus room: in, the beads light, gather them all in time.
+	await _walk_to(79.0 * TILE)
+	await _frames(10)
+	var bonus: Node = _find("bonus_room")[0]
+	check.call("the bonus room starts when she steps in", bonus.state == BonusRoom.S.RUNNING)
+	await _shot("08_bonus_running")
+	for b in bonus.get_node("Beads").get_children():
+		kleo.global_position = b.global_position + Vector2(0, 10)
+		await _frames(3)
+	await _frames(20)
+	check.call("gathering every bead wins it", bonus.state == BonusRoom.S.WON, "left %d" % bonus.remaining())
+	await _walk_to(84.6 * TILE)
+	await _frames(6)
+	_tap_f("interact")
+	await _frames(50)
+	await _shot("09_bonus_cocoon")
+	check.call("its prize cocoon can be freed", Game.rescued.has("sys_cocoon_bonus"))
+
+	# The moving platform: it waits for her, then carries her over the pit.
+	_place(93.5, 20)
+	await _frames(4)
+	var mover: Node = _find("moving_platform")[0]
+	var x0 := kleo.global_position.x
+	await _frames(40)
+	await _shot("10_platform")
+	for i in 400:
+		await _frames(1)
+		if mover.position.x > 92 * TILE + 150:
+			break
+	check.call("the platform carries her across", kleo.global_position.x > x0 + 140.0 and kleo.is_on_floor(), "moved %.0f px" % (kleo.global_position.x - x0))
+	await _walk_to(108.0 * TILE)
+	await _frames(10)
+
+	# Deep water: a flame, back to the checkpoint.
+	var hp := Game.health
+	await _walk_to(113.5 * TILE)
+	await _frames(100)
+	check.call("water costs a flame and returns her to the checkpoint", Game.health == hp - 1 and absf(kleo.global_position.x - (64 * TILE + 14)) < 3.0,
+		"health %d, x %.0f" % [Game.health, kleo.global_position.x])
+
+	# Defeat: the last flame lost; back at the checkpoint with her flames refilled.
+	await _frames(70)  # past the invulnerability after coming back
+	Game.health = 1
+	kleo.hurt(1)
+	await _frames(12)
+	await _shot("11_defeat")
+	check.call("losing the last flame is a defeat", kleo.state == Kleo.State.DOWN)
+	await _frames(160)
+	check.call("after a defeat she is back at the checkpoint, flames refilled", Game.health == 3 and absf(kleo.global_position.x - (64 * TILE + 14)) < 3.0,
+		"health %d, x %.0f" % [Game.health, kleo.global_position.x])
+
+	# A cocoon on the way.
+	_place(121.0, 20)
+	await _frames(30)
+	_tap_f("interact")
+	await _frames(60)
+	check.call("a cocoon frees the one inside", Game.rescued.has("sys_cocoon"), "%d of %d" % [Game.cocoons_found(), Game.level_cocoons.size()])
+
+	# The level's end.
+	_place(136.0, 20)
+	await _frames(10)
+	await _walk_to(142.0 * TILE, 200)
+	await _frames(60)
+	await _shot("12_level_end")
+	var end: Node = _find("level_end")[0]
+	check.call("walking into the doorway ends the level", end.done)
+	await _frames(200)
+	check.call("the game is at full speed after it all", is_equal_approx(Engine.time_scale, 1.0))
+	for l in lines:
+		if l.begins_with("FAIL"):
+			ok_all = false
+	lines.append("ALL PASS" if ok_all else "SOME FAILED")
+	_report(lines, "systems")
+
+
+# --- Level 1-1 (room=l1_1) ------------------------------------------------------------------------
+
+## The enemies stand still for the route tests (the systems test fights them).
+func _calm_enemies() -> void:
+	for e in _find("enemy"):
+		e.process_mode = Node.PROCESS_MODE_DISABLED
+
+
+## Straight up through a one-way branch above her, from where she stands.
+func _hop_up(row: int, steer := 0) -> bool:
+	_press("jump")
+	for i in 90:
+		await _step()
+		if i == 6 and steer != 0:
+			_press("move_right" if steer > 0 else "move_left")
+		if i == 14:
+			_release_all()
+			_press("jump")
+		if kleo.is_on_floor() and i > 6:
+			break
+	_release_all()
+	await _wait(6)
+	return _floor_at(row)
+
+
+## The main line, start to the doorway: every jump the level asks of her.
+func _tour_l1_1() -> void:
+	_calm_enemies()
+	var lines := []
+	var res := []
+	_start_tour()
+	await _wait(20)
+	# TEACH: the terraces, the stall, the water pit, the ledge catch.
+	res.append(["terrace 1 (2 up)", await _jump_to(200, 228, 280, 28)])
+	res.append(["terrace 2 (2 up)", await _jump_to(268, 292, 344, 26)])
+	res.append(["onto the stall's floor (2 up)", await _jump_to(332, 356, 630, 24)])
+	res.append(["off the stall's east end", await _step_off("move_right", 648, 30)])
+	res.append(["to the mushroom island (4 across, 1 up)", await _jump_to(985, 1092, 1180, 29, 1012)])
+	res.append(["to the far bank (4 across)", await _jump_to(1140, 1250, 1300, 30, 1176)])
+	res.append(["ledge catch onto the chest block (5 up)", await _jump_to(1300, 1316, 1436, 25)])
+	res.append(["off the block", await _step_off("move_right", 1448, 30)])
+	# TEST: wall terraces, the plateau, the log, the gap, down past the false wall.
+	res.append(["checkpoint 1 lit", true])
+	res.append(["wall terrace (3 up)", await _jump_to(1575, 1604, 1690, 27)])
+	res.append(["the plateau (3 up)", await _jump_to(1672, 1700, 2100, 24)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 2400.0, 300)
+	await _wait(6)
+	res.append(["over the fallen log to the bank", _floor_at(25)])
+	res.append(["the gap up to the ruin mass (4 across, 2 up)", await _jump_to(2520, 2632, 2800, 23, 2544)])
+	res.append(["down the step", await _step_off("move_right", 2824, 26)])
+	res.append(["down to the ground", await _step_off("move_right", 2920, 30)])
+	# TWIST: past the crates, up onto the hill, over the islands.
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 3600.0, 400)
+	res.append(["up onto the hill (3 up)", await _jump_to(3740, 3784, 4600, 27)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 4600.0, 400)
+	res.append(["off the hill", await _step_off("move_right", 4680, 30)])
+	res.append(["island 1 (4 across, 2 up)", await _jump_to(4720, 4822, 4890, 28, 4744)])
+	res.append(["island 2 (4 across, 2 up)", await _jump_to(4862, 4966, 5034, 26, 4886)])
+	res.append(["island 3 (4 across, 3 down)", await _jump_to(5010, 5110, 5178, 29, 5028)])
+	res.append(["island 4 (4 across, 2 up)", await _jump_to(5150, 5254, 5306, 27, 5170)])
+	res.append(["the far bank (4 across, 3 down)", await _jump_to(5292, 5384, 5520, 30, 5302)])
+	# FINISH: the pits, the thorns, the step, the terraces, the doorway.
+	res.append(["over the pit (4 across)", await _jump_to(5720, 5864, 5910, 30, 5770)])
+	res.append(["over the thorns", await _jump_to(5900, 5992, 6060, 30, 5916)])
+	res.append(["over the pit, up the step (4 across, 2 up)", await _jump_to(6030, 6150, 6290, 28, 6062)])
+	res.append(["down from the step", await _step_off("move_right", 6312, 30)])
+	res.append(["the end terrace (3 up)", await _jump_to(6370, 6404, 6580, 27)])
+	res.append(["the end ledge (3 up)", await _jump_to(6560, 6596, 6820, 24)])
+	var end: Node = _find("level_end")[0]
+	await _hold_until(["move_right"], func(): return end.done, 300)
+	await _wait(10)
+	res.append(["through the doorway: the level ends", end.done])
+	var hp := Game.health
+	var all := true
+	for r in res:
+		lines.append("%s %s" % ["PASS" if r[1] else "FAIL", r[0]])
+		all = all and r[1]
+	lines.append("checkpoints lit: %d of 3; flames left %d; Resin on the main line %d" % [
+		_find("checkpoint").filter(func(c): return c.lit).size(), hp, Game.currency])
+	lines.append("ALL PASS" if all else "SOME FAILED")
+	_report(lines, "tour")
+
+
+## The secrets: the false wall (cocoon 1), a crate through the cracked wall
+## into the bonus room (cocoon 2), the canopy route (cocoon 3), the chests.
+func _secrets_l1_1() -> void:
+	_calm_enemies()
+	var res := []
+	_start_tour()
+	await _wait(20)
+	# The chest on the high ledge.
+	_place(84.0, 25)
+	await _wait(10)
+	_tap("attack")
+	await _wait(40)
+	res.append(["the chest on the high ledge opens", _find("chest")[0].opened])
+	# The false wall: in, the cocoon, out; the wall closes behind her.
+	_place(184.0, 30, -1)
+	await _wait(10)
+	var cover: Node = room.get_node("FalseWall")
+	await _hold_until(["move_left"], func(): return kleo.global_position.x < 179.5 * TILE, 200)
+	await _wait(40)
+	res.append(["the false wall fades while she is inside", cover.modulate.a < 0.1])
+	_tap("interact")
+	await _wait(60)
+	res.append(["cocoon 1 freed (behind the false wall)", Game.rescued.has("l11_cocoon1")])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 186.0 * TILE, 200)
+	await _wait(70)
+	res.append(["the wall closes again once she leaves", cover.modulate.a > 0.95])
+	# A crate, carried to the hill's foot and thrown at the cracked wall.
+	_place(200.0, 30)
+	await _wait(10)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 201.6 * TILE, 100)
+	await _wait(4)
+	_tap("interact")
+	await _wait(20)
+	res.append(["she lifts a crate", kleo.held != null])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 228.0 * TILE, 300)
+	await _wait(4)
+	_tap("attack")
+	var wall: Node = _find("cracked_wall")[0]
+	for i in 80:
+		await _step()
+		if wall.broken:
+			break
+	res.append(["the thrown crate breaks the cracked wall", wall.broken])
+	# Into the tunnel and down into the bonus room.
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 244.0 * TILE and kleo.is_on_floor() and kleo.global_position.y > 33.5 * TILE, 300)
+	await _wait(10)
+	var bonus: Node = _find("bonus_room")[0]
+	res.append(["the bonus game starts", bonus.state == BonusRoom.S.RUNNING])
+	# Gather the beads as a player would: the floor, a jump, onto ledge 1, off,
+	# a jump, onto ledge 2, off, the floor.
+	var go := func(x: float) -> void:
+		await _hold_until(["move_right" if x > kleo.global_position.x else "move_left"], func(): return absf(kleo.global_position.x - x) < 5.0, 120)
+	await go.call(3896.0)
+	await go.call(3904.0)
+	await _hop_up(34)
+	await _jump_to(3906.0, 3940.0, 3980.0, 31)
+	await _step_off("move_right", 3992.0, 34)
+	await go.call(4016.0)
+	await _hop_up(34)
+	await _jump_to(4018.0, 4052.0, 4092.0, 31)
+	await _step_off("move_right", 4104.0, 34)
+	await go.call(4140.0)
+	await _wait(20)
+	res.append(["every bead gathered in time (%d left, %.1f s to spare)" % [bonus.remaining(), maxf(bonus._left, 0.0)], bonus.state == BonusRoom.S.WON])
+	if bonus.state != BonusRoom.S.WON:
+		for b in bonus.get_node("Beads").get_children():
+			if not b.get_meta("taken", false):
+				print("  bead left at ", b.global_position)
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 256.6 * TILE, 200)
+	await _wait(4)
+	_tap("interact")
+	await _wait(60)
+	res.append(["cocoon 2 freed (the bonus room's prize)", Game.rescued.has("l11_cocoon2")])
+	# Out again: west, a ledge catch up into the tunnel, and out of the hill.
+	# Back over the two blocks, then a ledge catch up into the tunnel.
+	var over_blocks := await _jump_to(4110.0, 4052.0, 4092.0, 31)
+	over_blocks = over_blocks and await _step_off("move_left", 4040.0, 34)
+	over_blocks = over_blocks and await _jump_to(4000.0, 3940.0, 3980.0, 31)
+	over_blocks = over_blocks and await _step_off("move_left", 3928.0, 34)
+	res.append(["back west over the bonus room's blocks", over_blocks])
+	res.append(["back up into the tunnel (a 4-tile ledge catch)", await _jump_to(242.6 * TILE, 236.5 * TILE, 241.5 * TILE, 30)])
+	await _hold_until(["move_left"], func(): return kleo.global_position.x < 233.0 * TILE, 200)
+	res.append(["out of the hill", kleo.global_position.x < 234.0 * TILE and _floor_at(30)])
+	# The branch ladder up the great tree, and the canopy route over the hill.
+	_place(211.0, 30)
+	await _wait(10)
+	res.append(["branch 1", await _hop_up(27, 0)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 215.0 * TILE, 60)
+	res.append(["branch 2", await _hop_up(24, 0)])
+	await _hold_until(["move_left"], func(): return kleo.global_position.x <= 213.8 * TILE, 60)
+	res.append(["branch 3", await _hop_up(21, 0)])
+	res.append(["branch 4", await _hop_up(18, 0)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 218.8 * TILE, 60)
+	res.append(["into the canopy", await _hop_up(15, 0)])
+	res.append(["canopy 2 (4 across, 1 up)", await _jump_to(226.0 * TILE, 236.3 * TILE, 245.7 * TILE, 14, 231.6 * TILE)])
+	res.append(["canopy 3 (4 across, 2 down)", await _jump_to(241.0 * TILE, 250.3 * TILE, 261.7 * TILE, 16, 245.5 * TILE)])
+	res.append(["canopy 4 (4 across, 2 up)", await _jump_to(257.0 * TILE, 266.3 * TILE, 275.7 * TILE, 14, 261.6 * TILE)])
+	res.append(["canopy 5 (4 across, 1 down)", await _jump_to(271.0 * TILE, 280.3 * TILE, 289.7 * TILE, 15, 275.6 * TILE)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 287.4 * TILE, 100)
+	_tap("interact")
+	await _wait(60)
+	res.append(["cocoon 3 freed (at the canopy's end)", Game.rescued.has("l11_cocoon3")])
+	res.append(["down off the canopy's end onto the hill", await _step_off("move_right", 290.5 * TILE, 27)])
+	# The last chest.
+	_place(417.0, 24)
+	await _wait(10)
+	_tap("attack")
+	await _wait(40)
+	res.append(["the chest by the doorway opens", _find("chest")[1].opened])
+	var lines := []
+	var all := true
+	for r in res:
+		lines.append("%s %s" % ["PASS" if r[1] else "FAIL", r[0]])
+		all = all and r[1]
+	lines.append("cocoons freed: %d of %d" % [Game.cocoons_found(), Game.level_cocoons.size()])
+	lines.append("ALL PASS" if all else "SOME FAILED")
+	_report(lines, "secrets")

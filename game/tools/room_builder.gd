@@ -37,6 +37,8 @@ var back := []
 var back_earth := []
 var spawn := Vector2.ZERO
 var room_path := ""
+## The screen vignette (off for blockouts: its steps show on a flat sky).
+var vignette := true
 
 var _root: Node2D
 var _earth: Resource
@@ -651,6 +653,7 @@ func _finish() -> void:
 	var vm := ShaderMaterial.new()
 	vm.shader = load("res://shaders/vignette.gdshader")
 	vig.material = vm
+	vig.visible = vignette
 
 	_save_scene(_root, room_path)
 	_root.free()
@@ -1239,6 +1242,7 @@ func _false_wall(node_name: String, hide: Rect2i, face_x: int, rows: Vector2i, f
 	skin.set("room_rect", area)
 	skin.set("materials", Array([_earth, _stone], TYPE_OBJECT, &"Resource", load("res://scripts/world/terrain_material.gd")))
 	skin.set("skip_regions", _rects(skip))
+	skin.set("owns_layers", false)
 	skin.set("solid_layer", fake)
 	skin.set("mass_layer", _root.get_node("Masses"))
 	if _cy_stone:
