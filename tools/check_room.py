@@ -1,0 +1,302 @@
+"""Measure a room's blockout against the rules, and walk it with a movement model.
+
+Reads the collision cells exported by `playtest mode=map` (cells.json) and the
+room's annotations below. Prints the rules met or broken. Numbers are tiles.
+
+Usage: python3 tools/check_room.py [ib01|ib02|ib03|ib04|ib05|ib06|ib07]
+"""
+import json
+import sys
+from collections import deque
+
+# Kleo's measured envelope (tests/playtest.gd mode=measure), cautious model.
+JUMP_UP = 3       # standing jump clears 3 tiles (rises 3.37)
+LEDGE_UP = 5      # a ledge up to 5.25 tiles can be caught
+GAP = 5           # running jump clears 6.27 tiles; cautious 5
+BODY = 2          # tiles of headroom she needs
+
+# Each room's annotations (tiles). A standing spot is the cell Kleo's feet are
+# in: the row above the floor.
+#   spawn  where she starts
+#   lift   pairs of spots a lift links, both ways
+#   water  x, y, w, h: falling in returns her to safe ground
+#   gated  places that must stay shut with the base kit
+#   seals  cells that are solid until something opens them (silk, a plated
+#          door, a jammed lift's deck)
+#   exits  spots that must be reached
+ROOMS = {
+    "ib01": {
+        "cells": "game/tests/out/map/cells.json",
+        "spawn": (14, 23),
+        "lift": [((24, 23), (24, 36)), ((25, 23), (25, 36)), ((26, 23), (26, 36)), ((27, 23), (27, 36))],
+        "water": (95, 31, 25, 6),
+        "gated": {
+            "far bank (Wing-Cloak, G1)": (113, 20, 25, 8),
+            "sealed pocket (Emberwick, E1)": (88, 32, 3, 5),
+        },
+        "seals": [(86, 32, 2, 5)],
+        "exits": {"west upper (to the Guard Post)": (0, 23), "west lower (to the Old Crypt)": (0, 36)},
+    },
+    "ib02": {
+        "cells": "game/tests/out/ib02/map/cells.json",
+        "spawn": (109, 9),
+        "lift": [((x, 9), (x, 27)) for x in range(96, 100)],
+        "water": (41, 33, 49, 4),
+        "gated": {"west gallery past the plated door (Ironbark Ward, W2)": (0, 11, 16, 5)},
+        # The plated door, and the hoist's deck jammed at its head.
+        "seals": [(16, 11, 2, 5), (96, 10, 4, 1)],
+        "exits": {"east upper (to the Shrine Hall)": (111, 9), "east lower (to the Shrine Hall)": (111, 27)},
+    },
+    "ib03": {
+        "cells": "game/tests/out/ib03/map/cells.json",
+        "spawn": (2, 36),
+        # Stairs (slopes under painted steps): foot and head, both ways.
+        "lift": [((3, 36), (8, 33)), ((19, 30), (24, 27)), ((74, 21), (79, 18)), ((80, 18), (85, 15))],
+        "water": (0, 0, 0, 0),
+        "gated": {},
+        # Collision that isn't rock: the log (one-way), and the painted islands'
+        # single tile of collision (their paintings are thick; the rule is for rock).
+        "seals": [(66, 22, 5, 1), (32, 25, 5, 1), (39, 22, 27, 1), (44, 31, 11, 1)],
+        "exits": {"east (to the Gate Road)": (92, 15), "west (the forest road)": (0, 36)},
+    },
+    "ib04": {
+        "cells": "game/tests/out/ib04/map/cells.json",
+        "spawn": (4, 15),
+        "lift": [((14, 18), (9, 15)), ((22, 21), (17, 18)), ((38, 28), (33, 25)), ((54, 36), (49, 33))],
+        "water": (78, 37, 42, 2),
+        "gated": {"far chunk over the road's end (Wing-Cloak)": (120, 4, 8, 11)},
+        # The painted islands' tiles, and the pool's six small islands.
+        "seals": [(21, 17, 3, 1), (27, 16, 19, 1), (50, 20, 16, 1), (70, 22, 9, 1), (82, 19, 27, 1),
+                  (114, 23, 5, 1), (122, 14, 3, 1),
+                  (82, 36, 2, 1), (88, 35, 3, 1), (95, 36, 2, 1), (101, 36, 3, 1), (108, 35, 2, 1), (114, 36, 3, 1)],
+        "exits": {"east (to the Lantern Clearing)": (127, 36), "west (to the Ruin Gardens)": (0, 15)},
+    },
+    "ib05": {
+        "cells": "game/tests/out/ib05/map/cells.json",
+        "spawn": (55, 6),
+        "lift": [],
+        "water": (0, 0, 0, 0),
+        "gated": {"the shaft under the pit (Ironbark Ward, W1b)": (29, 32, 4, 2)},
+        # The painted islands', plates' and ledges' single tile of collision,
+        # and the pit's cracked plate (W1b).
+        "seals": [(13, 17, 15, 1), (7, 20, 2, 1), (10, 22, 2, 1), (3, 16, 3, 1), (22, 22, 2, 1), (29, 22, 2, 1),
+                  (31, 18, 2, 1), (34, 17, 2, 1), (37, 16, 2, 1), (41, 18, 6, 1), (47, 13, 2, 1), (51, 21, 3, 1),
+                  (29, 31, 4, 1)],
+        "exits": {"east upper (to the Lantern Clearing)": (57, 6), "west upper (to the Old Crypt)": (0, 7),
+                  "west lower (to the Old Crypt's long gallery)": (0, 25), "east lower (to the Undercroft)": (57, 25)},
+    },
+    "ib06": {
+        "cells": "game/tests/out/ib06/map/cells.json",
+        "spawn": (6, 15),
+        # The cellar lift: R1 (row 17) and R5 (row 64), both ways once freed.
+        "lift": [((x, 17), (x, 64)) for x in range(38, 42)],
+        "water": (13, 68, 3, 3),
+        "gated": {"the alcove high in the void (Barkgrip)": (22, 1, 6, 4)},
+        # The bark plate; the lift's deck, jammed in R1's floor at the top; SH4's plate.
+        "seals": [(0, 60, 2, 5), (38, 18, 4, 1), (16, 28, 2, 1)],
+        "exits": {"west (to the Shrine Hall)": (0, 15), "east lower (toward the Keep's foundations)": (43, 64)},
+    },
+    "ib07": {
+        "cells": "game/tests/out/ib07/map/cells.json",
+        "spawn": (40, 40),
+        "lift": [],
+        "water": (0, 0, 0, 0),
+        # Reached only by dropping through the plate from the Shrine Hall (the
+        # Ward): the top, and the west half (the chasm, the landing, the
+        # arched-door room, the west cave's ledges).
+        "gated": {"the walkway and the top (from the plate)": (1, 3, 38, 10),
+                  "the chasm and the landing (from the plate)": (15, 13, 9, 16),
+                  "the arched-door room and the west cave (from the plate)": (0, 13, 17, 43)},
+        # SH4's plates and wall ledge: one tile of collision under each painting.
+        "seals": [(11, 36, 3, 1), (10, 50, 2, 1), (25, 41, 2, 1), (23, 46, 2, 1), (26, 50, 2, 1), (22, 54, 2, 1)],
+        "exits": {"east (to the Undercroft's plated door)": (43, 40), "east lower (on to the deep)": (43, 59)},
+    },
+    "ib08": {
+        "cells": "game/tests/out/ib08/map/cells.json",
+        "spawn": (4, 16),
+        "lift": [],
+        "water": (0, 0, 0, 0),
+        "gated": {"the pit under the cracked bark plate (Ironbark Ward)": (52, 25, 3, 2)},
+        # CH1's two slabs and the bark plate: non-tile collision.
+        "seals": [(43, 18, 2, 1), (47, 21, 2, 1), (52, 24, 3, 1)],
+        "exits": {"west (to the Undercroft)": (0, 16), "east lower (toward the Keep)": (63, 23)},
+    },
+}
+ROOM = ROOMS[sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] in ROOMS else "ib01"]
+SPAWN, LIFT, WATER = ROOM["spawn"], ROOM["lift"], ROOM["water"]
+GATED, SEALS, EXITS = ROOM["gated"], ROOM["seals"], ROOM["exits"]
+
+
+def load(path):
+    d = json.load(open(path))
+    rx, ry, rw, rh = d["room"]
+    solid = {(c[0], c[1]) for c in d["cells"]}
+    for x0, y0, w, h in SEALS:
+        for x in range(x0, x0 + w):
+            for y in range(y0, y0 + h):
+                solid.add((x, y))
+    return (rx, ry, rw, rh), solid
+
+
+def in_rect(p, r):
+    return r[0] <= p[0] < r[0] + r[2] and r[1] <= p[1] < r[1] + r[3]
+
+
+def main(path):
+    room, solid = load(path)
+    rx, ry, rw, rh = room
+
+    def blocked(x, y):
+        return (x, y) in solid or not (rx <= x < rx + rw)  # open above and below the room
+
+    def stand(x, y):
+        return (not blocked(x, y) and not blocked(x, y - 1) and ((x, y + 1) in solid)
+                and not in_rect((x, y), WATER))
+
+    spots = {(x, y) for x in range(rx, rx + rw) for y in range(ry, ry + rh) if stand(x, y)}
+    report = []
+
+    # --- Floors: flat runs -----------------------------------------------------
+    runs = []
+    for y in range(ry, ry + rh):
+        run = 0
+        for x in range(rx, rx + rw + 1):
+            if (x, y) in spots:
+                run += 1
+            else:
+                if run:
+                    runs.append(run)
+                run = 0
+    total = sum(runs)
+    long8 = sum(r for r in runs if r >= 8)
+    report.append(f"floors: longest run {max(runs)} tiles (rule: >= 20) {'OK' if max(runs) >= 20 else 'FAIL'}")
+    report.append(f"floors: {100 * long8 / total:.0f}% in runs of 8+ (rule: >= 60%) {'OK' if long8 / total >= 0.6 else 'FAIL'}")
+
+    # --- Steps: neighbouring floor heights 1-2 apart -------------------------
+    placed = {(x, y) for x0, y0, w, h in SEALS for x in range(x0, x0 + w) for y in range(y0, y0 + h)}
+    steps = 0
+    stairs = 0
+    tops = {}
+    for (x, y) in spots:
+        tops.setdefault(x, []).append(y)
+    for x in range(rx, rx + rw - 1):
+        for y in tops.get(x, []):
+            for dy in (1, 2, -1, -2):
+                if (x + 1, y + dy) in spots and (x + 1, y) not in spots:
+                    if (x, y + 1) in placed or (x + 1, y + dy + 1) in placed:
+                        continue  # a deck, branch or island beside the ground: not a step in the floor
+                    steps += 1
+                    if (x + 2, y + 2 * dy) in spots and (x + 2, y + dy) not in spots:
+                        stairs += 1
+    report.append(f"small steps (1-2 tiles) in the floors: {steps} (rule: <= 2) {'OK' if steps <= 2 else 'FAIL'}")
+    report.append(f"staircases: {stairs} (rule: none) {'OK' if stairs == 0 else 'FAIL'}")
+
+    # --- Thin rock: every walkable top's mass at least 2 thick ------------------
+    sealed = {(x, y) for x0, y0, w, h in SEALS for x in range(x0, x0 + w) for y in range(y0, y0 + h)}
+    thin = sorted({(x, y + 1) for (x, y) in spots if (x, y + 2) not in solid and ry <= y + 2 < ry + rh} - sealed)
+    report.append(f"masses thinner than 2 tiles under a floor: {len(thin)} {'OK' if not thin else 'FAIL ' + str(thin[:6])}")
+
+    # --- Walk it: reachable standing spots with the base kit --------------------
+    def fall(x, y):
+        while ry <= y < ry + rh + 2:
+            if in_rect((x, y), WATER):
+                return None
+            if (x, y) in spots:
+                return (x, y)
+            if blocked(x, y + 1) and (x, y + 1) not in solid:
+                return None
+            y += 1
+        return None
+
+    def clear_column(x, y_from, y_to):
+        lo, hi = min(y_from, y_to), max(y_from, y_to)
+        return all(not blocked(x, y) for y in range(lo - BODY + 1, hi + 1))
+
+    def moves(p):
+        x, y = p
+        out = []
+        for d in (-1, 1):
+            if (x + d, y) in spots:
+                out.append((x + d, y))
+            # off an edge
+            for dx in (1, 2):
+                if not blocked(x + d * dx, y) and not blocked(x + d * dx, y - 1):
+                    q = fall(x + d * dx, y)
+                    if q:
+                        out.append(q)
+            # jumps: up to JUMP_UP, ledges up to LEDGE_UP, across gaps up to GAP
+            for dx in range(1, GAP + 3):
+                tx = x + d * dx
+                # Up to a ledge catch above; down as far as a long drop with drift.
+                for dy in range(-LEDGE_UP, 14):
+                    q = (tx, y + dy)
+                    if q not in spots:
+                        continue
+                    rise = -dy
+                    gap = dx - 1  # open tiles crossed
+                    if rise > LEDGE_UP:
+                        continue
+                    if rise > JUMP_UP and gap > 4:
+                        continue  # a ledge catch: measured up to 4 tiles across at 4-5 up
+                    if rise <= JUMP_UP and gap > GAP - (1 if rise > 1 else 0):
+                        continue
+                    # The body's path must be open: the start and landing columns up to
+                    # the arc's top, and every column between across the arc's height.
+                    # The arc's top: the higher standing row, plus a little air on low jumps.
+                    # (A drop needs no more than a hop: air above only to clear a wide gap.)
+                    air = max(0, 2 - rise) if rise >= 0 else (2 if gap > 2 else 0)
+                    apex = min(y, y + dy) - air
+                    if not (clear_column(x, y, apex) and clear_column(tx, y + dy, apex)):
+                        continue
+                    low = min(y, y + dy)
+                    if not all(clear_column(x + d * i, low, apex) for i in range(1, dx)):
+                        continue
+                    out.append(q)
+        for a, b in LIFT:
+            if p == a:
+                out.append(b)
+            if p == b:
+                out.append(a)
+        return out
+
+    seen = {SPAWN}
+    queue = deque([SPAWN])
+    while queue:
+        p = queue.popleft()
+        for q in moves(p):
+            if q not in seen:
+                seen.add(q)
+                queue.append(q)
+
+    for name, r in GATED.items():
+        leak = [p for p in seen if in_rect(p, r)]
+        report.append(f"gate holds: {name}: {'OK' if not leak else 'LEAK at ' + str(leak[:4])}")
+    for name, p in EXITS.items():
+        report.append(f"exit reached: {name}: {'OK' if p in seen else 'NOT REACHED'}")
+    ungated = [p for p in spots if not any(in_rect(p, r) for r in GATED.values())]
+    reached = [p for p in ungated if p in seen]
+    report.append(f"coverage: {100 * len(reached) / len(ungated):.0f}% of ungated floor reached with the base kit")
+    missing = sorted(set(ungated) - seen)
+    if missing:
+        report.append(f"  not reached: {missing[:12]}{' ...' if len(missing) > 12 else ''}")
+
+    # --- Traps: every reached spot can get back to the spawn ----------------------
+    rev = {}
+    for p in seen:
+        for q in moves(p):
+            rev.setdefault(q, set()).add(p)
+    back = {SPAWN}
+    queue = deque([SPAWN])
+    while queue:
+        p = queue.popleft()
+        for q in rev.get(p, ()):
+            if q not in back:
+                back.add(q)
+                queue.append(q)
+    traps = sorted(seen - back)
+    report.append(f"traps (reached but no way back to the shrine): {len(traps)} {'OK' if not traps else str(traps[:8])}")
+    print("\n".join(report))
+
+
+if __name__ == "__main__":
+    main(ROOM["cells"])

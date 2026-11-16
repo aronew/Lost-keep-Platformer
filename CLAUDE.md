@@ -1,0 +1,364 @@
+# Lost Keep: Platformer (working title)
+
+A side-scrolling, **level-based action platformer** in **Godot 4.7.2**, in
+premium pixel art. Mostly horizontal levels in the manner of Donkey Kong
+Country: running, jumping, fighting, platforming, hazards and pits, with
+secrets and Resin hidden along the way. Some levels climb (about 2 screens
+wide and 4 to 5 high). Seven regions, each a biome, each a run of levels that
+ends in a boss. It is **not a Metroidvania**: no interconnected map, no
+backtracking, no ability-gated locks between levels.
+
+The bar is top-tier, AAA presentation: the world must look natural, real and
+lived in, and every animation must feel great, never generic.
+
+It reuses the story, characters, art and engine of the creative lead's
+earlier game, **Lost Keep** (GitHub `aronew/Lostkeep`, branch
+`claude/world-designer`). **Lost Keep is read only:** copy from it, never
+change it. In a cloud session it can be cloned beside this repo:
+`GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch claude/world-designer https://github.com/aronew/lostkeep /home/user/aronew/lostkeep`.
+
+## Read before working
+
+| File | What it holds |
+|---|---|
+| `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
+| `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
+| `docs/mockups/platformer/outdoor_level_1_mockup.webp` | **The target look of level 1-1** |
+| `docs/mockups/ironbark_surface/` | The "Moonlit" mockups behind Lost Keep's surface look |
+| `docs/art-production/*-prompt-book.html` | Copy-ready image prompts (Book 1 Ironbark, Book 2 Kleo), references in `lostkeep-attach/` |
+| `art/source/ironbark/REVIEW.md` | The state of the generated Ironbark art |
+
+The design docs are canon. If a decision changes, update the doc in the same
+commit.
+
+---
+
+## The lore (carried over from Lost Keep)
+
+### The world
+- **Vaelora**, a world with **three moons**. Their alignment, the **Triad
+  Eclipse**, frames its history.
+- **The Sovereign Prism** is Vaelora's living crystalline heart and life
+  source: the bond between its people and the natural order.
+
+### The mythic past
+- **The Oru'Vex**, radiant extradimensional architects, descended during a
+  Triad Eclipse and raised the **Spire of the Sovereign Prism** around it.
+- **The Schism of Light:** seeking perfection, they tried to burn away their
+  flaws in the Prism's core. It fractured, and each of them was cleaved into
+  two tethered beings: the rapacious, avian-mantis **Vexari** and the stoic,
+  six-limbed **Orun**.
+- **Morvath the World-Root**, the thorny, one-eyed embodiment of Vaelora's
+  crust and stars, retreated to her **Observatory** and entrusted the world to
+  the **Lirien**.
+
+### The peoples
+- **Lirien:** graceful, wing-cloaked mortals in **seven Kindreds**. All share
+  one ancestry and the ability to **meld memories**. Their wings lie dormant
+  (the Vexari's harvesting drains them).
+- **Rootlings:** small, round, cheerful humanoids who farm, cook, sing and
+  dance in close-knit villages; the most innocent people in Vaelora, which is
+  why their harvesting must land as horror. **Kleo never kills a Rootling**,
+  and a Rootling is never an enemy.
+- **Vexari:** decaying lords who rule from the Spire as the revered
+  "Shepherds of the Prism".
+- **Orun:** the Vexari's tethered other halves; each Vexari is linked to one.
+
+### The Seven Kindreds
+| Kindred | People | Role |
+|---|---|---|
+| High-Spire | Aetheri | Scholars. Their **High Voice** leads all the Voices and is manipulated by the Vexari. Vesper's people |
+| Ironbark | Vanguard | Martial guardians. **Kleo's people**; home of the Lost Keep |
+| Deep-Glow | Lumen | Cave-dwellers who make their own light. Sora's people |
+| Tide-Weaver | Nautil | Water folk |
+| Fen-Stalker | Mire-Kin | Swamp hunters of the Thornveil forest, scorned as "primitive" |
+| Hearth-Plains | Loam-Born | Farmers and silk-growers, neighbours of the Rootlings |
+| Dusk-Drifter | Ash-Walker | Wanderers of the ash wastes, masters of fire |
+
+Each Kindred is governed by a **Voice** (a Sovereign Matriarch); all answer
+to the **High Voice**. **The Manufactured Divide:** the Vexari stoke pride and
+prejudice between the Kindreds so they never unite or notice their villagers
+vanishing. Kleo starts distrusted outside Ironbark.
+
+### The crime: Anima and the Blight-Tide
+1. **The Alchemist**, a Vexari, experimented on the Prism and discovered
+   **essence extraction**.
+2. The Vexari harvest **Anima** (pure resonant life-force) from captive Lirien
+   and Rootlings in subterranean **vats** and consume it to stay young.
+3. The abuse destabilises the Prism, and the **Blight-Tide** seeps out of it:
+   plants twist, animals mutate, creatures are infected, Lirien included.
+4. The Vexari try to **weaponise** the Blight; it threatens everyone, the
+   Vexari too.
+5. They build the **Carapax**, shell-forged automatons, to purge rebellion.
+
+### The story
+- People keep disappearing from the Ironbark Guard's post. Kleo goes looking.
+- The missing are in **cocoons**, in **vats**, or turned by the Blight. Most
+  can be **rescued**: each rescue sends someone to **the Refuge** (the hub),
+  where they open a service and the Kindreds slowly learn to live together.
+- **Sora** (Deep-Glow) and **Vesper** (High-Spire) are among the missing.
+  Freeing Vesper triggers the forbidden **memory-meld**, **the Reveal**: the
+  "Shepherds" are harvesters. The survivors rename the hub the
+  **Memory-Meld Refuge** (it is just "the Refuge" until then).
+- **The Lost Keep** is the Ironbark Guard's fortress: the first place lost,
+  the last place taken back.
+
+### Named characters and bosses
+- **Kleo:** young Lirien of the Ironbark Guard, in **short chibi
+  proportions**: a big rounded head about half her height, short legs, and
+  plain solid dark vertical-rectangle eyes. Navy hair in a long high ponytail,
+  a small brown leather jerkin with bronze fastenings, a teal neck accent and
+  a gold collar clasp, a short dark cloak lined in red (her folded, dormant
+  wings), a short silver sword in her right hand, and a brass lantern at her
+  left hip. She casts **teal Anima magic**. Later she wears a wide-brimmed hat
+  and long coat.
+- **Sora, Vesper:** allies freed mid-game. **Morvath:** mentor, tests Kleo.
+- **Bosses:** the Keep's fallen warden (an armoured giant on a throne;
+  Ironbark), the Silk Mother (Hearth-Plains: their great silk-spinner,
+  twisted by the Blight, who cocoons villagers to "protect" them; **never call
+  her the Spider Matriarch**), the Cinder Warden (Dusk-Drifter), the Thornveil
+  Reaper (Fen-Stalker: a skeleton fused into a tree, burning with stolen
+  Anima), the Carapax Prototype (the Foundry), a Vexari Shepherd (the Spire),
+  the Alchemist (the Anima Vats). Which region each ends is in
+  `design/game-structure.md`.
+
+### Colour language (canon, never break it)
+| Thing | Colour |
+|---|---|
+| Sovereign Prism and its shards | Icy blue `#9FE6F5` / `#3A7FB0` |
+| **The Blight (reserved for it alone)** | Crimson tendrils `#8E1E3A` / `#C2385A` |
+| Anima: Kleo's magic, life-force, vats | Teal `#3FE0C8` |
+| Morvath's thorn knots | Pale bark `#B8A58A` with an amber-gold eye. **Never red** |
+| Warm safety: lanterns, checkpoints, the Refuge | Amber `#F2B04A` |
+| Void: the inside of every solid mass | `#0B0812` |
+
+**Red and crimson belong to the Blight alone.** Nothing else in the world is
+red: no red mushroom caps, no red health bar, no red fire (fire is orange and
+gold), no red banners. (The level 1-1 mockup has red mushrooms and a red
+health bar; in the game the caps are violet, amber or teal and health is
+amber lantern flames.)
+
+---
+
+## Project layout
+
+Lost Keep's folder layout is kept so its tools still work.
+
+```
+CLAUDE.md                 this file
+design/                   game-structure.md (the plan), rooms/ (room specs)
+docs/mockups/             the creative lead's mockups (platformer/ is this game's)
+docs/art-production/      prompt books + reference images (lostkeep-attach/)
+docs/rooms/               review images of the carried-over rooms
+art/source/               the generator's sheets, unchanged (ironbark/, kleo/)
+tools/                    Python: art processing, map and room checks
+game/                     the Godot project
+  project.godot           640x360, integer scale, GL Compatibility; autoload Game
+  scripts/player/kleo.gd  Kleo's controller and tuning
+  scripts/core/           game.gd (the Game autoload), camera_rig.gd
+  scripts/fx/             dust, arcs, sparks, debris
+  scripts/world/          room, room_exit, breakable, pickup, interactable,
+                          secret_cover, lantern_light, mossback, moat_water,
+                          terrain_skin, terrain_material, prism_shrine, stranger,
+                          back_wall, guard_lift, practice_post, winch
+  shaders/                terrain fill, water, fog, glow, vignette, hit flash
+  scenes/player/          kleo.tscn and her frames
+  scenes/rooms/           built scenes (made by the builders: don't hand-edit
+                          a scene you will rebuild)
+  scenes/world/           the blockout tileset, terrain materials
+  tools/                  room_builder.gd (shared base), surface_builder.gd,
+                          build_test_room.gd (IB-01), build_ib03.gd, build_ib04.gd
+  tests/                  playtest.gd/.tscn (scripted play + captures), framelog
+  assets/                 characters (kleo, mossback, stranger), items (resin),
+                          fx, world (blockout tiles), environment/ironbark
+```
+
+**What came over from Lost Keep and what didn't.** Only the outdoor
+(Ironbark surface) set: islands, `cliffs_and_ruins`, `surface_*`, `props_*`,
+`landmark_*`, `parallax/`, the earth terrain, `ironbark_*`, and the
+`fg_forest_*` bands. The crypt art (`ch_*`, `cy_*`, `sh_*`, `oc_*`,
+`crypt_*`, `keep_*`, `fg_crypt_*`), the crypt rooms (IB-02, IB-05 to IB-09),
+the lock-and-key registry, the world map tools and the Metroidvania design
+docs stayed behind. **Exceptions the surface rooms need:** `sh_flora.png`
+(the hanging ivy and roots under surface ceilings), `keep_timber_kit.png` (the
+log and the lift's timber), `gate_bark_plate.png` and
+`gate_silk_and_cocoon.png` (props in IB-01), the `stone_*` terrain (the
+builder base loads it), and the scripts `back_wall`, `guard_lift`,
+`practice_post` and `winch`. IB-01's hall door led to the crypts and now
+leads nowhere. `room_builder.gd` still holds the crypt helpers (CY, SH, CH,
+OC); they are unused here and their art is absent, so calling one fails.
+
+The carried-over rooms are **IB-03, the Ruin Gardens** (the main scene),
+**IB-04, the Gate Road**, and **IB-01, the Lantern Clearing**, joined
+IB-03 → IB-04 → IB-01. They stay as references and as the raw material of
+the first levels until those are built.
+
+---
+
+## How a level is built in Godot
+
+Levels are built the way Lost Keep built rooms (the builders still say
+"room"; a level is a long room).
+
+- **From a plan, in tiles** (a tile is 16 px; base resolution 640×360,
+  integer-scaled): rock rectangles, spaces carved out, masses put back,
+  materials, the skin's skip regions, props, lights, machines.
+  `game/tools/room_builder.gd` is the shared base (the tileset, materials,
+  back walls, terrain, and helpers `_door`, `_lift`, `_water`, `_breakable`,
+  `_light`, `_fog`, `_edge_shades`, `_false_wall`, `_pickup`,
+  `_resin_cache`, `_mossback`); `surface_builder.gd` adds the outdoor look
+  (`_surface_begin` / `_surface_finish`: backdrops, moonlight, canopy;
+  `_island`, `_flight` stairs, `_log`). Each level gets its own builder on
+  top, holding its plan and dressing, and saves an ordinary scene:
+  `godot --headless --path game --script res://tools/build_ib03.gd`.
+  Re-running a builder overwrites the scene: make lasting changes in the plan.
+  New PNGs need `godot --headless --path game --import` before a builder can
+  load them.
+- **The terrain:** two TileMapLayers are the collision (atlas column 0 earth,
+  1 stone). `Solid` is the rock; `Masses` holds masses put back into spaces
+  (islands, shelves), each painted as an object of its own. `TerrainSkin`
+  paints bands along every exposed edge (tops, walls, undersides, corners).
+  **The shadow rule:** a mass is the nearest thing to the camera, so it
+  shadows to black (`#0B0812`) toward its centre and only its edges get art.
+- **Painted islands** are `_island(kind, tile_x, row, tiles)` over a one-tile
+  mass that is also in SKIP; the checker can't see non-tile collision, so list
+  logs and island tiles under `seals` in `tools/check_room.py`.
+- **One-way platforms** are on physics layer 7 (`one_way`); Kleo drops
+  through with down + jump. Anything her sword can hit has an Area2D on layer
+  3 whose parent has `take_hit(hit) -> bool`. Pots, barrels and crates are
+  `Breakable` and drop Resin once.
+- **Doors** (`_door`) make a marker where Kleo arrives and a `RoomExit` strip
+  at the edge; walking in calls `Game.go_to`. What a level remembers goes in
+  `Game.flags` (F5 clears them). There is no save file yet.
+- **Secrets:** a false wall (`_false_wall`, `secret_cover.gd`) has no
+  collision; it **fades while Kleo is inside and closes again when she
+  leaves**. From outside, the level's stone runs on unbroken. Always give it a
+  tell (`_draught`: motes drifting into the stone; moss) and a reward.
+- **Resin** (`_pickup`, `_resin_cache`): beads that hang and bob, drift to
+  Kleo when near, and add to `Game.currency` (the counter at top left).
+- **The camera** (`camera_rig.gd`) **never moves on its own, never runs
+  ahead of Kleo, and ignores jumps**: a small window she moves in, no
+  look-ahead, a fixed height that ignores jumps, an eased approach to the
+  level's edges, whole-pixel physics-tick updates.
+  `python3 tools/camera_report.py <camera.csv>`: keep `slide` and `wobble` at
+  0, `edge brake` above 50 px.
+- **Hit-stop** (`Game.hitstop`) ends on the real clock, checked every frame,
+  capped at 0.12 s. Never end a time-scale change from a timer.
+- **Parallax:** `Parallax2D` sky 0.05, far 0.15, mid 0.35, ruins 0.72,
+  playfield 1.0; `CanvasModulate`, `PointLight2D` lanterns, fog, vignette.
+- **The foreground is ONE black silhouette band** along the bottom of the view
+  (plants and bushes outdoors: the `fg_forest_bottom_a/b` bands),
+  `_fg_bands()` in `room_builder.gd`: placed in the world, scrolling a little
+  faster than the level (1.25 sideways, 1.08 up and down), kept under every
+  floor (`FG_FEET`) so it never hides the floor Kleo walks on.
+- **Lights** don't light the fog, haze or backdrops (light mask 2,
+  `LIGHT_MASK_AIR`); falloff is smooth (`_soft_light_texture()`), glows are
+  dithered additive discs (`shaders/glow.gdshader`, `_warm_glow()`).
+- **Debug keys:** F1 black-box view, F2 overlay, F3 slow motion, F5 restart,
+  H a heavy hit. **Controls:** move A/D or arrows; jump Space/Z/K; attack left
+  click or X/J; interact E/C or up; spell right click or V/L (reserved).
+
+### Kleo's movement envelope (measured; design every gap against it)
+| Move | Measured | Design rule |
+|---|---|---|
+| Standing jump (held) | 54 px = **3.37 tiles** | Clears a 3-tile mass, never a 4 |
+| Tapped jump | 10 px = 0.65 tiles | |
+| Running jump | 100 px = **6.27 tiles** | Gaps up to 5 for the cautious player; 7+ can't be crossed |
+| Ledge catch | up to 84 px = **5.25 tiles** above the floor | 4–5 tile walls need a ledge catch |
+| Run speed | 140 px/s = 8.75 tiles/s | |
+| Hard landing | falls over 120 px (7.5 tiles) | |
+| Body | 28 px tall; collision 10 × 26 px | |
+
+A small island over water where the jump is the lesson: about 56 px of gap
+and 48 px to land on (a standing-run-up jump is about 95 px long). **Every gap
+meant for dropping through is 2 tiles wide** (she runs straight over one).
+**Small ledges stand beside what they lead to, never over it** (she bumps her
+head).
+
+---
+
+## How to test (use a virtual display in the cloud)
+
+```
+cd game
+xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playtest.tscn -- room=ib03 mode=tour
+```
+
+- Rooms: `ib01` (default), `ib03`, `ib04`. Output: `game/tests/out/<room>/<mode>/`.
+- `mode=tour` (the main line, scripted), `upper` (optional lines, ways back),
+  `doors`, `enemy` (the Mossback), `shots` (screenshots, art and black box),
+  `map` (the whole level), `measure` (Kleo's numbers), `edge`, `click`,
+  `props` and `hitstop`.
+- Run `props`, `hitstop` and `enemy` **without** `--fixed-fps` (use
+  `--max-fps 60`): timing bugs only show with real frame times.
+- Then `python3 tools/stitch_map.py ib03` (map images and walked routes),
+  `python3 tools/check_room.py ib03` (floors, steps, mass thickness, exits,
+  coverage, traps) and `python3 tools/blockout_map.py ib03` (a labelled
+  black-box map for blockout reviews).
+- A new level needs an entry in `ROOMS` in `game/tests/playtest.gd` and
+  `tools/check_room.py`, its scripted lines, and its routes in
+  `stitch_map.py`.
+- After any change to shared code (the builder, Kleo, the camera, `Game`),
+  run every level's tour again: all must keep passing.
+
+## Art pipeline
+1. **Prompt books:** `docs/art-production/*-prompt-book.html`, references in
+   `docs/art-production/lostkeep-attach/` (A to Z and beyond).
+2. **The creative lead generates sheets.** Unchanged originals go in
+   `art/source/<region>/`.
+3. **Processing:** reduce to true pixel scale only. `tools/process_art.py`
+   (sheets), `tools/process_sprites.py art/source/kleo
+   game/assets/characters/kleo` (Kleo's 64 × 64 frame strips, anchor x 32,
+   y 56), `tools/make_fg_bands.py` (the foreground bands, 3:1),
+   `tools/make_terrain.py` (terrain bands, min-error seams, never a dithered
+   crossfade). Generator IDs: S1–S5 are L1–L5, D1–D4 PR1–PR4, G1–G4 GT1–GT4.
+4. **Take art exactly as the generator made it.** Never rebuild it or
+   colour-snap it with another tool (a rebuilt, hex-snapped export was
+   rejected in Lost Keep).
+5. **Judge art in the game,** not on its own.
+
+---
+
+## Lessons from the creative lead's reviews (binding)
+
+- **Top-tier, AAA presentation.** Natural, real, lived in; every animation
+  feels great, never generic.
+- **Blockout first, art last.** Get one level approved before repeating a
+  method. Show black-box pictures (`blockout_map.py`) for blockout reviews:
+  the in-game box view is too dark to read in a picture.
+- **Floors and walking lines are flat and straight.** Ceilings, undersides and
+  mass edges must NOT be straight blocks: give them breaks, hanging wedges,
+  moss and roots.
+- **Foreground: ONE black silhouette band** along the bottom of the view
+  (plants and bushes outdoors), placed in the world, scrolling a little faster
+  than the level. Not many stacked layers, never small scattered pieces, never
+  pieces pinned to the screen, never pixel art blown up 2x or more (mismatched
+  pixels look wrong). It must never hide the floor Kleo walks on. Big black
+  shapes read as holes.
+- **Lights** light the level, not the fog or backdrops (amber light on teal
+  fog makes ugly green discs). Glows fade smoothly, never in rings, and are
+  never painted into the art.
+- **Take art exactly as the generator made it**; judge it in the game.
+- **Secrets:** a false wall fades while Kleo is inside and closes again when
+  she leaves.
+- **The camera** never moves on its own, never runs ahead of Kleo, and
+  ignores jumps.
+- **Colour:** red and crimson belong to the Blight alone; the Prism is icy
+  blue, Anima is teal, warm safety is amber.
+- **Floating islands on a path sit at different heights** so a run doesn't
+  feel straight; vary heights around the big pieces rather than swapping them
+  for small ones.
+- **Platforms are deliberate.** Build with large floor masses and big
+  floating islands, with platforms where the platforming is the point. Never
+  fill space with dozens of small platforms.
+- **Floating platforms are painted pieces, never floor tiles.**
+- **No straight seams or hard light/dark lines inside a mass:** stone fades
+  into the dark gradually.
+
+## Open items
+- `design/game-structure.md` awaits the creative lead's approval. **No level
+  is built until it is approved.**
+- After approval: the systems (Kleo's health and damage, hazards that cost
+  health and return her to the last checkpoint, checkpoints, a fighting
+  enemy, chests that spill Resin, moving platforms, the level's end), then
+  level 1-1 after the mockup: black box first, pictures, approval, then art.

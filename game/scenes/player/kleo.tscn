@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/player/kleo.gd" id="1_p5lty"]
+[ext_resource type="SpriteFrames" path="res://scenes/player/kleo_frames.tres" id="2_cb6uc"]
+[ext_resource type="Script" path="res://scripts/world/lantern_light.gd" id="3_vnlfr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_22gmn"]
+size = Vector2(10, 26)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_10u6c"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7bhgj"]
+size = Vector2(18, 26)
+
+[sub_resource type="Gradient" id="Gradient_kt1v1"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.18, 0.36, 0.55, 0.75, 0.92)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.78, 1, 1, 1, 0.55, 1, 1, 1, 0.34, 1, 1, 1, 0.16, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_4b4ya"]
+gradient = SubResource("Gradient_kt1v1")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[node name="Kleo" type="CharacterBody2D" unique_id=2133446644]
+z_index = 10
+collision_layer = 2
+collision_mask = 65
+floor_snap_length = 4.0
+script = ExtResource("1_p5lty")
+
+[node name="Shape" type="CollisionShape2D" parent="." unique_id=235063007]
+position = Vector2(0, -13)
+shape = SubResource("RectangleShape2D_22gmn")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=1915588588]
+sprite_frames = ExtResource("2_cb6uc")
+animation = &"idle"
+offset = Vector2(0, -24)
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=1431063296]
+collision_layer = 8
+collision_mask = 4
+monitorable = false
+
+[node name="Shape" type="CollisionShape2D" parent="Hitbox" unique_id=2126697954]
+shape = SubResource("RectangleShape2D_10u6c")
+
+[node name="Interact" type="Area2D" parent="." unique_id=803612188]
+collision_layer = 0
+collision_mask = 32
+monitorable = false
+
+[node name="Shape" type="CollisionShape2D" parent="Interact" unique_id=1819183280]
+position = Vector2(0, -13)
+shape = SubResource("RectangleShape2D_7bhgj")
+
+[node name="Lantern" type="PointLight2D" parent="." unique_id=1261899213]
+position = Vector2(-5, -10)
+color = Color(1, 0.78, 0.48, 1)
+energy = 0.55
+texture = SubResource("GradientTexture2D_4b4ya")
+texture_scale = 0.75
+script = ExtResource("3_vnlfr")
