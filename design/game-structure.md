@@ -238,6 +238,7 @@ lanterns in tree hollows).
   in the level, refills her flames and banks her Resin. (A stand-in sprite
   until the creative lead's art.)
 - It stands **before** the level's hard half, on safe ground.
+- Played and confirmed by the creative lead: "1 checkpoint is perfect."
 - The level's start is the other place she can come back to.
 
 ### Lives or checkpoints: **checkpoints, no lives**

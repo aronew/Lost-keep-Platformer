@@ -48,10 +48,15 @@ what is missing in every level.
 cocoons; bonus areas are Resin rushes; **one checkpoint at the middle,
 never a lantern**; blockout first, art last.
 
-**Nothing built this session has been played by a person.** The scripted
-tests prove every jump can be made and every secret reached; they say
-nothing about whether it is fun. Treat the stride's numbers, the single
-checkpoint's difficulty and the knots' hiding places as proposals.
+**The creative lead has played it** (2026-11, after the merge to `main`):
+- **"1 checkpoint is perfect."** Decided: one, at the middle.
+- **"The jumps were easy to do."** Noted as said; whether that means "good"
+  or "too easy" has been asked, not answered. Region 1 is meant to be easy.
+- **"I was surprised that there was a boost in running."** Kleo's stride
+  came as a surprise: nothing in the game announces it. Whether to keep it,
+  signal it better or drop it has been asked, not answered. Until then it
+  stays as built; don't design anything that needs it.
+The knots' hiding places and the map's look have not been commented on.
 
 **What to do next, in order.**
 1. Take the creative lead's review of the 1-2 blockout and of this
@@ -504,7 +509,9 @@ head).
 
 ## Branches
 Work happens on feature branches (Claude's: `claude/...`); the creative lead
-merges finished work into `main`, which holds the current game.
+merges finished work into `main`, which holds the current game. The current
+working branch is `claude/region-1-levels` (from `main`, 2026-11; the first
+branch, `claude/platformer-game-setup-oatrq2`, is merged and finished).
 
 ## How to test (use a virtual display in the cloud)
 
@@ -647,9 +654,9 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax
   layers, so judge the look in `mode=shots`.
-- **To be played and tuned by the creative lead:** Kleo's stride (how soon,
-  how fast), the single midway checkpoint (levels are harder with one), the
-  thorn knots' hiding places, the world map's stand-in look and the banner
+- **Awaiting the creative lead's word:** Kleo's stride (it surprised them:
+  keep, signal or drop?), whether the easy jumps are right, the thorn
+  knots' hiding places, the world map's stand-in look and the banner
   stand-in. What waking every knot does is undecided.
 - 1-1's two bonus areas are still the old kinds (12 beads; a course), not
   Resin rushes.
