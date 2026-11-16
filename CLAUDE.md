@@ -50,12 +50,11 @@ never a lantern**; blockout first, art last.
 
 **The creative lead has played it** (2026-11, after the merge to `main`):
 - **"1 checkpoint is perfect."** Decided: one, at the middle.
-- **"The jumps were easy to do."** Noted as said; whether that means "good"
-  or "too easy" has been asked, not answered. Region 1 is meant to be easy.
-- **"I was surprised that there was a boost in running."** Kleo's stride
-  came as a surprise: nothing in the game announces it. Whether to keep it,
-  signal it better or drop it has been asked, not answered. Until then it
-  stays as built; don't design anything that needs it.
+- **"The jumps were easy to do", and "region 1 should be easy."** Decided:
+  region 1 keeps its easy jumps (gaps of 4 at most, landings of 3 or more).
+- **"I was surprised that there was a boost in running"; "the boost is
+  cool."** Decided: Kleo's stride stays. Levels are still designed for the
+  plain jump; the stride is the skilled player's shortcut.
 The knots' hiding places and the map's look have not been commented on.
 
 **What to do next, in order.**
@@ -654,9 +653,7 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax
   layers, so judge the look in `mode=shots`.
-- **Awaiting the creative lead's word:** Kleo's stride (it surprised them:
-  keep, signal or drop?), whether the easy jumps are right, the thorn
-  knots' hiding places, the world map's stand-in look and the banner
+- **Awaiting the creative lead's word:** the thorn knots' hiding places, the world map's stand-in look and the banner
   stand-in. What waking every knot does is undecided.
 - 1-1's two bonus areas are still the old kinds (12 beads; a course), not
   Resin rushes.
