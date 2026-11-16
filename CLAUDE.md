@@ -159,7 +159,8 @@ docs/rooms/               review images of the carried-over rooms
 art/source/               the generator's sheets, unchanged (ironbark/, kleo/)
 tools/                    Python: art processing, map and room checks
 game/                     the Godot project
-  project.godot           640x360, integer scale, GL Compatibility; autoload Game
+  project.godot           640x360, integer scale, GL Compatibility; autoload Game;
+                          the main scene (Play) is level 1-1
   scripts/player/kleo.gd  Kleo's controller and tuning
   scripts/core/           game.gd (the Game autoload), camera_rig.gd
   scripts/fx/             dust, arcs, sparks, debris
@@ -203,7 +204,7 @@ builder base loads it), and the scripts `back_wall`, `guard_lift`,
 leads nowhere. `room_builder.gd` still holds the crypt helpers (CY, SH, CH,
 OC); they are unused here and their art is absent, so calling one fails.
 
-The carried-over rooms are **IB-03, the Ruin Gardens** (the main scene),
+The carried-over rooms are **IB-03, the Ruin Gardens**,
 **IB-04, the Gate Road**, and **IB-01, the Lantern Clearing**, joined
 IB-03 → IB-04 → IB-01. They stay as references and as the raw material of
 the first levels until those are built.
@@ -385,6 +386,10 @@ meant for dropping through is 2 tiles wide** (she runs straight over one).
 head).
 
 ---
+
+## Branches
+Work happens on feature branches (Claude's: `claude/...`); the creative lead
+merges finished work into `main`, which holds the current game.
 
 ## How to test (use a virtual display in the cloud)
 
