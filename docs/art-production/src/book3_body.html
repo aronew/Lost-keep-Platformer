@@ -1,0 +1,185 @@
+<div class="controls" role="region" aria-label="Prompt options">
+  <div class="inner">
+    <span class="title">Ironbark Wilds Prompt Book</span>
+    <label class="field" for="include-rules"><input type="checkbox" id="include-rules" checked> Copy shared rules with each prompt</label>
+    <span class="progress" id="progress">0 done</span>
+  </div>
+</div>
+
+<div class="page">
+  <aside class="rail" aria-label="Contents">
+    <nav>
+      <span class="group">Start</span>
+      <a href="#needs">What 1-1 needs</a>
+      <a href="#workflow">How to use this book</a>
+      <a href="#build">How a level is assembled</a>
+      <a href="#pack">Images to attach</a>
+      <span class="group">Prompts</span>
+      <a href="#ruins">Ruin stone</a>
+      <a href="#setpieces">Set pieces</a>
+      <a href="#trees">The trees</a>
+      <a href="#things">Things that act</a>
+      <a href="#creatures">Creatures and Kleo</a>
+      <a href="#backdrop">Backdrop</a>
+      <span class="group">Finish</span>
+      <a href="#checks">Check every result</a>
+      <a href="#fixes">If the image falls short</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <span class="eyebrow">Lost Keep: Platformer · art production · Book 3</span>
+      <h1>The Ironbark Wilds</h1>
+      <p class="lede">Region 1 of the platformer, starting with level 1-1, The Overgrown Ruins: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit and its mushroom island, a chest on a high ledge, a great tree to climb and a route over the treetops. Plus the pieces the game's systems still draw as stand-ins: the Thornhound, the chest, the cracked wall, the thorns, the health flames, and Kleo carrying a crate.</p>
+      <div class="meta"><span id="count">0 images</span><span>Base 640 × 360, ×3 to 1080p</span><span>1 tile = 16 px in game</span><span>Masters at ×8 (×4 for backdrops)</span><span>Godot 4.7.2</span></div>
+    </header>
+
+    <section id="needs">
+      <span class="eyebrow">Start</span>
+      <h2>What 1-1 needs</h2>
+      <p>Level 1-1's layout is approved and its first art pass is in, dressed from the Ironbark surface kit (Book 1). That kit has the forest, the ruins, the lanterns and the doorway. What it lacks is below: the mockup's chunky ruin stone, set pieces cut to the level's exact shapes, walkable branches and treetops, and everything the systems draw with stand-ins today.</p>
+      <div class="shots">
+        <figure class="shot">
+          <img src="platformer-attach/M1-level-1-mockup.jpg" alt="Mockup of level 1-1: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit with a mushroom island, a chest on a high ledge, an arched doorway" width="1400" height="788">
+          <a class="pin hero" href="#W1" style="left:12%;top:62%">W1</a>
+          <a class="pin" href="#W2" style="left:30%;top:52%">W2</a>
+          <a class="pin" href="#W3" style="left:18%;top:28%">W3</a>
+          <a class="pin" href="#W4" style="left:42%;top:72%">W4</a>
+          <a class="pin" href="#T1" style="left:75%;top:44%">T1</a>
+          <a class="pin" href="#T4" style="left:44%;top:60%">T4</a>
+          <a class="pin" href="#B1" style="left:50%;top:26%">B1</a>
+          <a class="pin" href="#T5" style="left:12%;top:5%">T5</a>
+        </figure>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Piece in 1-1</th><th>In the game today</th><th>Status</th></tr></thead>
+        <tbody id="audit"></tbody>
+      </table></div>
+      <p class="note">The mockup's mushrooms and health bar are red. In this game red belongs to the Blight alone, so every card asks for violet, amber or teal caps, and health is drawn as amber lantern flames.</p>
+    </section>
+
+    <section id="workflow">
+      <span class="eyebrow">Start</span>
+      <h2>How to use this book</h2>
+      <div class="pilot">
+        <strong>Start with the pilot: W1, W3 and C1.</strong>
+        <p>W1 decides the level's stone, W3 is its most recognisable set piece, and C1 is the first enemy that fights. Make the rest once those three read well in 1-1.</p>
+      </div>
+      <ol class="steps">
+        <li><div><strong>Attach the images each card lists.</strong> The platformer's references are in <code>docs/art-production/platformer-attach/</code>; the lettered ones (A, B, Z) are Book 1's, in <code>docs/art-production/lostkeep-attach/</code>. The mockup M1 goes with every card.</div></li>
+        <li><div><strong>Press Copy and paste the prompt into your image model.</strong> The copy includes the shared rules unless you untick the box at the top.</div></li>
+        <li><div><strong>Check the result</strong> against <a href="#checks">the checklist</a>. If it falls short, use a fix from <a href="#fixes">If the image falls short</a>.</div></li>
+        <li><div><strong>Save it under the card's file name and hand it to me exactly as the generator made it.</strong> Don't run it through another cleanup or export tool. I reduce it to true pixel scale and place it in 1-1, and we judge it in the game.</div></li>
+        <li><div><strong>Tick it done.</strong> Ticks are saved in this browser only.</div></li>
+      </ol>
+    </section>
+
+    <section id="build">
+      <span class="eyebrow">Start</span>
+      <h2>How a level is assembled</h2>
+      <p>The same method as Lost Keep's rooms, with a platformer's demands on top. These rules are why the cards ask for what they ask for.</p>
+      <div class="cols">
+        <div class="kv"><h3>Black box, then skin</h3><ul class="checks">
+          <li>Every level is blocked out as black masses (<code>#0B0812</code>) with flat floors: that is the collision, approved before any art.</li>
+          <li>Terrain art is painted along the edges of those masses and steps down into the black inside them, like a shadow. Only walking lines are straight.</li>
+          <li>Set pieces (the stall, the islands, the log) are cut to the collision's exact shape: each card gives the walking line and the openings in pixels.</li>
+        </ul></div>
+        <div class="kv"><h3>Natural, like Donkey Kong Country</h3><ul class="checks">
+          <li>Everything Kleo stands on is something real: ground, a stone terrace, a fallen log, a branch, a treetop. No floating planks.</li>
+          <li>Things that act (a chest, a crate, a cracked wall) look like they were left there by people who lived here.</li>
+          <li>Secrets have a reason to be there and a small visible tell.</li>
+        </ul></div>
+        <div class="kv"><h3>Parallax and light</h3><ul class="checks">
+          <li>Sky 0.05 · far 0.15 · aqueduct 0.25 · mid forest 0.35 · playfield 1.0 · one black plant band in front.</li>
+          <li>Lanterns are lights in the engine: paint the flame and the lit glass, never the halo.</li>
+          <li>Each backdrop is hazier and bluer than the one in front of it.</li>
+        </ul></div>
+        <div class="kv"><h3>Sprites</h3><ul class="checks">
+          <li>Creatures and Kleo are animated sheets: every frame on its own cell, feet on one shared line.</li>
+          <li>Animation must feel great: anticipation, a strong key pose, follow-through. The Thornhound's wind-up is the player's warning, so it has to read.</li>
+        </ul></div>
+      </div>
+      <div class="swatches" id="swatches"></div>
+    </section>
+
+    <section id="pack">
+      <span class="eyebrow">Start</span>
+      <h2>Images to attach</h2>
+      <p>M, N, G and K are this book's, in <code>docs/art-production/platformer-attach/</code>. A, B and Z are Book 1's, in <code>docs/art-production/lostkeep-attach/</code>.</p>
+      <div class="refs pack" id="pack-list"></div>
+    </section>
+
+    <section id="ruins" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Ruin stone</h2>
+      <p>The mockup's chunky purple stone: big rounded blocks with moss on every top. In 1-1 it is the built ruins (the terraces, the stall's floor and piers, the ruin block with the chest, the plateau); the forest ground stays Book 1's earth.</p>
+      <div class="cards" id="cards-ruins"></div>
+    </section>
+    <section id="setpieces" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Set pieces</h2>
+      <p>Pieces cut to the level's exact shapes. Each card gives the walking line and openings in pixels; please keep to them exactly.</p>
+      <div class="cards" id="cards-setpieces"></div>
+    </section>
+    <section id="trees" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>The trees</h2>
+      <p>The great tree she climbs by its branches, and the trees whose crowns carry the secret route over the hill. Both need flat walking lines inside natural shapes.</p>
+      <div class="cards" id="cards-trees"></div>
+    </section>
+    <section id="things" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Things that act</h2>
+      <p>The pieces the game's systems draw with stand-ins today.</p>
+      <div class="cards" id="cards-things"></div>
+    </section>
+    <section id="creatures" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Creatures and Kleo</h2>
+      <p>Animated sheets. The Thornhound is the first enemy that fights back; Kleo needs new frames to lift, carry and throw a crate.</p>
+      <div class="cards" id="cards-creatures"></div>
+    </section>
+    <section id="backdrop" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Backdrop</h2>
+      <p>The mockup's far aqueduct as its own parallax layer, and a sky with smaller moons (the current ones fill the top of the screen).</p>
+      <div class="cards" id="cards-backdrop"></div>
+    </section>
+
+    <section id="checks">
+      <span class="eyebrow">Finish</span>
+      <h2>Check every result</h2>
+      <div class="cols">
+        <div class="kv"><h3>Every image</h3><ul class="checks">
+          <li>Put it next to M1. It looks like the same artist made both.</li>
+          <li>It is real pixel art: hard square pixels on one even grid, no blur, no soft gradients.</li>
+          <li>No text, labels, grid lines or watermarks; transparent where the card says so.</li>
+          <li>No red anywhere: no red caps, roots, banners or fire. Crimson belongs to the Blight alone.</li>
+        </ul></div>
+        <div class="kv"><h3>Stone and set pieces</h3><ul class="checks">
+          <li>Every walking line is dead straight, at exactly the height the card gives.</li>
+          <li>Openings and widths match the card's numbers: lay a ruler on them.</li>
+          <li>Masses step into the black along the stones' own outlines, never along a straight line.</li>
+          <li>Undersides and ceilings break up with hanging moss, roots and wedges.</li>
+        </ul></div>
+        <div class="kv"><h3>Sprites</h3><ul class="checks">
+          <li>Every frame sits on its own cell, feet on the same line.</li>
+          <li>Shrunk to game size, each pose reads as a clear silhouette.</li>
+          <li>The Thornhound's wind-up is obviously a warning.</li>
+        </ul></div>
+        <div class="kv"><h3>Backdrops</h3><ul class="checks">
+          <li>The left and right edges join.</li>
+          <li>It is hazier and lower in contrast than the forest in front of it.</li>
+          <li>Nothing in it looks like a ledge she could stand on.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <section id="fixes">
+      <span class="eyebrow">Finish</span>
+      <h2>If the image falls short</h2>
+      <div class="cards" id="fix-list"></div>
+    </section>
+  </main>
+</div>

@@ -48,6 +48,9 @@ func _level_begin(node_name: String, title: String) -> Dictionary:
 		_blockout_sky()
 	else:
 		_build_backdrops()
+		# A level is shorter than Lost Keep's rooms: lower the sky so the three
+		# moons sit whole under the top edge.
+		(_root.get_node("Sky/Art") as Sprite2D).position.y = -50.0
 	_back_walls()
 	var t := _terrain(tileset)
 	if blockout:
@@ -91,6 +94,8 @@ func _blockout_sky() -> void:
 
 ## A name for a beat of the level, in the world (blockout only).
 func _label(text: String, pos: Vector2) -> void:
+	if not blockout:
+		return
 	var l := _node(Label.new(), "Label", _blockout_node) as Label
 	l.text = text
 	l.position = pos.round()
@@ -108,6 +113,8 @@ const BACKDROP_LEAF := Color("#75879f")
 
 
 func _backdrop(poly: PackedVector2Array, color := BACKDROP_INK) -> Polygon2D:
+	if not blockout:
+		return null
 	var b := _root.get_node_or_null("BlockoutBackdrop") as Node2D
 	if b == null:
 		b = _node(Node2D.new(), "BlockoutBackdrop", _root) as Node2D
@@ -132,16 +139,17 @@ func _backdrop_tree(x: float, foot_y: float, top_y: float, w: float, crown: floa
 ## (its painted copy would give the secret away).
 func _false_wall(node_name: String, hide: Rect2i, face_x: int, rows: Vector2i, faces: int, flag: String) -> Node2D:
 	var cover := super(node_name, hide, face_x, rows, faces, flag)
+	# The hidden cells in the wall's own material (the cell above the hollow),
+	# so the cover's face runs on in the same earth or stone.
+	var fake := cover.get_node("FakeRock") as TileMapLayer
+	var src := _root.get_node("Solid") as TileMapLayer
+	var mat := src.get_cell_atlas_coords(Vector2i(hide.position.x, hide.position.y - 1))
+	if mat != Vector2i(-1, -1):
+		for x in range(hide.position.x, hide.end.x):
+			for y in range(hide.position.y, hide.end.y):
+				fake.set_cell(Vector2i(x, y), 0, mat)
 	if blockout:
-		var fake := cover.get_node("FakeRock") as TileMapLayer
 		fake.visible = true
-		# The hidden cells in the wall's own material (the cell above the hollow).
-		var src := _root.get_node("Solid") as TileMapLayer
-		var mat := src.get_cell_atlas_coords(Vector2i(hide.position.x, hide.position.y - 1))
-		if mat != Vector2i(-1, -1):
-			for x in range(hide.position.x, hide.end.x):
-				for y in range(hide.position.y, hide.end.y):
-					fake.set_cell(Vector2i(x, y), 0, mat)
 		cover.get_node("Clip/FakeSkin").set("skin_visible", false)
 	return cover
 
@@ -227,6 +235,12 @@ func _level_end(x: float, floor_y: float, w: float, h: float, next_scene := "") 
 		inner.append(Vector2(w, 0))
 		_shape(_blockout_node, _offset(inner, e.position), Color(0.95, 0.69, 0.29, 0.55), "EndArch")
 		_label("LEVEL END", e.position + Vector2(-6, -h - 14))
+	else:
+		# The arched doorway with its lantern (the mockup's way out).
+		var behind := _root.get_node("Behind")
+		var d := _piece(behind, DOOR_LANTERN, x - 34.0, floor_y, "EndDoor")
+		d.z_index = 1
+		_light(behind, Vector2(x - 34.0 + 99.0, floor_y - DOOR_LANTERN.size.y + 44.0), LAMP, 1.0, 1.0, "EndDoorLight")
 	return e
 
 
@@ -322,8 +336,20 @@ func _cracked_wall(r: Rect2i, flag: String) -> StaticBody2D:
 	w.set_meta("rect", Rect2(Vector2.ZERO, size))
 	_node(_rect_shape(size, size * 0.5), "Shape", w)
 	var art := _node(Node2D.new(), "Art", w) as Node2D
-	# Blockout: pale cracked stone, so the mark reads against the black box.
-	_shape(art, _box(Rect2(Vector2.ZERO, size)), Color("#6e6482"), "Stone")
+	if blockout:
+		# Pale cracked stone, so the mark reads against the black box.
+		_shape(art, _box(Rect2(Vector2.ZERO, size)), Color("#6e6482"), "Stone")
+	else:
+		# Stand-in until the cracked-wall card is generated: SF11's pier
+		# stone, its courses, with the crack drawn over (Book 3, P1-CW).
+		var x := 0.0
+		while x < size.x:
+			var y := 0.0
+			while y < size.y:
+				var st := _sprite(art, PL, Rect2(81, 86, minf(30.0, size.x - x), minf(32.0, size.y - y)), Vector2(x, y))
+				st.name = "Stone"
+				y += 32.0
+			x += 30.0
 	_shape(art, PackedVector2Array([Vector2(size.x * 0.3, 0), Vector2(size.x * 0.55, size.y * 0.45), Vector2(size.x * 0.4, size.y * 0.6),
 		Vector2(size.x * 0.7, size.y), Vector2(size.x * 0.62, size.y), Vector2(size.x * 0.33, size.y * 0.62),
 		Vector2(size.x * 0.46, size.y * 0.45), Vector2(size.x * 0.22, 0)]), Color("#2a2234"), "Crack")
@@ -357,6 +383,42 @@ func _cocoon(foot: Vector2, flag: String, who: String, crop := 0.0, parent: Node
 	use.set("prompt_offset", Vector2(0, -60 + crop * 0.5))
 	_node(_rect_shape(Vector2(30, 40), Vector2(0, -20)), "Shape", use)
 	return c
+
+
+## A walkway along the top of a tree's crown: one-way, its leaves (SF9's
+## canopy band, whose top is flat) laid with their top on the walking line.
+## In a blockout it is a timber log like the rest.
+const CANOPY := Rect2(112, 184, 256, 61)
+
+func _canopy(x0: float, x1: float, y: float) -> void:
+	if blockout:
+		_log(_root, x0, x1, y)
+		return
+	var b := _body("Canopy", 64)
+	var cs := _rect_shape(Vector2(x1 - x0, 8), Vector2((x0 + x1) * 0.5, y + 4.0))
+	cs.one_way_collision = true
+	_node(cs, "Shape", b)
+	var placed := _root.get_node("PlacedArt")
+	var x := x0 - 8.0
+	var flip := false
+	while x < x1 + 8.0:
+		var w := minf(CANOPY.size.x, x1 + 8.0 - x)
+		var leaf := _sprite(placed, GT, Rect2(CANOPY.position, Vector2(w, CANOPY.size.y)), Vector2(x, y - 1.0))
+		leaf.name = "CanopyLeaves"
+		leaf.set_meta("no_tint", true)  # SF9's greens are the forest's own
+		leaf.flip_h = flip
+		flip = not flip
+		x += w
+	# Vines down from the crown, over the trunk's top.
+	_vines(placed, x0 + 10.0, x1 - 14.0, y + 40.0)
+
+
+## A lantern hanging from a ceiling at `ceiling_y` (its chain cut to `drop` px).
+func _hanging_lamp(parent: Node, x: float, ceiling_y: float, drop := 41.0) -> void:
+	var cut := 60.0 - drop
+	var lamp := _sprite(parent, LAN, Rect2(201, 1 + cut, 21, drop), Vector2(x - 10, ceiling_y))
+	lamp.name = "HangingLantern"
+	_light(parent, Vector2(x, ceiling_y + drop - 12.0), LAMP, 0.9, 0.8, "HangingLanternLight")
 
 
 ## Resin beads along a line of points (px), each remembered by `flag`_i.

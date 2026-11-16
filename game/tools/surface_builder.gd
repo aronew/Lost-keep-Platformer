@@ -97,7 +97,7 @@ func _build_backdrops() -> void:
 
 func _tint_surface_kit(node: Node) -> void:
 	for c in node.get_children():
-		if c is Sprite2D and c.texture and c.texture.resource_path.contains("/surface_"):
+		if c is Sprite2D and c.texture and c.texture.resource_path.contains("/surface_") and not c.has_meta("no_tint"):
 			c.modulate = c.modulate * SF_TINT
 		_tint_surface_kit(c)
 

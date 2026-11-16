@@ -1,0 +1,832 @@
+<title>Ironbark Wilds Prompt Book</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+
+/* Layout: a working manual. Sticky control bar, a contents rail on wide screens,
+   one reading column of rules and specs, and prompt cards you copy from.
+   Palette: Lost Keep's own colours (void, plum stone, Anima teal, lantern amber). */
+:root {
+  color-scheme: dark;
+  --bg: #0f0b16; --panel: #171221; --panel-2: #211a2e; --line: #34294a;
+  --fg: #ede3d3; --muted: #a99fb0; --accent: #3fe0c8; --accent-ink: #0b0812;
+  --brass: #f2b04a; --red: #e07a8c; --code: #0b0812;
+  --font-display: "Marcellus", "Cormorant Garamond", Georgia, serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #efe8dc; --panel: #f9f4ea; --panel-2: #e6ddd0; --line: #cfc3b3;
+    --fg: #1b1424; --muted: #5b5163; --accent: #157a6c; --accent-ink: #f9f4ea;
+    --brass: #8a5a1c; --red: #a03a55; --code: #fbf8f1;
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #efe8dc; --panel: #f9f4ea; --panel-2: #e6ddd0; --line: #cfc3b3;
+  --fg: #1b1424; --muted: #5b5163; --accent: #157a6c; --accent-ink: #f9f4ea;
+  --brass: #8a5a1c; --red: #a03a55; --code: #fbf8f1;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { text-wrap: balance; font-weight: 400; margin: 0; }
+h1 { font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.05; letter-spacing: 0.01em; }
+h2 { font-family: var(--font-display); font-size: 1.9rem; line-height: 1.15; }
+h3 { font-family: var(--font-body); font-weight: 600; font-size: 1.08rem; }
+p { margin: 0; max-width: 68ch; }
+code, kbd { font-family: var(--font-mono); font-size: 0.88em; background: var(--panel-2); padding: 0.05em 0.35em; border-radius: 4px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); }
+
+.page { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 28px 80px; }
+@media (min-width: 1100px) { .page { grid-template-columns: 210px minmax(0, 1fr); } }
+.rail { display: none; }
+@media (min-width: 1100px) {
+  .rail { display: block; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 96px); align-self: start; }
+  .rail nav { display: grid; gap: 2px; font-size: 0.9rem; }
+  .rail a { color: var(--muted); text-decoration: none; padding: 4px 10px; border-left: 2px solid var(--line); }
+  .rail a:hover { color: var(--fg); border-left-color: var(--accent); }
+  .rail .group { margin-top: 12px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); padding-left: 12px; }
+}
+main { min-width: 0; display: grid; gap: 64px; }
+section { display: grid; gap: 20px; scroll-margin-top: 110px; }
+.lede { font-size: 1.12rem; color: var(--muted); }
+
+.hero { display: grid; gap: 14px; padding-block: 12px 4px; }
+.hero .meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+
+.controls {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-left, 0px));
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.controls .inner { max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; }
+.controls .title { font-family: var(--font-display); font-size: 1.15rem; margin-right: auto; }
+.field { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { font: inherit; font-size: 0.84rem; color: var(--fg); background: transparent; border: 0; padding: 5px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.progress { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: grid; gap: 12px; }
+ol.steps li { counter-increment: step; display: grid; grid-template-columns: 2.2rem 1fr; gap: 10px; align-items: start; }
+ol.steps li::before { content: counter(step); font-family: var(--font-display); font-size: 1.3rem; color: var(--accent); line-height: 1.3; text-align: right; }
+ol.steps li > div { min-width: 0; }
+
+.note { border-left: 3px solid var(--brass); padding: 10px 14px; background: var(--panel); border-radius: 0 6px 6px 0; max-width: 72ch; }
+.note.warn { border-left-color: var(--red); }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); font-weight: 500; background: var(--panel); }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td code { white-space: nowrap; }
+
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.swatch { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; font-size: 0.84rem; }
+.swatch i { width: 34px; height: 34px; border-radius: 6px; border: 1px solid var(--line); display: block; }
+.swatch b { font-weight: 500; display: block; }
+.swatch span { font-family: var(--font-mono); font-size: 0.76rem; color: var(--muted); }
+
+.cols { display: grid; gap: 24px; grid-template-columns: 1fr; }
+@media (min-width: 820px) { .cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.figure { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.figure svg { width: 100%; height: auto; display: block; }
+.figure figcaption { font-size: 0.84rem; color: var(--muted); }
+svg .ln { stroke: var(--muted); }
+svg .acc { stroke: var(--accent); }
+svg .accf { fill: var(--accent); }
+svg .redl { stroke: var(--red); }
+svg .txt { fill: var(--fg); font-family: var(--font-mono); font-size: 11px; }
+svg .txt-m { fill: var(--muted); font-family: var(--font-mono); font-size: 10px; }
+
+.refs { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.ref { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: grid; }
+.ref img { aspect-ratio: 16 / 10; object-fit: cover; width: 100%; background: var(--code); }
+.ref div { padding: 10px 12px; display: grid; gap: 2px; font-size: 0.86rem; }
+.ref span { color: var(--muted); font-size: 0.8rem; }
+
+.cards { display: grid; gap: 18px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.card.is-done { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.tag { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-ink); background: var(--brass); padding: 1px 8px; border-radius: 999px; }
+.card-head h3 { margin-right: auto; }
+.done { display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; color: var(--muted); cursor: pointer; }
+.done input { accent-color: var(--accent); width: 16px; height: 16px; }
+.card .about { color: var(--muted); font-size: 0.93rem; }
+dl.spec { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; font-size: 0.88rem; }
+dl.spec dt { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); padding-top: 3px; }
+dl.spec dd { margin: 0; min-width: 0; }
+@media (max-width: 520px) { dl.spec { grid-template-columns: 1fr; } dl.spec dd { margin-bottom: 6px; } }
+.anims { display: flex; flex-wrap: wrap; gap: 6px; }
+.anim { font-family: var(--font-mono); font-size: 0.76rem; border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; background: var(--panel-2); white-space: nowrap; }
+.prompt { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-width: 0; }
+.prompt-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 12px; background: var(--panel-2); font-size: 0.82rem; color: var(--muted); }
+.prompt-bar strong { color: var(--fg); font-weight: 600; margin-right: auto; }
+.copy { font: inherit; font-size: 0.84rem; font-weight: 600; color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+.copy:hover { filter: brightness(1.06); }
+.copy.copied { background: var(--brass); }
+pre { margin: 0; padding: 14px 16px; background: var(--code); font-family: var(--font-mono); font-size: 0.84rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; overflow-y: auto; }
+details.full summary { cursor: pointer; font-size: 0.82rem; color: var(--muted); padding: 8px 12px; border-top: 1px solid var(--line); }
+details.full pre { max-height: 360px; border-top: 1px solid var(--line); }
+
+ul.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+ul.checks li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; max-width: 78ch; }
+ul.checks li::before { content: ""; width: 14px; height: 14px; margin-top: 5px; border: 2px solid var(--accent); border-radius: 3px; }
+.kv { display: grid; gap: 4px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+.shots { display: grid; gap: 16px; }
+.shot { position: relative; margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--code); }
+.shot img { display: block; width: 100%; height: auto; }
+.pin { position: absolute; transform: translate(-50%, -50%); font-family: var(--font-mono); font-size: 0.72rem; line-height: 1; font-weight: 500; text-decoration: none; color: #08131c; background: #9cf2c2; border: 2px solid #071220; border-radius: 999px; padding: 3px 6px; white-space: nowrap; }
+.pin:hover { background: #fff; }
+.pin.hero { background: #ddf936; }
+@media (max-width: 620px) { .pin { font-size: 0.56rem; padding: 2px 3px; border-width: 1px; } }
+.group-head { display: grid; gap: 6px; }
+.status { font-family: var(--font-mono); font-size: 0.74rem; white-space: nowrap; }
+.status.need { color: var(--red); }
+.status.ok { color: var(--accent); }
+.status.code { color: var(--muted); }
+.thumbs { display: flex; flex-wrap: wrap; gap: 8px; }
+.thumb { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 8px; font-size: 0.8rem; color: var(--muted); background: var(--panel-2); border-radius: 6px; padding: 4px 10px 4px 4px; text-decoration: none; }
+.thumb img { width: 44px; height: 30px; object-fit: cover; border-radius: 3px; background: #fff; display: block; }
+.thumb b { color: var(--fg); font-weight: 600; }
+.guide { background: var(--panel-2); border-radius: 8px; padding: 10px; display: grid; gap: 6px; max-width: 460px; font-size: 0.8rem; color: var(--muted); }
+.guide img { display: block; width: 100%; height: auto; border-radius: 4px; }
+.pack img { aspect-ratio: 2 / 1; }
+.pilot { border: 1px solid var(--accent); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; background: var(--panel); }
+.pilot strong { color: var(--accent); font-weight: 600; }
+
+</style>
+
+<div class="controls" role="region" aria-label="Prompt options">
+  <div class="inner">
+    <span class="title">Ironbark Wilds Prompt Book</span>
+    <label class="field" for="include-rules"><input type="checkbox" id="include-rules" checked> Copy shared rules with each prompt</label>
+    <span class="progress" id="progress">0 done</span>
+  </div>
+</div>
+
+<div class="page">
+  <aside class="rail" aria-label="Contents">
+    <nav>
+      <span class="group">Start</span>
+      <a href="#needs">What 1-1 needs</a>
+      <a href="#workflow">How to use this book</a>
+      <a href="#build">How a level is assembled</a>
+      <a href="#pack">Images to attach</a>
+      <span class="group">Prompts</span>
+      <a href="#ruins">Ruin stone</a>
+      <a href="#setpieces">Set pieces</a>
+      <a href="#trees">The trees</a>
+      <a href="#things">Things that act</a>
+      <a href="#creatures">Creatures and Kleo</a>
+      <a href="#backdrop">Backdrop</a>
+      <span class="group">Finish</span>
+      <a href="#checks">Check every result</a>
+      <a href="#fixes">If the image falls short</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <span class="eyebrow">Lost Keep: Platformer · art production · Book 3</span>
+      <h1>The Ironbark Wilds</h1>
+      <p class="lede">Region 1 of the platformer, starting with level 1-1, The Overgrown Ruins: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit and its mushroom island, a chest on a high ledge, a great tree to climb and a route over the treetops. Plus the pieces the game's systems still draw as stand-ins: the Thornhound, the chest, the cracked wall, the thorns, the health flames, and Kleo carrying a crate.</p>
+      <div class="meta"><span id="count">0 images</span><span>Base 640 × 360, ×3 to 1080p</span><span>1 tile = 16 px in game</span><span>Masters at ×8 (×4 for backdrops)</span><span>Godot 4.7.2</span></div>
+    </header>
+
+    <section id="needs">
+      <span class="eyebrow">Start</span>
+      <h2>What 1-1 needs</h2>
+      <p>Level 1-1's layout is approved and its first art pass is in, dressed from the Ironbark surface kit (Book 1). That kit has the forest, the ruins, the lanterns and the doorway. What it lacks is below: the mockup's chunky ruin stone, set pieces cut to the level's exact shapes, walkable branches and treetops, and everything the systems draw with stand-ins today.</p>
+      <div class="shots">
+        <figure class="shot">
+          <img src="platformer-attach/M1-level-1-mockup.jpg" alt="Mockup of level 1-1: purple stone ruins in a teal forest, a timber stall on stone arches, a water pit with a mushroom island, a chest on a high ledge, an arched doorway" width="1400" height="788">
+          <a class="pin hero" href="#W1" style="left:12%;top:62%">W1</a>
+          <a class="pin" href="#W2" style="left:30%;top:52%">W2</a>
+          <a class="pin" href="#W3" style="left:18%;top:28%">W3</a>
+          <a class="pin" href="#W4" style="left:42%;top:72%">W4</a>
+          <a class="pin" href="#T1" style="left:75%;top:44%">T1</a>
+          <a class="pin" href="#T4" style="left:44%;top:60%">T4</a>
+          <a class="pin" href="#B1" style="left:50%;top:26%">B1</a>
+          <a class="pin" href="#T5" style="left:12%;top:5%">T5</a>
+        </figure>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Piece in 1-1</th><th>In the game today</th><th>Status</th></tr></thead>
+        <tbody id="audit"></tbody>
+      </table></div>
+      <p class="note">The mockup's mushrooms and health bar are red. In this game red belongs to the Blight alone, so every card asks for violet, amber or teal caps, and health is drawn as amber lantern flames.</p>
+    </section>
+
+    <section id="workflow">
+      <span class="eyebrow">Start</span>
+      <h2>How to use this book</h2>
+      <div class="pilot">
+        <strong>Start with the pilot: W1, W3 and C1.</strong>
+        <p>W1 decides the level's stone, W3 is its most recognisable set piece, and C1 is the first enemy that fights. Make the rest once those three read well in 1-1.</p>
+      </div>
+      <ol class="steps">
+        <li><div><strong>Attach the images each card lists.</strong> The platformer's references are in <code>docs/art-production/platformer-attach/</code>; the lettered ones (A, B, Z) are Book 1's, in <code>docs/art-production/lostkeep-attach/</code>. The mockup M1 goes with every card.</div></li>
+        <li><div><strong>Press Copy and paste the prompt into your image model.</strong> The copy includes the shared rules unless you untick the box at the top.</div></li>
+        <li><div><strong>Check the result</strong> against <a href="#checks">the checklist</a>. If it falls short, use a fix from <a href="#fixes">If the image falls short</a>.</div></li>
+        <li><div><strong>Save it under the card's file name and hand it to me exactly as the generator made it.</strong> Don't run it through another cleanup or export tool. I reduce it to true pixel scale and place it in 1-1, and we judge it in the game.</div></li>
+        <li><div><strong>Tick it done.</strong> Ticks are saved in this browser only.</div></li>
+      </ol>
+    </section>
+
+    <section id="build">
+      <span class="eyebrow">Start</span>
+      <h2>How a level is assembled</h2>
+      <p>The same method as Lost Keep's rooms, with a platformer's demands on top. These rules are why the cards ask for what they ask for.</p>
+      <div class="cols">
+        <div class="kv"><h3>Black box, then skin</h3><ul class="checks">
+          <li>Every level is blocked out as black masses (<code>#0B0812</code>) with flat floors: that is the collision, approved before any art.</li>
+          <li>Terrain art is painted along the edges of those masses and steps down into the black inside them, like a shadow. Only walking lines are straight.</li>
+          <li>Set pieces (the stall, the islands, the log) are cut to the collision's exact shape: each card gives the walking line and the openings in pixels.</li>
+        </ul></div>
+        <div class="kv"><h3>Natural, like Donkey Kong Country</h3><ul class="checks">
+          <li>Everything Kleo stands on is something real: ground, a stone terrace, a fallen log, a branch, a treetop. No floating planks.</li>
+          <li>Things that act (a chest, a crate, a cracked wall) look like they were left there by people who lived here.</li>
+          <li>Secrets have a reason to be there and a small visible tell.</li>
+        </ul></div>
+        <div class="kv"><h3>Parallax and light</h3><ul class="checks">
+          <li>Sky 0.05 · far 0.15 · aqueduct 0.25 · mid forest 0.35 · playfield 1.0 · one black plant band in front.</li>
+          <li>Lanterns are lights in the engine: paint the flame and the lit glass, never the halo.</li>
+          <li>Each backdrop is hazier and bluer than the one in front of it.</li>
+        </ul></div>
+        <div class="kv"><h3>Sprites</h3><ul class="checks">
+          <li>Creatures and Kleo are animated sheets: every frame on its own cell, feet on one shared line.</li>
+          <li>Animation must feel great: anticipation, a strong key pose, follow-through. The Thornhound's wind-up is the player's warning, so it has to read.</li>
+        </ul></div>
+      </div>
+      <div class="swatches" id="swatches"></div>
+    </section>
+
+    <section id="pack">
+      <span class="eyebrow">Start</span>
+      <h2>Images to attach</h2>
+      <p>M, N, G and K are this book's, in <code>docs/art-production/platformer-attach/</code>. A, B and Z are Book 1's, in <code>docs/art-production/lostkeep-attach/</code>.</p>
+      <div class="refs pack" id="pack-list"></div>
+    </section>
+
+    <section id="ruins" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Ruin stone</h2>
+      <p>The mockup's chunky purple stone: big rounded blocks with moss on every top. In 1-1 it is the built ruins (the terraces, the stall's floor and piers, the ruin block with the chest, the plateau); the forest ground stays Book 1's earth.</p>
+      <div class="cards" id="cards-ruins"></div>
+    </section>
+    <section id="setpieces" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Set pieces</h2>
+      <p>Pieces cut to the level's exact shapes. Each card gives the walking line and openings in pixels; please keep to them exactly.</p>
+      <div class="cards" id="cards-setpieces"></div>
+    </section>
+    <section id="trees" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>The trees</h2>
+      <p>The great tree she climbs by its branches, and the trees whose crowns carry the secret route over the hill. Both need flat walking lines inside natural shapes.</p>
+      <div class="cards" id="cards-trees"></div>
+    </section>
+    <section id="things" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Things that act</h2>
+      <p>The pieces the game's systems draw with stand-ins today.</p>
+      <div class="cards" id="cards-things"></div>
+    </section>
+    <section id="creatures" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Creatures and Kleo</h2>
+      <p>Animated sheets. The Thornhound is the first enemy that fights back; Kleo needs new frames to lift, carry and throw a crate.</p>
+      <div class="cards" id="cards-creatures"></div>
+    </section>
+    <section id="backdrop" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Backdrop</h2>
+      <p>The mockup's far aqueduct as its own parallax layer, and a sky with smaller moons (the current ones fill the top of the screen).</p>
+      <div class="cards" id="cards-backdrop"></div>
+    </section>
+
+    <section id="checks">
+      <span class="eyebrow">Finish</span>
+      <h2>Check every result</h2>
+      <div class="cols">
+        <div class="kv"><h3>Every image</h3><ul class="checks">
+          <li>Put it next to M1. It looks like the same artist made both.</li>
+          <li>It is real pixel art: hard square pixels on one even grid, no blur, no soft gradients.</li>
+          <li>No text, labels, grid lines or watermarks; transparent where the card says so.</li>
+          <li>No red anywhere: no red caps, roots, banners or fire. Crimson belongs to the Blight alone.</li>
+        </ul></div>
+        <div class="kv"><h3>Stone and set pieces</h3><ul class="checks">
+          <li>Every walking line is dead straight, at exactly the height the card gives.</li>
+          <li>Openings and widths match the card's numbers: lay a ruler on them.</li>
+          <li>Masses step into the black along the stones' own outlines, never along a straight line.</li>
+          <li>Undersides and ceilings break up with hanging moss, roots and wedges.</li>
+        </ul></div>
+        <div class="kv"><h3>Sprites</h3><ul class="checks">
+          <li>Every frame sits on its own cell, feet on the same line.</li>
+          <li>Shrunk to game size, each pose reads as a clear silhouette.</li>
+          <li>The Thornhound's wind-up is obviously a warning.</li>
+        </ul></div>
+        <div class="kv"><h3>Backdrops</h3><ul class="checks">
+          <li>The left and right edges join.</li>
+          <li>It is hazier and lower in contrast than the forest in front of it.</li>
+          <li>Nothing in it looks like a ledge she could stand on.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <section id="fixes">
+      <span class="eyebrow">Finish</span>
+      <h2>If the image falls short</h2>
+      <div class="cards" id="fix-list"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var KEY = "lostkeep-platformer-book3";
+  var state = { rules: true, done: {} };
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || "{}");
+    if (typeof saved.rules === "boolean") state.rules = saved.rules;
+    if (saved.done && typeof saved.done === "object") state.done = saved.done;
+  } catch (e) { /* storage unavailable: defaults */ }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* not saved */ }
+  }
+
+  var AUDIT = [
+    ["Forest ground (earth tops, walls, corners)", "In: Book 1's IB2 and IB6", "ok", "Book 1"],
+    ["Ruin stone for the built ruins: tops, undersides, walls, corners", "Earth stands in", "need", "W1, W2"],
+    ["The timber stall on its stone arches", "Book 1's timber gate, barrels and lanterns on earth piers", "need", "W3"],
+    ["The mushroom island and the stepping islands", "Earth columns with flowers", "need", "W4"],
+    ["The fallen log over the ravine", "Plank timber from the keep kit", "need", "W5"],
+    ["Branch walkways on the great tree", "Plank timber across the Great Ironbark", "need", "W6"],
+    ["Treetops for the canopy route", "SF9's leaf band over its trunk, with a gap between", "need", "W7"],
+    ["The chest", "A drawn stand-in", "need", "T1"],
+    ["The cracked wall", "SF11 pier stone with a drawn crack", "need", "T2"],
+    ["Bramble thorns", "A drawn stand-in", "need", "T3"],
+    ["Mushrooms and flowers in the region's colours (no red)", "Flowers only: the kit's mushrooms are red", "need", "T4"],
+    ["HUD: flames, Resin, cocoons", "Drawn stand-ins", "need", "T5"],
+    ["The Thornhound", "A drawn stand-in, 10 frames", "need", "C1"],
+    ["Kleo lifting, carrying and throwing a crate", "She uses her interact pose", "need", "C2"],
+    ["The far aqueduct layer", "Only small arches in the far forest", "need", "B1"],
+    ["A sky with smaller moons", "Book 1's P1 (large moons)", "need", "B2"],
+    ["Lantern posts, the arched doorway, crates, pots, ruins, flora, the Great Ironbark, the backdrops", "In: Book 1", "ok", "Book 1"],
+    ["Water, fog, light shafts, fireflies, glows", "Code", "code", "Stays code by design"]
+  ];
+
+  var PACK = [
+    ["M1", "platformer-attach/M1-level-1-mockup.jpg", "Level 1-1 mockup", "The target look for 1-1. Goes with every card."],
+    ["N1", "platformer-attach/N1-rootspan-ravine.jpg", "Rootspan ravine", "The creative lead's traversal mockup: a fallen log over still water, stone terraces, lanterns in root hollows."],
+    ["N2", "platformer-attach/N2-flooded-stone-descent.jpg", "Flooded stone descent", "A root arch bridge over water, stepped stone, a broken arch with brambles."],
+    ["N3", "platformer-attach/N3-ancient-canopy-ledges.jpg", "Ancient canopy ledges", "Great trees with roots over stone banks, a log across, brambles, a crate on a high ledge."],
+    ["G1", "platformer-attach/G1-game-stall.jpg", "In the game: the stall", "1-1's first art pass: the stall on its arches (W3), the terraces (W1)."],
+    ["G2", "platformer-attach/G2-game-ravine.jpg", "In the game: the ravine", "The log over the ravine (W5) and the ruin mass beyond."],
+    ["G3", "platformer-attach/G3-game-great-tree.jpg", "In the game: the great tree", "The branch ladder on the Great Ironbark (W6)."],
+    ["G4", "platformer-attach/G4-game-canopy.jpg", "In the game: the canopy", "The treetop route over the hill (W7)."],
+    ["G5", "platformer-attach/G5-game-bonus-room.jpg", "In the game: the bonus room", "The cave under the hill, behind the cracked wall (T2)."],
+    ["G6", "platformer-attach/G6-game-islands.jpg", "In the game: the islands", "The stepping islands across the second water (W4)."],
+    ["K1", "platformer-attach/K1-ironbark-kit-in-use.png", "The Ironbark kit in use", "Book 1's pieces already in 1-1: ruins, the great tree's branches and leaves, the aqueduct pier stone, flora, lanterns. New art must sit beside them."],
+    ["K2", "platformer-attach/K2-kleo-rescue-interact-sheet.jpg", "Kleo's interact sheet", "Book 2's KL23, for her exact look, scale and sheet layout. Attach to C2."],
+    ["A", "lostkeep-attach/A-style-ironbark.jpg", "Ironbark mockup", "Book 1's style target for the region."],
+    ["B", "lostkeep-attach/B-palette.png", "Palette sheet", "The project's colours, with names and codes."],
+    ["Z", "lostkeep-attach/Z-moonlit-forest-islands.jpg", "Moonlit forest and islands", "The surface's sky, moons and teal forest."]
+  ];
+
+  var SWATCHES = [
+    ["Void / collision", "#0B0812"], ["Ruin stone deep", "#2E2438"], ["Ruin stone", "#4E3E5E"], ["Ruin stone light", "#6E5A7E"],
+    ["Ruin stone worn", "#8E7A9A"], ["Forest shadow", "#13282B"], ["Canopy teal", "#1F4A4A"], ["Mist teal", "#3C7472"],
+    ["Moss", "#4F8A3A"], ["Moss light", "#8DC24E"], ["Bark", "#3A2420"], ["Timber light", "#8A5A3C"],
+    ["Cap violet", "#8A5AB0"], ["Cap amber", "#D99A4A"], ["Lantern amber", "#F2B04A"], ["Flame core", "#FFE59A"],
+    ["Water", "#2B5D7A"], ["Anima teal", "#3FE0C8"], ["Prism ice", "#9FE6F5"], ["Morvath bark", "#B8A58A"], ["Blight crimson (reserved)", "#8E1E3A"]
+  ];
+
+  function rules(card) {
+    var scale = card.scale || 8;
+    var bg = card.background || "Fully transparent (alpha) PNG. Never paint a checkerboard, paper texture, white or a scene behind the art. If transparency is impossible, use one flat pure blue #0000FF background with no gradient, noise or shadow (never magenta).";
+    return [
+      "STYLE AND TECHNICAL RULES (they apply to everything in this request)",
+      "Project: \"Lost Keep: Platformer\", a 2D side-scrolling action platformer made in Godot 4.7, in premium, top-tier pixel art. These images become game assets, so the technical rules matter as much as the look.",
+      "",
+      "Look",
+      "- High-end pixel art matching the attached mockup M1: overgrown purple stone ruins in a deep teal forest at dusk, rich greens, warm amber lantern light. Readable clusters of pixels, deliberate dithering only in large soft areas, selective dark outlines on foreground forms.",
+      "- Pixel scale x" + scale + ": every art pixel is an exact " + scale + " x " + scale + " px square of one flat colour, aligned to a " + scale + " px grid from the top-left corner. No anti-aliasing, no blur, no smooth gradients, no sub-pixel detail, no half-transparent pixels.",
+      "- Strict orthographic side view, like a 2D platformer: no perspective, no camera tilt, no visible top surfaces.",
+      "- Soft ambient light from above, the same on every piece. No cast shadows onto the background, no bloom. Glows around lights are made by the game: paint a lantern's flame and lit glass, never the halo.",
+      "- Colour rules: amber #F2B04A and flame #FFE59A mean warm light and safety. Anima teal #3FE0C8 means life-force. Icy blue #9FE6F5 belongs to the Prism. Crimson #8E1E3A and #C2385A belong to the Blight alone: never paint red, crimson or magenta anything (no red mushroom caps, red roots, red banners or red fire; fire is orange and gold) unless the request says the thing is Blight-touched.",
+      "",
+      "Canvas",
+      "- Exact canvas: " + card.canvas + ".",
+      "- Background: " + bg,
+      "- No grid lines, frames, borders, labels, numbers, captions, swatches, logos, signatures or watermarks. No text of any kind.",
+      "- No characters, creatures or people unless the request says so."
+    ].join("\n");
+  }
+
+  var STYLE_LOCK = [
+    "MAKE IT FEEL REAL AND NATURAL (this matters most)",
+    "- The world is natural, old and lived in, the way Donkey Kong Country's levels feel: nothing out of place. Worn edges, moss where water runs, roots pushing through stone, repairs made by people who lived here. Nothing clean, symmetrical or freshly made.",
+    "- Hand-placed pixels, not a filter over a painting. No two stones, roots or leaves identical. At most five tones per material.",
+    "- If a game screenshot (G) or the kit sheet (K1) is attached, the new piece must sit beside what is already there: same pixel density, same light, same finish."
+  ].join("\n");
+
+  var SPRITE_RULES = [
+    "SHEET RULES",
+    "- The canvas is a grid of equal cells, filled left to right, top to bottom, one frame per cell, in the order listed.",
+    "- Every frame stands on the same ground line in its cell; the character stays centred and the same size in every frame. Crouches and leaps change the pose, never the scale.",
+    "- The frames are consecutive frames of animations: change only what moves; the design, colours and proportions stay identical.",
+    "- Leave at least one art pixel of clear space inside every cell edge.",
+    "",
+    "THE MOTION STANDARD",
+    "- This must look like the best hand-animated pixel art in the genre: weighty, expressive, satisfying. Clear anticipation, a strong key pose, follow-through. Hold the strongest pose; move fast between poses.",
+    "- Overlapping action: tails, ears, hair and cloth lag behind the body and settle a frame later.",
+    "- Every frame reads as a clear silhouette at game size."
+  ].join("\n");
+
+  var FADE = "SHADOW AND FADE: a solid mass is the nearest thing to the camera, so it is black at its heart and only its edges carry art. From the open edge, about 96 px of lit stone with no gaps, then the blocks step darker course by course (deep plum #2E2438, near-black plum #1A1424) into void #0B0812 about 200 px in. The fade follows the blocks' own outlines, with a few loose lit blocks inside the dark: never a straight line between light and dark, never a hard cut.";
+  var STONE = "THE STONE (match M1's ruins exactly): big, rounded, chunky blocks of purple stone, about 10 to 14 art pixels across, in uneven courses, mortar lines dark plum, faces #4E3E5E to #6E5A7E with worn highlights #8E7A9A on their upper edges, thick moss #4F8A3A / #8DC24E cushioned along every top and dripping a little down the faces, small ferns and a few tiny white flowers.";
+  var WIDE = "3072×1024 px (art 384 × 128 px at x8)";
+  var BG = "3072×1440 px (art 768 × 360 px at x4)";
+
+  var CARDS = [
+    // ------------------------------------------------------------- ruins
+    { id: "W1", group: "ruins", file: "wilds_ruin_stone_bands", title: "Ruin stone: walkable tops and undersides", pilot: true,
+      about: "The level's built ruins: every stone terrace, the stall's floor, the ruin block and the plateau. Band 1 is the floor she walks on; band 2 the underside of a slab or overhang.",
+      canvas: WIDE, game: "2 bands, 384 × 48 each, repeating", attach: ["M1", "N2", "K1", "G1", "B"],
+      text: [
+        "TASK: two long horizontal bands of overgrown ruin stone, on one transparent canvas. Each runs the full width, edge to edge, and its left and right ends join a copy of itself.",
+        "",
+        STONE,
+        "",
+        "BAND 1, a walkable top, from y = 64 to y = 448:",
+        "- The walking line: at y = 128 a perfectly straight, perfectly horizontal top edge of stone along the whole width. Her feet stand on it, so it must not dip, bend or break.",
+        "- Above the line, y = 64 to 128 only: moss cushions, grass tufts and small ferns in uneven clumps with bare stone between, overlapping the line slightly.",
+        "- Below the line: a cap course of big rounded blocks, then two courses of lit stone, then the fade into the void (below).",
+        "",
+        "BAND 2, an underside, from y = 576 to y = 960:",
+        "- The top 128 px plain void #0B0812; then stone growing lighter toward the bottom edge: the blocks of the slab's underside, lit along their lower edges.",
+        "- The underside is NOT a straight line: it breaks into hanging wedges of two or three blocks, loose blocks about to fall, moss strands and thin dull bark-brown roots hanging down to y = 960.",
+        "",
+        FADE
+      ] },
+    { id: "W2", group: "ruins", file: "wilds_ruin_stone_walls_corners", title: "Ruin stone: wall face and corners",
+      about: "The sides of the ruins: the faces of terraces and piers, and the corners where tops and undersides turn into walls. Must join W1 exactly.",
+      canvas: "2048×2048 px (art 256 × 256 px at x8)", game: "1 face band 32 × 256, 4 corners 48 × 48, cut apart", attach: ["M1", "Your approved W1", "K1", "B"],
+      text: [
+        "TASK: the edges of the same ruin stone as the attached approved W1, on one transparent canvas, matching it exactly in block size, colour and moss.",
+        "",
+        STONE,
+        "",
+        "1. A wall face band on the left, top edge to bottom edge, joining a copy of itself top to bottom. The face points RIGHT; its wall line is at x = 320. Blocks stand proud of the line by up to 32 px here and there, worn and uneven, with ivy and moss strands down the face. Inward (to the left) the stone fades into the void.",
+        "2. Four corners, each in its own 512 × 512 cell with the two edges meeting at the cell's centre (256, 256):",
+        "   a. Outer top corner: the mass fills the lower-left quarter; W1's top and its moss run along the top and turn down into a wall facing right, the cap blocks wrapping the corner.",
+        "   b. Outer under corner: the mass fills the upper-left quarter; W1's underside runs along its bottom and turns up into a wall facing right, a hanging wedge at the corner.",
+        "   c. Inner top corner: the mass fills everything except the upper-right quarter; the top runs along the bottom-right and meets a wall rising on the left.",
+        "   d. Inner under corner: the mass fills everything except the lower-right quarter.",
+        "",
+        FADE
+      ] },
+
+    // ------------------------------------------------------------- set pieces
+    { id: "W3", group: "setpieces", file: "wilds_stall_on_arches", title: "The timber stall on stone arches", pilot: true,
+      about: "The mockup's best-known piece, cut to the level's shape: a stone slab on three piers with two arch openings under it, and a lived-in timber stall on top. Kleo walks on the slab and through the arches.",
+      canvas: "2304×1536 px (art 288 × 192 px at x8)", game: "288 × 192, placed over the collision", attach: ["M1", "G1", "K1", "B"],
+      text: [
+        "TASK: one set piece on a transparent canvas: a timber market stall standing on a stone floor held up by stone arches, as in the upper left of M1. Art-pixel measurements below are exact: the game's collision is built to them.",
+        "",
+        "THE STONE BASE (the walkable part):",
+        "- The slab's walking line is a perfectly straight horizontal line at art y = 96, running the full width, x = 0 to 288. Moss and a few tufts sit on it.",
+        "- The slab is 32 art px thick (y = 96 to 128). Under it, three piers each 32 art px wide: x = 0 to 32, x = 128 to 160, x = 256 to 288, from y = 128 down to the bottom edge at y = 192.",
+        "- Between the piers, two arch openings, x = 32 to 128 and x = 160 to 256, open from the bottom edge up to the slab's underside: rounded stone arches springing from the piers, their crowns at about y = 128. Through the openings is empty space (transparent), except: a lantern hanging from each arch's crown on a short chain (flame and lit glass only, no halo), and moss and ivy draping off the arch edges.",
+        "- " + STONE,
+        "",
+        "THE STALL (above the walking line, y = 0 to 96):",
+        "- A timber stall: two posts, a slanted plank roof with moss on it, shelves at the back with jars, pots and folded cloth, a work table, a barrel and two crates, a lantern hanging from the roof beam, a cloth banner in faded amber and teal with an oak-leaf crest (never red).",
+        "- It stands back from the front edge: Kleo walks along the slab in front of the table and crates, so nothing stands on the walking line itself between x = 40 and x = 250 except low moss.",
+        "- Lived in and a little abandoned: a cup left on the table, a broom against a post, cobwebs in one roof corner."
+      ] },
+    { id: "W4", group: "setpieces", file: "wilds_water_islands", title: "The mushroom island and the stepping islands",
+      about: "Islands standing in still water: the mockup's mushroom island in the first water pit, and four smaller stone stacks for the second water, each at its own height.",
+      canvas: WIDE, game: "5 islands, cut apart", attach: ["M1", "N2", "G6", "B"],
+      text: [
+        "TASK: five islands of mossy ruin stone standing in still water, on one transparent canvas, spaced well apart. Each is a stack of big rounded stone blocks with a perfectly flat, straight walking top covered in moss, its body going straight down to the canvas's bottom edge (the water hides the base; paint the stone all the way down, darker below y = 100).",
+        "",
+        "1. THE MUSHROOM ISLAND, 96 art px wide, its walking line at art y = 32: two giant mushrooms growing from it, about 40 and 26 art px tall, caps in violet #8A5AB0 with pale spots (never red), standing at the back so she walks in front of them; ferns, small white flowers.",
+        "2. A stone stack 80 art px wide, walking line at y = 48.",
+        "3. A stone stack 80 art px wide, walking line at y = 16 (the tallest).",
+        "4. A stone stack 80 art px wide, walking line at y = 64.",
+        "5. A stone stack 64 art px wide, walking line at y = 32.",
+        "- Each top: moss and a few tufts overlapping the line; one or two little amber or violet mushrooms on islands 2 and 4.",
+        "- " + STONE,
+        "- No water painted: the game draws the water and its reflections."
+      ] },
+    { id: "W5", group: "setpieces", file: "wilds_fallen_log_root_bridge", title: "The fallen log and the root bridge",
+      about: "A great fallen tree across the ravine, as in N1 and N3, and a root arch over water as in N2. Both are walked on, so their tops are flat.",
+      canvas: WIDE, game: "log 224 × 48, root bridge 192 × 64, cut apart", attach: ["N1", "N2", "N3", "G2", "B"],
+      text: [
+        "TASK: two pieces on one transparent canvas, side by side with clear space between.",
+        "",
+        "1. A FALLEN TREE TRUNK, 224 art px long, lying level: its walking line is a perfectly straight horizontal line along the whole top at art y = 40, with moss cushions, small ferns and a sapling growing along it. Its bark is thick and gnarled (#3A2420 to #8A5A3C), a broken stump end on the left with splintered wood, a root plate on the right with roots clawing down. The bottom of the trunk hangs a little lower than its ends, with moss strands and roots dangling. Its two ends rest 16 art px into the banks, so the first and last 16 px may be partly hidden by ground.",
+        "2. A ROOT ARCH BRIDGE, 192 art px long: two great roots twisting together into an arch over water, the top flattened by moss and soil into a perfectly straight walking line at art y = 24 along its whole length. Under the arch, open (transparent). Roots hang below, a little moss and ivy; one root dips toward the water.",
+        "- No water painted."
+      ] },
+
+    // ------------------------------------------------------------- trees
+    { id: "W6", group: "trees", file: "wilds_branch_walkways", title: "Branch walkways for the great tree",
+      about: "Four branches she climbs up the Great Ironbark, alternating sides, three tiles apart. Book 1's branches meander too much to stand on: these are flat along the top.",
+      canvas: "2048×1024 px (art 256 × 128 px at x8)", game: "4 branches, 128 × 24 each, cut apart", attach: ["K1", "G3", "A", "B"],
+      text: [
+        "TASK: four thick branches of the Great Ironbark (the great tree with the hanging lantern and closed-eye bark knots in K1 and A), each 128 art px long, on one transparent canvas, in a 2 × 2 grid with clear space between.",
+        "- Each branch is seen from the side, growing out of the trunk on its LEFT end (a thick, broken-off root of bark there, as if cut where it meets the trunk) and tapering to the right.",
+        "- Its walking line is a perfectly straight horizontal line along the top at art y = 4 within its own 24 px height, along the whole length: the top of the bark is worn flat and covered in moss where people have walked.",
+        "- Below the line: gnarled bark matching the Great Ironbark's (#3A2420 to #8A5A3C), moss drapes and a few vines hanging up to 20 px below, leaves sprouting at the tip.",
+        "- Make the four different: one with a lantern hanging from it (flame only), one with a bird's nest, one forked at the tip, one with a small closed-eye knot of pale bark #B8A58A with an amber-gold seam (Morvath's; never red)."
+      ] },
+    { id: "W7", group: "trees", file: "wilds_treetops", title: "Treetops for the canopy route",
+      about: "The secret route over the hill runs along the tops of five trees. Each needs a crown whose top is flat enough to walk on, and a trunk that reaches the ground.",
+      canvas: "3072×2048 px (art 384 × 256 px at x8)", game: "3 trees, 224 / 176 / 160 wide, cut apart", attach: ["M1", "N3", "G4", "K1", "B"],
+      text: [
+        "TASK: three whole trees on one transparent canvas, side by side with clear space between, each from its roots at the canvas's bottom edge to its crown.",
+        "- Crown widths: 224, 176 and 160 art px. Each crown's top is a perfectly straight horizontal walking line along the middle of its width (all but the outer 8 px each side), at art y = 40: dense leaves clipped flat on top like a hedge, a few leaves overlapping the line, so she can run along the treetops. The crown's sides and underside are natural and leafy, hanging lower in places.",
+        "- Under each crown, the trunk: twisted, mossy, 24 to 32 art px thick, about 180 art px from the crown's underside to the ground, roots spreading at its foot. Vines hang from the crown over the trunk's top.",
+        "- Leaves in M1's deep teal-green (#1F4A4A, #2E6A50, #4F8A3A, highlights #8DC24E), bark #3A2420 to #6A4430.",
+        "- They stand behind the hill in the game: only the crowns and the upper trunks are seen in full."
+      ] },
+
+    // ------------------------------------------------------------- things
+    { id: "T1", group: "things", file: "wilds_chest", title: "The chest",
+      about: "Struck with the sword, its lid flies back and it spills Resin. Three frames: shut, opening, open.",
+      canvas: "1536×512 px (art 192 × 64 px at x8, three cells of 64 × 64)", game: "3 frames, 32 × 24 inside 64 × 64 cells", attach: ["M1", "K1", "B"],
+      text: [
+        "TASK: a small wooden treasure chest in three frames, one per 64 × 64 art px cell, side by side. The chest is 32 art px wide and 24 tall, centred in each cell, its base on a line at art y = 56.",
+        "- As in M1's chest on the high ledge: dark wood planks #5C3A2C to #8A5A3C, bronze bands and corners #9A6E34 with worn highlights, a bronze lock plate, a little moss on the lid's edge.",
+        "1. SHUT.",
+        "2. OPENING: the lid jolting up, flung back about 45 degrees, a warm amber glint inside (not a glow: two or three bright pixels of #F2B04A on the coins inside).",
+        "3. OPEN: the lid thrown fully back behind the box, the inside dark and empty."
+      ] },
+    { id: "T2", group: "things", file: "wilds_cracked_wall", title: "The cracked wall",
+      about: "Stone her sword only rings off; a thrown crate smashes it open into a secret. It must read as breakable at a glance, and still belong in the wall.",
+      canvas: "1024×1024 px (art 128 × 128 px at x8)", game: "2 walls (32 × 32, 32 × 48) and 8 rubble chunks, cut apart", attach: ["M1", "Your approved W1", "G5", "B"],
+      text: [
+        "TASK: on one transparent canvas: two cracked sections of ruin stone (as in the attached approved W1) and the rubble they break into.",
+        "1. A cracked wall 32 × 32 art px, and 2. one 32 × 48 art px: the same stone blocks, but split by a clear branching crack, a few blocks shifted out of line, chips missing, pale dust in the cracks, a thin draught of light showing through one crack. Square outer edges so they sit flush in a wall.",
+        "3. Eight rubble chunks of the same stone, 4 to 10 art px each, scattered with space between.",
+        "- It must look weaker than the stone around it, but natural: no glowing cracks, no symbols."
+      ] },
+    { id: "T3", group: "things", file: "wilds_brambles", title: "Bramble thorns",
+      about: "The hazard she must jump: a low bed of brambles. Dull plum and bark, never red (red is the Blight's).",
+      canvas: "2048×512 px (art 256 × 64 px at x8)", game: "a repeating band 128 × 16 with two end caps", attach: ["N2", "N3", "B"],
+      text: [
+        "TASK: a low bed of thorny brambles, on one transparent canvas.",
+        "- A band 128 art px long and up to 16 tall, its base a straight line at art y = 40, joining a copy of itself at both ends: tangled, woody bramble stems in dark plum and bark brown (#2E2438, #4A3448, #3A2420), long sharp pale thorns #B8A58A, a few dry leaves. It must look like it would hurt.",
+        "- Two end caps, 24 px each, where the bed thins out into a few stems.",
+        "- No red, no crimson, no glow. It is a plant, not the Blight."
+      ] },
+    { id: "T4", group: "things", file: "wilds_mushrooms_flowers", title: "Mushrooms and flowers in the region's colours",
+      about: "The mockup's mushrooms, without the Blight's red: clusters to dress tops and banks.",
+      canvas: "2048×1024 px (art 256 × 128 px at x8)", game: "12 pieces, cut apart", attach: ["M1", "K1", "B"],
+      text: [
+        "TASK: twelve small plant clusters on one transparent canvas, each standing on its own flat ground line, with clear space between.",
+        "- Six mushroom clusters, 8 to 32 art px tall: caps in violet #8A5AB0 with pale spots, amber #D99A4A, and two with pale caps whose gills glow faint teal #3FE0C8 (just a few pixels, no halo). Pale stems. Moss at the foot. Never red.",
+        "- Six flower and fern clusters: small white and pale-yellow flowers, violet bell flowers, a curled fern, clover, a seed-head grass."
+      ] },
+    { id: "T5", group: "things", file: "wilds_hud_icons", title: "HUD: flames, Resin and cocoons",
+      about: "Kleo's health is lantern flames (never a red bar), the currency is Resin, and three cocoons hide in every level.",
+      canvas: "1024×512 px (art 128 × 64 px at x8)", game: "icons 11 × 14, 9 × 9, 9 × 12", attach: ["M1", "B"],
+      text: [
+        "TASK: tiny HUD icons on one transparent canvas, in a row with space between, each crisp at its exact size.",
+        "1. A lantern flame 11 × 14 art px, in three states: lit (amber #F2B04A, a white-gold core #FFE59A), spent (a dark wick with one ember), and flaring (one pixel taller, brighter).",
+        "2. A bead of Resin 9 × 9: a drop of amber tree-resin, translucent-looking, with a highlight. Then the same bead in five more frames turning, for its spin.",
+        "3. A silk cocoon 9 × 12 on a thread, in two states: still sealed (dark violet-grey) and found (pale silk, a tiny amber glint).",
+        "- Each readable on a dark background and on a mid-teal one. A one-pixel dark outline."
+      ] },
+
+    // ------------------------------------------------------------- creatures
+    { id: "C1", group: "creatures", file: "wilds_thornhound", title: "The Thornhound", pilot: true,
+      about: "The first enemy that fights back: a forest hound touched by the Blight. It notices Kleo, winds up, lunges, lands in a skid, and flinches when struck. Its wind-up is the player's warning, so it must read.",
+      canvas: "1536×768 px (art 192 × 96 px at x8: 4 columns × 3 rows of 48 × 32 cells)", game: "12 frames of 48 × 32", attach: ["M1", "K1", "B"],
+      text: [
+        "TASK: an animation sheet of the Thornhound, 12 frames, facing RIGHT.",
+        "",
+        "THE CREATURE: a lean forest hound about 40 art px long and 22 tall at the shoulder, about Kleo's height at its raised head. Dark plum-grey fur #262034 to #685876, a ridge of pale thorny spines #B8A58A along its back, long muzzle, pale yellow-white eyes. It is touched by the Blight: thin crimson tendrils #8E1E3A / #C2385A threading through the fur of its shoulder and flank (here, and only here, crimson is right: it is the Blight's mark). Wild and dangerous, but an animal, not a demon.",
+        "",
+        SPRITE_RULES,
+        "- Cells are 48 × 32 art px (384 × 256 px). Its paws stand on a line 2 art px above each cell's bottom edge.",
+        "",
+        "FRAMES:",
+        "1-4. WALK: a calm, prowling patrol cycle, head low, tail level.",
+        "5. NOTICE: it stops dead, head snapping up, ears pricked, spines lifting.",
+        "6. WIND-UP A: it drops low on its haunches, weight back, head forward, lips curled.",
+        "7. WIND-UP B: lower still, quivering, every spine raised: the clear warning before the leap.",
+        "8. LUNGE A: launching, hind legs driving, body stretched long.",
+        "9. LUNGE B: full stretch in the air, forelegs reaching, jaws open.",
+        "10. LAND: landing in a skid, forelegs braced, dust at its paws (no dust drawn: just the pose).",
+        "11. FLINCH: struck, recoiling, eyes squeezed shut, spines flattened.",
+        "12. DOWN: collapsed on its side, still."
+      ] },
+    { id: "C2", group: "creatures", file: "kleo_carry_throw", title: "Kleo lifts, carries and throws a crate",
+      about: "New frames for Kleo (Book 2's sheet layout): lifting a crate overhead, standing and running with it, throwing it, setting it down. The crate is a key-green guide box, so the game can draw any crate or barrel in her hands.",
+      canvas: "1536×1152 px (4 columns × 3 rows of 384 × 384 cells)", game: "12 frames of 64 × 64, anchor (32, 56)", attach: ["K2", "M1", "B"],
+      text: [
+        "TASK: Kleo of the Ironbark Guard, exactly as in attached K2 (her face, hair, jerkin, cloak, sword and lantern, her chibi proportions and colours), in 12 new frames, facing RIGHT. Her sword stays sheathed at her hip in all of them; both hands are free for the crate.",
+        "",
+        SPRITE_RULES,
+        "- Cells are 384 × 384 px: 4 columns × 3 rows. Kleo is 224 px tall standing (28 art pixels). Anchor: the point between her feet when standing is at x = 192, y = 344 in every cell; her boot soles rest on that line.",
+        "- KEY-GREEN GUIDE: the crate is a plain box 24 × 20 art px (192 × 160 px) painted in one exact flat colour, pure #00FF00, with no shading or outline. It only shows where the crate is. No other green that bright anywhere.",
+        "",
+        "FRAMES:",
+        "1. LIFT A: crouching, both hands gripping the guide box on the ground in front of her feet.",
+        "2. LIFT B: straightening up with effort, the box at chest height.",
+        "3. LIFT C: the box pressed up overhead, arms straight, a little sway.",
+        "4. CARRY STAND: standing with the box held overhead, arms bent a little, steady.",
+        "5-8. CARRY RUN: four frames of a running cycle with the box overhead, arms and box bobbing with her stride, ponytail and cloak flowing behind.",
+        "9. THROW A: leaning back, the box pulled behind her head, weight on the back foot.",
+        "10. THROW B: driving forward, arms whipping over, the box leaving her hands ahead of her head.",
+        "11. THROW C: follow-through, arms forward and down, no box.",
+        "12. SET DOWN: bending to place the box gently at her feet."
+      ] },
+
+    // ------------------------------------------------------------- backdrop
+    { id: "B1", group: "backdrop", file: "wilds_far_aqueduct", title: "The far aqueduct",
+      about: "The mockup's great aqueduct across the misty forest, as its own parallax layer between the far forest and the mid forest.",
+      canvas: BG, scale: 4, game: "768 × 360, repeating sideways, scroll 0.25",
+      attach: ["M1", "Z", "N1", "B"],
+      text: [
+        "TASK: a distant backdrop layer for a side-scrolling game: a long ruined aqueduct of tall stone arches striding across a misty teal forest, far away.",
+        "- The aqueduct runs across most of the width at about y = 140 to 260 (in art pixels, of 360): a row of tall, slender arches, some broken, with water falling from one gap as a thin pale thread, trees and mist around its piers.",
+        "- Far away: low contrast, desaturated toward misty teal-grey (#3C7472, #2E5A5C, #5F8A8C), lighter at the bottom where the mist is thickest, no sharp detail, no black.",
+        "- The top of the canvas above the aqueduct and its trees is fully transparent: the sky shows through. The bottom 60 px is solid mist.",
+        "- The left and right edges join so it repeats without a seam.",
+        "- No ledges or flat lines that could read as somewhere to stand."
+      ] },
+    { id: "B2", group: "backdrop", file: "wilds_sky_small_moons", title: "Dusk sky with smaller moons",
+      about: "The current sky's three moons fill the top of the screen. The same purple dusk sky, with the moons smaller and higher.",
+      canvas: BG, scale: 4, game: "768 × 360, repeating sideways, scroll 0.05", attach: ["Z", "M1", "B"],
+      background: "Opaque: the sky fills the whole canvas edge to edge.",
+      text: [
+        "TASK: the dusk sky of Vaelora for a side-scrolling game, like attached Z's: deep violet at the top (#2A2238), soft plum and dusty pink clouds in the middle, fading to misty teal (#3C7472) at the bottom, a few stars at the top.",
+        "- The three moons of the Triad, small and high: a full moon 40 art px across with a crescent on each side, together about 120 art px wide, centred at x = 300, y = 60. Pale gold #EBD6A0, softly lit, no halo painted.",
+        "- The left and right edges join so it repeats without a seam."
+      ] }
+  ];
+
+  var FIXES = [
+    ["It came back smooth or painterly, not pixel art", "This is a painting, not pixel art. Redo it as true pixel art: every pixel a hard square of one flat colour on an even grid at the stated scale, no anti-aliasing, no blur, no smooth gradients. Keep the same layout and canvas."],
+    ["The walking line bends or dips", "Keep everything else, but make the walking line perfectly straight and perfectly horizontal along its whole length, at exactly the height the request gives. Only moss and plants may overlap it."],
+    ["The measurements are off", "Keep the look, but redraw it to the exact measurements in the request: the walking line, the widths and the openings must be exactly where it says, in art pixels."],
+    ["Something is red", "Recolour every red, crimson or magenta part (caps, banners, roots, fire) to violet, amber or teal as the request says. Red belongs to the Blight alone in this game."],
+    ["The ends do not join", "Keep the image, but make the left and right edges match exactly, so it continues without a seam beside a copy of itself."],
+    ["The frames don't line up", "Keep the poses, but put every frame on its own cell of the grid, the same size, with its feet on exactly the same ground line in every cell."],
+    ["Lights have halos painted on", "Remove every halo, bloom and light falling on surfaces. Keep only the flame and lit glass themselves; the game adds the glow."],
+    ["It came back on white or a checkerboard", "Remove the background completely. If you cannot make it transparent, use one flat pure blue #0000FF background instead."]
+  ];
+
+  // ---------------------------------------------------------------------------
+  // Rendering (the same as Books 1 and 2)
+  // ---------------------------------------------------------------------------
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    }
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+
+  function shared(card) { return [rules(card), STYLE_LOCK].join("\n\n"); }
+  function attachLine(card) {
+    var list = card.attach.map(function (a) {
+      var p = PACK.filter(function (x) { return x[0] === a; })[0];
+      return p ? a + ": " + p[2] : a.replace("Your approved ", "the approved ");
+    });
+    return "\n\nATTACHED: " + list.join("; ") + ".";
+  }
+  function body(card) {
+    var text = Array.isArray(card.text) ? card.text.join("\n") : card.text;
+    return text + attachLine(card);
+  }
+  function fullPrompt(card) { return state.rules ? shared(card) + "\n\n" + body(card) : body(card); }
+
+  function copyText(text, button) {
+    function ok() {
+      var label = button.textContent;
+      button.textContent = "Copied";
+      button.classList.add("copied");
+      setTimeout(function () { button.textContent = label; button.classList.remove("copied"); }, 1400);
+    }
+    function fallback() {
+      var area = el("textarea", { readonly: "readonly", "aria-hidden": "true" });
+      area.value = text;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      try { if (document.execCommand("copy")) ok(); } catch (e) { /* select by hand */ }
+      document.body.removeChild(area);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
+    else fallback();
+  }
+
+  function progress() {
+    var n = CARDS.filter(function (c) { return state.done[c.id]; }).length;
+    document.getElementById("progress").textContent = n + " of " + CARDS.length + " done";
+  }
+
+  function thumb(letter) {
+    var item = PACK.filter(function (p) { return p[0] === letter; })[0];
+    if (!item) return el("span", { class: "thumb", style: "grid-template-columns:1fr;padding-left:10px", text: letter });
+    return el("a", { class: "thumb", href: "#pack" }, [
+      el("img", { src: item[1], alt: "", loading: "lazy" }),
+      el("span", {}, [el("b", { text: item[0] + " " }), document.createTextNode(item[2])])
+    ]);
+  }
+
+  function renderCard(card) {
+    var check = el("input", { type: "checkbox", id: "done-" + card.id });
+    check.checked = !!state.done[card.id];
+    var head = el("div", { class: "card-head" }, [
+      el("span", { class: "tag", text: card.id + (card.pilot ? " · pilot" : "") }),
+      el("h3", { text: card.title }),
+      el("label", { class: "done", for: "done-" + card.id }, [check, document.createTextNode("Done")])
+    ]);
+    var node = el("article", { class: "card" + (check.checked ? " is-done" : ""), id: card.id }, [head, el("p", { class: "about", text: card.about })]);
+    check.addEventListener("change", function () {
+      if (check.checked) state.done[card.id] = true; else delete state.done[card.id];
+      node.classList.toggle("is-done", check.checked);
+      save();
+      progress();
+    });
+    node.appendChild(el("dl", { class: "spec" }, [
+      el("dt", { text: "Save as" }), el("dd", {}, [el("code", { text: card.file + ".png" })]),
+      el("dt", { text: "Canvas" }), el("dd", { text: card.canvas }),
+      el("dt", { text: "In game" }), el("dd", { text: card.game })
+    ]));
+    node.appendChild(el("div", { class: "thumbs" }, card.attach.map(thumb)));
+    var pre = el("pre", { text: body(card) });
+    var button = el("button", { class: "copy", type: "button", text: "Copy", "aria-label": "Copy the prompt for " + card.id });
+    button.addEventListener("click", function () { copyText(fullPrompt(card), button); });
+    node.appendChild(el("div", { class: "prompt" }, [el("div", { class: "prompt-bar" }, [el("strong", { text: "Prompt" }), el("span", { text: "The shared rules are added when you copy" }), button]), pre]));
+    return node;
+  }
+
+  CARDS.forEach(function (card) { document.getElementById("cards-" + card.group).appendChild(renderCard(card)); });
+  document.getElementById("count").textContent = CARDS.length + " images";
+
+  AUDIT.forEach(function (row) {
+    document.getElementById("audit").appendChild(el("tr", {}, [
+      el("td", { text: row[0] }), el("td", { text: row[1] }),
+      el("td", {}, [el("span", { class: "status " + row[2], text: row[3] })])
+    ]));
+  });
+
+  SWATCHES.forEach(function (s) {
+    document.getElementById("swatches").appendChild(el("div", { class: "swatch" }, [
+      el("i", { style: "background:" + s[1] }), el("div", {}, [el("b", { text: s[0] }), el("span", { text: s[1] })])
+    ]));
+  });
+
+  PACK.forEach(function (p) {
+    document.getElementById("pack-list").appendChild(el("div", { class: "ref" }, [
+      el("img", { src: p[1], alt: p[2], loading: "lazy" }),
+      el("div", {}, [el("strong", { text: p[0] + ". " + p[2] }), el("span", { text: p[3] }), el("span", {}, [el("code", { text: p[1].split("/").pop() })])])
+    ]));
+  });
+
+  FIXES.forEach(function (f) {
+    var button = el("button", { class: "copy", type: "button", text: "Copy" });
+    button.addEventListener("click", function () { copyText(f[1], button); });
+    document.getElementById("fix-list").appendChild(el("div", { class: "prompt" }, [
+      el("div", { class: "prompt-bar" }, [el("strong", { text: f[0] }), button]),
+      el("pre", { text: f[1] })
+    ]));
+  });
+
+  var rulesBox = document.getElementById("include-rules");
+  rulesBox.checked = state.rules;
+  rulesBox.addEventListener("change", function () { state.rules = rulesBox.checked; save(); });
+  progress();
+})();
+</script>

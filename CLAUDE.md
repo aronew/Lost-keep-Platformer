@@ -27,7 +27,7 @@ change it. In a cloud session it can be cloned beside this repo:
 | `docs/mockups/platformer/outdoor_level_1_mockup.webp` | **The target look of level 1-1** |
 | `docs/mockups/platformer/natural_traversal/` | The creative lead's DKC-style traversal mockups: natural land, logs and roots over water, terraces, crates |
 | `docs/mockups/ironbark_surface/` | The "Moonlit" mockups behind Lost Keep's surface look |
-| `docs/art-production/*-prompt-book.html` | Copy-ready image prompts (Book 1 Ironbark, Book 2 Kleo), references in `lostkeep-attach/` |
+| `docs/art-production/*-prompt-book.html` | Copy-ready image prompts: Book 1 Ironbark and Book 2 Kleo (Lost Keep's, references in `lostkeep-attach/`), **Book 3 the Ironbark Wilds** (this game's Region 1 and 1-1, references in `platformer-attach/`) |
 | `art/source/ironbark/REVIEW.md` | The state of the generated Ironbark art |
 
 The design docs are canon. If a decision changes, update the doc in the same
@@ -382,7 +382,15 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 
 ## Art pipeline
 1. **Prompt books:** `docs/art-production/*-prompt-book.html`, references in
-   `docs/art-production/lostkeep-attach/` (A to Z and beyond).
+   `docs/art-production/lostkeep-attach/` (A to Z and beyond) and
+   `platformer-attach/` (M mockups, N traversal mockups, G game shots, K
+   kit sheets). **Book 3** (`platformer-region1-prompt-book.html`) is built
+   from `docs/art-production/src/` (`book3_body.html`, `book3_cards.js`)
+   with Book 1's stylesheet: edit those and reassemble (the Python in the
+   commit that made it: Book 1's head up to `</style>`, the body, the
+   script). Published at https://claude.ai/artifact/7mMMdvZHpnai3CM4TWMLuK:
+   republish from the assembled file with its `platformer-attach/` and the
+   three `lostkeep-attach/` images it uses (A, B, Z).
 2. **The creative lead generates sheets.** Unchanged originals go in
    `art/source/<region>/`.
 3. **Processing:** reduce to true pixel scale only. `tools/process_art.py`
@@ -435,13 +443,14 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   into the dark gradually.
 
 ## Open items
-- **Level 1-1's blockout awaits the creative lead's review**
-  (`design/levels/1-1_overgrown_ruins.md`, pictures in `docs/levels/1-1/`).
-  After approval: its art pass after the mockup, then 1-2 (IB-04's Gate
-  Road, reworked) the same way.
-- Art the systems need (stand-ins now): the Thornhound's sheet (walk,
-  notice, wind-up, lunge, land, flinch, down), a chest (shut, open), Kleo
-  lifting, carrying and throwing, the HUD flames, a cracked-wall piece in
-  the ruins' stone, an unlit/lit checkpoint post if `props_lanterns` isn't
-  enough. Add the cards to the prompt books.
+- **Level 1-1: blockout approved; the first art pass is in and awaits
+  review** (`design/levels/1-1_overgrown_ruins.md`, pictures in
+  `docs/levels/1-1/art_pass/`). It is dressed from Book 1's kit; Book 3
+  asks for what the kit lacks (pilot W1, W3, C1). As sheets arrive: process
+  them, place them in `_dress()` (and the helpers), judge in the game. Then
+  1-2 (IB-04's Gate Road, reworked): blockout first.
+- In the art pass: `_tint_surface_kit` skips sprites with the `no_tint` meta
+  (SF9's leaves and trunks keep their greens); a level lowers the sky to
+  y -50 so the moons sit whole; the full-level map leaves out the parallax
+  layers, so judge the look in `mode=shots`.
 - No world map or save file yet; the level's end stops on its tally.

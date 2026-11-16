@@ -1,7 +1,9 @@
 extends "res://tools/level_builder.gd"
 ## Builds level 1-1, The Overgrown Ruins, and saves it as an ordinary scene.
-## BLOCKOUT: the collision as a black box, the pieces that act, labels for
-## each beat. Art comes after the creative lead approves this layout.
+## The blockout was approved by the creative lead; this is the art pass
+## (`blockout = false`; set it true to see the black box and the labels
+## again). Dressed from the Ironbark surface kit; what the kit lacks is asked
+## for in Book 3 (docs/art-production/platformer-region1-prompt-book.html).
 ##
 ##   godot --headless --path game --script res://tools/build_l1_1.gd
 ##
@@ -74,12 +76,15 @@ func _initialize() -> void:
 	skip = []
 	spawn = Vector2(5 * TILE, G)
 	room_path = ROOM_PATH
+	blockout = false
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://scenes/levels"))
 	_level_begin("L1_1_OvergrownRuins", "1-1 The Overgrown Ruins")
 	_teach()
 	_test()
 	_twist()
 	_finish_beat()
+	if not blockout:
+		_dress()
 	_level_finish()
 	quit()
 
@@ -181,7 +186,7 @@ func _twist() -> void:
 	var canopy := [[218, 232, 15], [236, 246, 14], [250, 262, 16], [266, 276, 14], [280, 290, 15]]
 	var i := 0
 	for c in canopy:
-		_log(_root, _t(c[0]), _t(c[1]), _t(c[2]))
+		_canopy(_t(c[0]), _t(c[1]), _t(c[2]))
 		_beads([Vector2(_t(c[0] + 3), _t(c[2]) - 12), Vector2(_t((c[0] + c[1]) * 0.5), _t(c[2]) - 12), Vector2(_t(c[1] - 3), _t(c[2]) - 12)], "l11_canopy%d" % i)
 		i += 1
 	_cocoon(Vector2(_t(288), _t(15) - 2), "l11_cocoon3", "Ysolde, a Hearth-Plains weaver")
@@ -217,3 +222,133 @@ func _finish_beat() -> void:
 	_beads([Vector2(_t(402), _t(27) - 12), Vector2(_t(406), _t(27) - 12), Vector2(_t(413), _t(24) - 12)], "l11_end")
 	_chest(_t(419), _t(24), 8, "l11_chest2")
 	_level_end(_t(428), _t(24), 48, 72)
+
+
+# --- The art pass: dressing from the Ironbark surface kit ------------------------------------------
+
+# Flora (props_flora.png): no red mushrooms (red is the Blight's).
+const FERN := Rect2(6, 6, 73, 42)
+const FERN_LOW := Rect2(11, 55, 48, 30)
+const GRASS := Rect2(91, 24, 49, 24)
+const GRASS_FLOWERS := Rect2(80, 52, 66, 32)
+const BUSH_LOW := Rect2(161, 67, 83, 20)
+const FLOWERS_A := Rect2(18, 134, 24, 14)
+const FLOWERS_B := Rect2(63, 129, 33, 19)
+const FLOWERS_C := Rect2(117, 129, 29, 19)
+const DRAPE_LONG := Rect2(9, 162, 66, 50)
+const DRAPE := Rect2(89, 162, 70, 37)
+const REED_TALL := Rect2(124, 204, 37, 41)
+const REED := Rect2(177, 214, 30, 31)
+const LILY_A := Rect2(15, 227, 48, 17)
+const LILY_B := Rect2(77, 231, 35, 13)
+# SF9 and SF11.
+const TRUNK := Rect2(0, 1, 95, 118)
+const FALLS := Rect2(274, 6, 93, 55)       # a ruined aqueduct arch with two falls
+const AQUEDUCT := Rect2(3, 1, 219, 61)     # the arched bridge
+
+
+func _plant(parent: Node, region: Rect2, x: float, floor_y: float, flip := false) -> Sprite2D:
+	var s := _ground(parent, FLORA, region, x, floor_y + 1.0, 1.0, "Plant")
+	s.flip_h = flip
+	return s
+
+
+func _drape(parent: Node, region: Rect2, x: float, under_y: float) -> void:
+	var d := _sprite(parent, FLORA, region, Vector2(x, under_y - 3.0))
+	d.name = "Drape"
+
+
+func _lilies(parent: Node, x0: float, x1: float, water_y: float) -> void:
+	var x := x0
+	var i := 0
+	while x < x1 - 40.0:
+		var r: Rect2 = LILY_A if i % 2 == 0 else LILY_B
+		var l := _sprite(parent, FLORA, r, Vector2(x, water_y - r.size.y + 6.0))
+		l.name = "Lilies"
+		l.z_index = 11
+		x += 70.0 + 23.0 * (i % 3)
+		i += 1
+
+
+func _dress() -> void:
+	var behind: Node = _root.get_node("Behind")
+	var placed: Node = _root.get_node("PlacedArt")
+	var w := G + 8.0  # the water's surface
+	# TEACH. The arch she came through; the terraces; the stall on its arches.
+	_arch_door(behind, -40, G, false)
+	_plant(behind, FERN_LOW, 150, G)
+	_plant(behind, GRASS, 232, _t(28))
+	_plant(behind, FLOWERS_B, 300, _t(26))
+	_piece(behind, TIMBER_GATE, 372, _t(24), "StallFrame")
+	_ground(behind, CRATES, BARREL, 462, _t(24) + 1, 1.0, "Barrel")
+	_ground(behind, CRATES, KEG, 488, _t(24) + 1, 1.0, "Keg")
+	_lantern_post(behind, 580, _t(24))
+	_hanging_lamp(behind, 432, _t(26), 30.0)
+	_hanging_lamp(behind, 560, _t(26), 30.0)
+	_drape(placed, DRAPE, 364, _t(26))
+	_drape(placed, DRAPE_LONG, 470, _t(26))
+	_drape(placed, DRAPE, 590, _t(26))
+	_plant(behind, FERN, 690, G)
+	_plant(behind, GRASS_FLOWERS, 880, G, true)
+	_plant(behind, BUSH_LOW, 960, G)
+	# The water pit and the mushroom island (flowers, not red caps).
+	_lilies(behind, _t(64) + 6, _t(78), w)
+	_plant(behind, REED_TALL, _t(64) - 22, G)
+	_plant(behind, REED, _t(78) - 6, G)
+	_plant(behind, FLOWERS_B, _t(68) + 6, _t(29))
+	_plant(behind, FERN_LOW, _t(70) + 4, _t(29), true)
+	# The ruin block and its chest, under a small arch.
+	_ground(behind, IS, SMALL_ARCH, _t(84) - 2, _t(25) + 1, 0.95, "BlockArch")
+	_drape(placed, DRAPE_LONG, _t(82) - 4, _t(25) + 8)
+	_plant(behind, FLOWERS_A, _t(88), _t(25))
+	# TEST. The wall terraces and the plateau's ruins.
+	_plant(behind, GRASS, _t(101), _t(27))
+	_ground(behind, IS, ARCADE, _t(109), _t(24) + 1, 0.95, "PlateauArcade")
+	_tracery(behind, _t(124), _t(24))
+	_plant(behind, FERN, _t(117), _t(24), true)
+	# The ravine: a broken aqueduct arch spilling into it, the log across.
+	var falls := _sprite(behind, PL, FALLS, Vector2(_t(134), w - FALLS.size.y + 2.0))
+	falls.name = "AqueductFalls"
+	_lilies(behind, _t(132) + 4, _t(144), w)
+	_plant(behind, REED_TALL, _t(144) + 2, _t(25), true)
+	_plant(behind, GRASS_FLOWERS, _t(150), _t(25))
+	_plant(behind, FERN_LOW, _t(156), _t(25))
+	_lilies(behind, _t(160), _t(164) + 40, w)
+	_piece(behind, DOOR_RUINED, _t(166), _t(23), "MassRuin").modulate = Color(0.9, 0.9, 0.95)
+	# The false wall's tell: ivy over its face, and the draught.
+	for v in [[VINES[0], _t(181) + 4], [VINES[2], _t(181) - 10]]:
+		var vine := _sprite(placed, FLORA, v[0], Vector2(v[1], _t(26) - 2))
+		vine.name = "WallIvy"
+		vine.z_index = 18  # over the false wall's cover: the tell must show
+	# TWIST. The crates by the checkpoint; the great tree and its branches.
+	_plant(behind, GRASS, _t(199), G)
+	var tree := _sprite(behind, ENV + "landmark_great_ironbark.png", Rect2(1, 1, 255, 252), Vector2(_t(214) - 128, G - 248))
+	tree.name = "GreatIronbark"
+	tree.modulate = Color(0.86, 0.86, 0.92)
+	# The canopy route's trees: trunks rising out of the hill into the crowns.
+	for c in [[225, 15], [241, 14], [256, 16], [271, 14], [285, 15]]:
+		var trunk := _sprite(behind, GT, TRUNK, Vector2(_t(c[0]) - TRUNK.size.x * 0.5, _t(27) + 8.0 - TRUNK.size.y))
+		trunk.name = "CanopyTrunk"
+		trunk.set_meta("no_tint", true)
+		trunk.flip_h = c[0] % 2 == 0
+	_plant(behind, FERN_LOW, _t(230), G)
+	_drape(placed, DRAPE, _t(236), _t(28) + 2)
+	# The hill: grass, a ruin; the bonus room's lamps.
+	_plant(behind, GRASS_FLOWERS, _t(244), _t(27))
+	_ground(behind, IS, SMALL_ARCH, _t(262), _t(27) + 1, 0.9, "HillArch")
+	_plant(behind, FERN, _t(280), _t(27), true)
+	_hanging_lamp(behind, _t(247), _t(28), 22.0)
+	_hanging_lamp(behind, _t(255), _t(28), 22.0)
+	# The islands across the second water.
+	_lilies(behind, _t(297) + 4, _t(336), w)
+	for isl in [[301, 28], [310, 26], [319, 29], [328, 27]]:
+		_plant(behind, FLOWERS_C if isl[0] % 2 == 0 else FLOWERS_B, _t(isl[0]) + 10, _t(isl[1]))
+	_plant(behind, REED_TALL, _t(297) - 30, G)
+	_plant(behind, REED, _t(336) + 2, G, true)
+	# FINISH. The last run: grass, a ruin by the pits, a lantern up the terraces.
+	_plant(behind, GRASS, _t(346), G)
+	_plant(behind, BUSH_LOW, _t(366), G)
+	_piece(behind, DOOR_RUINED, _t(386), _t(28), "PitRuin").modulate = Color(0.9, 0.9, 0.95)
+	_lantern_post(behind, _t(404), _t(27))
+	_plant(behind, FERN_LOW, _t(414), _t(24))
+	_plant(behind, GRASS_FLOWERS, _t(434), _t(24), true)

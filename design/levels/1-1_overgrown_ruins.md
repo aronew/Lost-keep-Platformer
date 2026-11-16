@@ -1,8 +1,9 @@
-# 1-1 The Overgrown Ruins (blockout, awaiting review)
+# 1-1 The Overgrown Ruins (blockout approved; first art pass in)
 
 Builder: `game/tools/build_l1_1.gd` → `game/scenes/levels/l1_1_overgrown_ruins.tscn`.
-Pictures: `docs/levels/1-1/` (the poster, the in-game blockout shots, the
-earth skin preview).
+Pictures: `docs/levels/1-1/blockout/` (the approved blockout: the poster and
+in-game shots) and `docs/levels/1-1/art_pass/` (the first art pass: in-game
+shots of every beat, and a poster of the dressing without the backdrops).
 
 **Looks to match:** `docs/mockups/platformer/outdoor_level_1_mockup.webp` (the
 stall on stone arches, the water pit and its mushroom island, the chest on a
@@ -74,10 +75,45 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 - The throw was too short and too high to reach a crack at floor level; it
   is now flat and fast (about 9 tiles), as in DKC.
 
+## The art pass (first)
+Approved by the creative lead ("Approved, start the art pass for 1-1").
+`blockout = false` in the builder; `_dress()` places the Ironbark surface kit
+(Book 1). Tour and secrets still ALL PASS after it; the camera shows no slide
+or wobble.
+
+- **Backdrops:** the purple dusk sky with the three moons (lowered so they
+  sit whole on screen), the far forest, the teal mid forest; fog, light
+  shafts, fireflies; the black plant band along the bottom.
+- **Terrain:** Book 1's earth on every mass (the ruin stone W1, W2 will take
+  the built ruins).
+- **TEACH:** the arch she came through; the stall: the timber frame, barrels,
+  a lantern post, lanterns hanging in both arches, moss drapes under the
+  slab; ferns and grass; lilies and reeds round the water pit; flowers on the
+  mushroom island (no red mushrooms: the kit's are red); a small ruined arch
+  framing the chest on the ruin block.
+- **TEST:** an arcade and a tracery ruin with its lantern on the plateau; a
+  broken aqueduct arch spilling two falls into the ravine under the log;
+  a ruined door on the ruin mass; ivy over the false wall's face (its tell,
+  with the draught).
+- **TWIST:** the Great Ironbark (with Morvath's closed-eye knots) behind the
+  branch ladder; the canopy route on SF9's leaf band, whose top is flat, over
+  twisted trunks with vines; lanterns in the bonus room; flowers on the
+  islands.
+- **FINISH:** a ruin by the pits, a lantern post up the terraces, and the
+  arched doorway with its lantern as the level's end (the mockup's).
+- **Stand-ins still:** the Thornhound, the chest, the cracked wall (SF11's
+  pier stone with a drawn crack), the thorns, the HUD, Kleo's carry pose,
+  the branch walkways (plank timber), the log (plank timber).
+
+**Book 3** (`docs/art-production/platformer-region1-prompt-book.html`,
+published at https://claude.ai/artifact/7mMMdvZHpnai3CM4TWMLuK) asks for
+all of it: W1 to W7 (ruin stone, the stall on arches cut to the collision,
+the islands, the log and root bridge, branch walkways, treetops), T1 to T5
+(chest, cracked wall, brambles, non-red mushrooms, HUD), C1 and C2 (the
+Thornhound, Kleo carrying), B1 and B2 (the far aqueduct, a sky with smaller
+moons). Pilot: W1, W3, C1.
+
 ## Open for the review
-1. Is the length right for a first level (about 11 screens)?
-2. The canopy route: is it hidden enough? Its tell is the bead trail up the
-   tree; the branches start 3 tiles over the ground beside the crates.
-3. The bonus game's 14 s for 12 beads (a cautious player clears it with
-   about 8 s to spare).
-4. A moving platform here, or keep them for 1-4 as planned?
+- The first art pass, in the game (`docs/levels/1-1/art_pass/`).
+- The blockout review's questions (length, the canopy's tell, the bonus
+  timer, a moving platform) were approved with the layout as built.
