@@ -1,7 +1,7 @@
 extends "res://tools/surface_builder.gd"
 ## Shared tools for the platformer's levels, on top of surface_builder.gd: the
 ## level's systems (checkpoints, hazards, the lunging enemy, chests, crates to
-## carry and throw, cracked walls, moving platforms, cocoons, bonus rooms, the
+## carry and throw, cracked walls, moving platforms, letters, bonus areas, the
 ## level's end) and the blockout look.
 ##
 ## A level's own builder sets its plan (as a room's: rock, spaces, masses) and
@@ -26,10 +26,7 @@ const LANTERN_SHEET := ENV + "props_lanterns.png"
 const POST_DARK := Rect2(26, 65, 45, 61)
 const POST_LIT := Rect2(26, 1, 45, 61)
 const POST_LAMP := Vector2(34, 40)   # the lamp, from the post's top left
-const COCOON_SHEET := ENV + "gate_silk_and_cocoon.png"
 const ENV_WILDS := "res://assets/environment/wilds/"
-const COCOON_SEALED := Rect2(167, 26, 35, 82)
-const COCOON_OPEN := Rect2(210, 26, 40, 82)
 const CRATES := ENV + "props_guard_belongings.png"
 
 var _blockout_node: Node2D
@@ -82,6 +79,11 @@ func _level_begin(node_name: String, title: String) -> Dictionary:
 func _level_finish() -> void:
 	if blockout:
 		_edge_shades()
+	elif daylight:
+		_daylight()
+		_level_foreground()
+		_tint_surface_kit(_root)
+		_edge_shades()
 	else:
 		_build_atmosphere()
 		_level_foreground()
@@ -90,16 +92,135 @@ func _level_finish() -> void:
 	_finish()
 
 
+## The look: daylight (the creative lead: "make it more bright and fun like
+## these mockups", docs/mockups/platformer/bright_day/). No dusk tint, no
+## vignette, a blue sky, the distance pale and hazy, warm sun through the
+## leaves, the lanterns barely glowing. False keeps Book 3's dusk.
+## Until the bright-day kit (Book 4) arrives, the dusk kit is shown in it.
+var daylight := true
+
+const DAY_SKY_TOP := Color("#3d8ccc")
+const DAY_SKY_LOW := Color("#b4e2ee")
+const DAY_FAR := Color(1.55, 1.85, 1.75)
+const DAY_AQUEDUCT := Color(1.25, 1.35, 1.32)
+const DAY_MID := Color(1.45, 1.75, 1.45)
+const DAY_HAZE := Color("#d6eef2")
+## The masses' insides by day: a deep plum stone instead of the void.
+const DAY_DEPTH := Color("#3a2c44")
+## The water's paint, lifted from dusk to day.
+const DAY_WATER := Color(1.25, 1.55, 1.8)
+## The sky-light rim on creatures and thorns (hit_flash.gdshader).
+const DAY_RIM := 0.55
+const DAY_RIM_SIDE := 0.25
+## How much of a lantern's light is left in daylight.
+const DAY_LAMP := 0.3
+
+
+## A daytime sky: a gradient, deep blue overhead to pale at the horizon (a
+## stand-in until Book 4's painted sky). The Sky layer holds its height on
+## screen, so the gradient spans the view.
+func _day_sky() -> void:
+	var sky := _root.get_node("Sky") as Parallax2D
+	var art := sky.get_node("Art") as Sprite2D
+	var g := Gradient.new()
+	g.set_color(0, DAY_SKY_TOP)
+	g.set_color(1, DAY_SKY_LOW)
+	g.add_point(0.55, DAY_SKY_TOP.lerp(DAY_SKY_LOW, 0.62))
+	var gt := GradientTexture2D.new()
+	gt.gradient = g
+	gt.width = 768
+	gt.height = 300
+	gt.fill_from = Vector2(0, 0)
+	gt.fill_to = Vector2(0, 1)
+	art.texture = gt
+	art.position.y = -40.0
+	art.modulate = Color.WHITE
+	var base := sky.get_node("Base") as ColorRect
+	base.position = Vector2(0, 259)
+	base.color = DAY_SKY_LOW
+
+
+func _daylight() -> void:
+	vignette = false
+	var mod := _node(CanvasModulate.new(), "Daylight", _root) as CanvasModulate
+	mod.color = Color(1.0, 1.0, 1.0)
+	_day_sky()
+	for skin_name in ["TerrainSkin", "FakeSkin"]:
+		for sk in _root.find_children(skin_name + "*", "", true, false):
+			if "void_color" in sk:
+				sk.set("void_color", DAY_DEPTH)
+	for wn in _root.find_children("*", "ColorRect", true, false):
+		var wm := (wn as ColorRect).material as ShaderMaterial
+		if wm and wm.shader and wm.shader.resource_path.ends_with("water.gdshader"):
+			wm.set_shader_parameter("paint_tint", DAY_WATER)
+	for layer in [["Far", DAY_FAR], ["Aqueduct", DAY_AQUEDUCT], ["Mid", DAY_MID]]:
+		var p := _root.get_node_or_null(layer[0]) as Parallax2D
+		if p:
+			p.modulate = layer[1]
+	for fog_name in ["FogFar", "FogMid"]:
+		var f := _root.get_node_or_null(fog_name)
+		if f:
+			for r in f.get_children():
+				if r is ColorRect and r.material:
+					var fm := (r.material as ShaderMaterial).duplicate() as ShaderMaterial
+					fm.set_shader_parameter("tint", DAY_HAZE)
+					r.material = fm
+	var w := float(room.size.x * TILE)
+	var h := float(room.size.y * TILE)
+	# Sun falling through the canopy, warm and faint.
+	var x := 300.0
+	while x < w:
+		var shaft := _node(Polygon2D.new(), "SunShaft", _root) as Polygon2D
+		shaft.z_index = 3
+		var sw := 60.0 + fmod(x, 37.0)
+		shaft.polygon = PackedVector2Array([Vector2(x, 0), Vector2(x + sw, 0), Vector2(x + sw + 170, h - 60), Vector2(x + 170, h - 60)])
+		var sun := Color(1.0, 0.95, 0.72)
+		shaft.vertex_colors = PackedColorArray([Color(sun, 0.09), Color(sun, 0.09), Color(sun, 0.0), Color(sun, 0.0)])
+		shaft.material = _add_mat
+		x += 520.0
+	var leaves := _particles("Leaves", load("res://assets/fx/leaf.png"), 18, 12.0, Rect2(0, 0, w, 60))
+	leaves.gravity = Vector2(5, 16)
+	leaves.initial_velocity_min = 4.0
+	leaves.initial_velocity_max = 12.0
+	leaves.angular_velocity_min = -90.0
+	leaves.angular_velocity_max = 90.0
+	leaves.z_index = 14
+	# Pollen drifting in the light (the night's fireflies, by day).
+	var motes := _particles("Pollen", load("res://assets/fx/mote.png"), 26, 9.0, Rect2(0, h * 0.25, w, h * 0.6))
+	motes.color = Color(1.0, 0.98, 0.85, 0.7)
+	motes.gravity = Vector2(1, -1)
+	motes.initial_velocity_min = 2.0
+	motes.initial_velocity_max = 6.0
+	motes.spread = 180.0
+	motes.scale_amount_min = 0.5
+	motes.scale_amount_max = 0.8
+	motes.z_index = 14
+	for l in _root.find_children("*", "PointLight2D", true, false):
+		(l as PointLight2D).energy *= DAY_LAMP
+	# Sky light along the tops of everything that hurts: the creatures and
+	# the thorns stand off the stone (they were lost in it).
+	for n in _root.find_children("*", "", true, false):
+		if n is CanvasItem and (n as CanvasItem).material is ShaderMaterial:
+			var sm := (n as CanvasItem).material as ShaderMaterial
+			if sm.shader and sm.shader.resource_path.ends_with("hit_flash.gdshader"):
+				sm.set_shader_parameter("rim", DAY_RIM)
+				sm.set_shader_parameter("rim_side", DAY_RIM_SIDE)
+
+
 ## The ruin stone (Book 3's W1 and W2, cut by tools/make_wilds.py): bands
 ## that fade into the dark at every edge, and blocks inside each mass that
 ## stay faintly visible as they darken, as in the mockups (RUIN_FADE tiles).
 const RUIN := "res://assets/environment/wilds/terrain/"
 const RUIN_FADE := 6.0
+## By day the stone fades far more gently with depth (the mockups' masses are
+## ground all through), which also hides a false wall's cover: its own depth
+## differs from the wall's round the hidden space.
+const RUIN_FADE_DAY := 18.0
 
 func _ruin_material() -> Resource:
 	var m: Resource = load("res://scripts/world/terrain_material.gd").new()
 	m.fill = load(RUIN + "ruin_fill.png")
-	m.fade_tiles = RUIN_FADE
+	m.fade_tiles = RUIN_FADE_DAY if daylight else RUIN_FADE
 	m.top_band = load(RUIN + "ruin_top.png")
 	m.top_line = 15
 	m.top_lit = 64
@@ -274,7 +395,7 @@ func _checkpoint(x: float, floor_y: float, flag: String) -> Node2D:
 
 
 ## A bed of thorns over [x0, x1] standing on `floor_y` (a hazard).
-func _thorns(x0: float, x1: float, floor_y: float, height := 12.0) -> Area2D:
+func _thorns(x0: float, x1: float, floor_y: float, height := 16.0) -> Area2D:
 	var a := _node(Area2D.new(), "Thorns", _root) as Area2D
 	a.set_script(load("res://scripts/world/hazard_area.gd"))
 	a.position = Vector2(x0, floor_y)
@@ -293,11 +414,25 @@ func _thorns(x0: float, x1: float, floor_y: float, height := 12.0) -> Area2D:
 		var art := _shape(a, poly, Color("#4a3448"), "Art")
 		art.z_index = 1
 	else:
-		# Book 3's T3: the bramble bed's two ends, side by side.
-		var left := _sprite(a, ENV_WILDS + "brambles.png", Rect2(4, 40, 26, 17), Vector2((x1 - x0) * 0.5 - 26.0, -16.0))
+		# Book 3's T3 across the whole bed: its thicket (cut to the bed's
+		# width) between its two ends, so every pixel that hurts shows thorns.
+		# (It drew only the two small ends at the bed's middle: the creative
+		# lead "couldn't see the spikes".)
+		var bw := x1 - x0
+		var mid_w := minf(185.0, maxf(bw, 12.0))
+		var mid := _sprite(a, ENV_WILDS + "brambles.png", Rect2(34 + roundf((185.0 - mid_w) * 0.5), 29, mid_w, 28),
+			Vector2(roundf((bw - mid_w) * 0.5), -26.0))
+		mid.name = "Bramble"
+		var left := _sprite(a, ENV_WILDS + "brambles.png", Rect2(4, 40, 26, 17), Vector2(-10.0, -15.0))
 		left.name = "Bramble"
-		var right := _sprite(a, ENV_WILDS + "brambles.png", Rect2(224, 40, 28, 17), Vector2((x1 - x0) * 0.5, -16.0))
+		var right := _sprite(a, ENV_WILDS + "brambles.png", Rect2(224, 40, 28, 17), Vector2(bw - 18.0, -15.0))
 		right.name = "Bramble"
+		for b in [left, mid, right]:
+			var m := ShaderMaterial.new()
+			m.shader = load("res://shaders/hit_flash.gdshader")
+			b.material = m
+			# In front of the grass and flowers (they hid the thorns), behind Kleo.
+			b.z_index = 8
 	return a
 
 
@@ -468,28 +603,26 @@ func _cracked_wall(r: Rect2i, flag: String) -> StaticBody2D:
 	return w
 
 
-## A cocoon hanging so its foot is at `foot` (px); the one inside is `who`.
-## `crop` trims the strand off its top (for a low ceiling).
-func _cocoon(foot: Vector2, flag: String, who: String, crop := 0.0, parent: Node = null) -> Node2D:
-	if parent == null:
-		parent = _root
-	var c := _node(Node2D.new(), "Cocoon", parent) as Node2D
-	c.position = foot.round()
-	c.z_index = 6
-	var sealed := _sprite(c, COCOON_SHEET, Rect2(COCOON_SEALED.position + Vector2(0, crop), COCOON_SEALED.size - Vector2(0, crop)),
-		Vector2(-roundf(COCOON_SEALED.size.x * 0.5), -COCOON_SEALED.size.y + crop))
-	sealed.name = "Sealed"
-	var open := _sprite(c, COCOON_SHEET, Rect2(COCOON_OPEN.position + Vector2(0, crop), COCOON_OPEN.size - Vector2(0, crop)),
-		Vector2(-roundf(COCOON_OPEN.size.x * 0.5), -COCOON_OPEN.size.y + crop))
-	open.name = "Open"
-	open.visible = false
-	var use := _node(Area2D.new(), "Use", c) as Area2D
-	use.set_script(load("res://scripts/world/cocoon.gd"))
-	use.set("flag", flag)
-	use.set("who", who)
-	use.set("prompt_offset", Vector2(0, -60 + crop * 0.5))
-	_node(_rect_shape(Vector2(30, 40), Vector2(0, -20)), "Shape", use)
-	return c
+## One of the level's four letters, K-L-E-O (as Donkey Kong Country's
+## K-O-N-G), hanging at `pos` (px): along the main line and off it.
+func _letter(pos: Vector2, letter: String, flag: String) -> Area2D:
+	var a := _node(Area2D.new(), "Letter" + letter, _root) as Area2D
+	a.set_script(load("res://scripts/world/letter.gd"))
+	a.set("letter", letter)
+	a.set("flag", flag)
+	a.position = pos.round()
+	a.z_index = 9
+	var art := _node(Sprite2D.new(), "Art", a) as Sprite2D
+	art.texture = load("res://assets/items/letters.png")
+	art.hframes = 4
+	art.frame = maxi("KLEO".find(letter), 0)
+	# Generous, as letters are in DKC: brushing past it takes it.
+	var cs := CollisionShape2D.new()
+	var cc := CircleShape2D.new()
+	cc.radius = 12.0
+	cs.shape = cc
+	_node(cs, "Shape", a)
+	return a
 
 
 ## The water across the bottom of a level (the creative lead's mockups: still
@@ -636,34 +769,90 @@ func _mover(top_left: Vector2, w: float, path: Array, speed := 48.0, pause := 0.
 	return b
 
 
-# --- The bonus room --------------------------------------------------------------------------------
+# --- Bonus areas ---------------------------------------------------------------------------------
 
-## A bonus room over `zone` (px): `beads` (px) light up when Kleo enters; the
-## prize is a cocoon (hanging with its foot at `prize_foot`) and some Resin.
-func _bonus_room(zone: Rect2, bead_points: Array, prize_foot: Vector2, flag: String, cocoon_flag: String, who: String,
-		time_limit := 10.0, crop := 0.0) -> Node2D:
-	var b := _node(Node2D.new(), "BonusRoom", _root) as Node2D
-	b.set_script(load("res://scripts/world/bonus_room.gd"))
-	b.set("flag", flag)
-	b.set("time_limit", time_limit)
-	b.z_index = 15
-	var z := _node(Area2D.new(), "Zone", b) as Area2D
-	_node(_rect_shape(zone.size, zone.get_center()), "Shape", z)
-	var beads := _node(Node2D.new(), "Beads", b)
-	for p in bead_points:
-		var a := _node(Area2D.new(), "Bead", beads) as Area2D
-		a.position = (p as Vector2).round()
-		var cs := CollisionShape2D.new()
-		var cc := CircleShape2D.new()
-		cc.radius = 7.0
-		cs.shape = cc
-		_node(cs, "Shape", a)
-		var art := _node(Sprite2D.new(), "Art", a) as Sprite2D
-		art.texture = load("res://assets/items/resin.png")
-		art.hframes = 6
-		art.material = _unlit
-	var reward := _node(Node2D.new(), "Reward", b) as Node2D
-	reward.position = prize_foot.round()
-	var c := _cocoon(Vector2.ZERO, cocoon_flag, who, crop, reward)
-	c.position = Vector2.ZERO
-	return b
+## A bonus area (BonusZone): another zone of the level, beside it and out of
+## its view, over `area` (tiles; the camera holds to it while she is inside).
+## "gather": `beads` (px) light up; gather all in `time_limit` s and the token
+## appears at `token_pos`. "course": the token waits at `token_pos`, the end
+## of a run of jumps. She arrives at `start` (px). Its way in is `_bonus_door`.
+func _bonus_zone(kind: String, area: Rect2i, start: Vector2, token_pos: Vector2, flag: String, time_limit: float,
+		title: String, bead_points := []) -> Node2D:
+	var z := _node(Node2D.new(), "BonusZone", _root) as Node2D
+	z.set_script(load("res://scripts/world/bonus_zone.gd"))
+	z.set("kind", kind)
+	z.set("area", area)
+	z.set("time_limit", time_limit)
+	z.set("title", title)
+	z.z_index = 9
+	var st := _node(Marker2D.new(), "Start", z) as Marker2D
+	st.position = start.round()
+	if not bead_points.is_empty():
+		var beads := _node(Node2D.new(), "Beads", z)
+		for p in bead_points:
+			var a := _node(Area2D.new(), "Bead", beads) as Area2D
+			a.position = (p as Vector2).round()
+			var cs := CollisionShape2D.new()
+			var cc := CircleShape2D.new()
+			cc.radius = 7.0
+			cs.shape = cc
+			_node(cs, "Shape", a)
+			var art := _node(Sprite2D.new(), "Art", a) as Sprite2D
+			art.texture = load("res://assets/items/resin.png")
+			art.hframes = 6
+	var t := _node(Area2D.new(), "Token", z) as Area2D
+	t.set_script(load("res://scripts/world/bonus_token.gd"))
+	t.set("flag", flag)
+	t.position = token_pos.round()
+	var tart := _node(Sprite2D.new(), "Art", t) as Sprite2D
+	tart.texture = load("res://assets/items/token.png")
+	tart.hframes = 4
+	var ts := CollisionShape2D.new()
+	var tc := CircleShape2D.new()
+	tc.radius = 9.0
+	ts.shape = tc
+	_node(ts, "Shape", t)
+	_label("BONUS (%s, %d s)" % [kind, int(time_limit)], Vector2(area.position.x * TILE + 24, area.position.y * TILE + 24))
+	return z
+
+
+## The hidden way into a bonus area: a hollow standing on `floor_y` at `x`
+## (px), dark inside with a faint Anima glow and motes drifting into it.
+## Walking in takes her to `zone`; she comes back out at `return_pos`, which
+## must lie outside the hollow.
+func _bonus_door(x: float, floor_y: float, zone: Node2D, return_pos: Vector2, facing := 1) -> Area2D:
+	var d := _node(Area2D.new(), "BonusDoor", _root) as Area2D
+	d.set_script(load("res://scripts/world/bonus_door.gd"))
+	d.position = Vector2(x, floor_y).round()
+	d.z_index = 4
+	d.set("facing", facing)
+	d.set("zone_path", d.get_path_to(zone))
+	_node(_rect_shape(Vector2(14, 26), Vector2(0, -13)), "Shape", d)
+	var r := _node(Marker2D.new(), "Return", d) as Marker2D
+	r.position = (return_pos - d.position).round()
+	# The hollow: an arch of dark, a soft teal glow in it.
+	var arch := PackedVector2Array([Vector2(-10, 0)])
+	for k in 9:
+		var a := PI + PI * k / 8.0
+		arch.append(Vector2(cos(a) * 10.0, -22.0 + sin(a) * 10.0).round())
+	arch.append(Vector2(10, 0))
+	_shape(d, arch, Color("#120c1c") if not blockout else Color("#1d4a52"), "Hollow")
+	var glow := _node(ColorRect.new(), "Glow", d) as ColorRect
+	glow.size = Vector2(56, 56)
+	glow.position = Vector2(-28, -44)
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var m := ShaderMaterial.new()
+	m.shader = load("res://shaders/glow.gdshader")
+	m.set_shader_parameter("tint", Color(0.25, 0.88, 0.78, 0.42))
+	m.set_shader_parameter("falloff", 1.8)
+	glow.material = m
+	var motes := _particles("BonusMotes", load("res://assets/fx/mote.png"), 10, 2.2, Rect2(x - 22, floor_y - 34, 44, 30))
+	motes.color = Color(0.45, 0.95, 0.85, 0.85)
+	motes.gravity = Vector2(0, -4)
+	motes.initial_velocity_min = 2.0
+	motes.initial_velocity_max = 6.0
+	motes.spread = 180.0
+	motes.material = _add_mat
+	motes.z_index = 5
+	_label("BONUS ENTRANCE", Vector2(x - 30, floor_y - 44))
+	return d

@@ -86,15 +86,23 @@ var checkpoint_facing := 1
 ## Resin picked up since the last checkpoint: [[pickup node, value], ...].
 ## A fall drops it: the beads go back where they hung. A checkpoint banks it.
 var _unbanked: Array = []
-## Cocoons freed (their flags), and how many the level holds.
-var rescued := {}
-var level_cocoons: Array[String] = []
+## The level's letters, K-L-E-O (Letter): letter -> its flag. Taken ones are
+## in `flags`. All four in one level is a bonus (LETTERS_PRIZE Resin).
+var level_letters := {}
+const LETTERS_PRIZE := 25
+## Bonus tokens (BonusToken): the level's (their flags), and every one won.
+var level_tokens: Array[String] = []
+var tokens_won := 0
+## The bonus area she is in, if any (BonusZone).
+var bonus: Node = null
 ## True while she is being sent back (a fall, a defeat): nothing else may hurt her.
 var respawning := false
 var _flames: HBoxContainer
-var _cocoon_row: HBoxContainer
+var _letter_row: HBoxContainer
+var _token_box: HBoxContainer
+var _token_count: Label
 var _flame_tex: Texture2D
-var _cocoon_tex: Texture2D
+var _letter_tex: Texture2D
 var _banner: Label
 var _timer_label: Label
 
@@ -157,7 +165,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				Engine.time_scale = _base_time_scale()
 		KEY_F5:
 			flags.clear()
-			rescued.clear()
+			tokens_won = 0
 			currency = 0
 			_unbanked.clear()
 			health = max_health
@@ -219,12 +227,13 @@ func _setup_screen_layers() -> void:
 	_debug_label.visible = false
 	_fade_layer.add_child(_debug_label)
 	# The HUD, top left: her flames, then the Resin count under them (hidden
-	# until the first bead outside a level). Top right: the level's cocoons.
+	# until the first bead outside a level). Top right: the level's letters,
+	# K-L-E-O, and its bonus tokens.
 	var hud_layer := CanvasLayer.new()
 	hud_layer.layer = 90
 	add_child(hud_layer)
 	_flame_tex = load("res://assets/ui/flame.png")
-	_cocoon_tex = load("res://assets/ui/cocoon_icon.png")
+	_letter_tex = load("res://assets/ui/letter_icons.png")
 	_flames = HBoxContainer.new()
 	_flames.position = Vector2(8, 6)
 	_flames.add_theme_constant_override("separation", 1)
@@ -246,10 +255,25 @@ func _setup_screen_layers() -> void:
 	_hud_count = _hud_label(10)
 	_hud_count.text = "0"
 	_hud.add_child(_hud_count)
-	_cocoon_row = HBoxContainer.new()
-	_cocoon_row.add_theme_constant_override("separation", 2)
-	_cocoon_row.position = Vector2(640 - 8 - 3 * 12, 6)
-	hud_layer.add_child(_cocoon_row)
+	_letter_row = HBoxContainer.new()
+	_letter_row.add_theme_constant_override("separation", 1)
+	_letter_row.position = Vector2(640 - 8 - 4 * 10, 7)
+	hud_layer.add_child(_letter_row)
+	_token_box = HBoxContainer.new()
+	_token_box.add_theme_constant_override("separation", 2)
+	_token_box.position = Vector2(640 - 8 - 40, 21)
+	_token_box.visible = false
+	hud_layer.add_child(_token_box)
+	var ticon := TextureRect.new()
+	var tat := AtlasTexture.new()
+	tat.atlas = load("res://assets/items/token.png")
+	tat.region = Rect2(2, 1, 12, 14)
+	ticon.texture = tat
+	ticon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ticon.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
+	_token_box.add_child(ticon)
+	_token_count = _hud_label(10)
+	_token_box.add_child(_token_count)
 	_timer_label = _hud_label(16)
 	_timer_label.position = Vector2(296, 8)
 	_timer_label.size = Vector2(48, 20)
@@ -297,15 +321,27 @@ func _show_health(flare := -1) -> void:
 			tw.tween_property(r, "modulate", Color.WHITE, 0.45)
 
 
-func _show_cocoons() -> void:
-	for c in _cocoon_row.get_children():
+## Redraw the letters (dim until found, in K-L-E-O order) and the tokens.
+func _show_finds(flare := "") -> void:
+	for c in _letter_row.get_children():
 		c.queue_free()
-	for f in level_cocoons:
+	var n := 0
+	for i in 4:
+		var l := "KLEO"[i]
+		if not level_letters.has(l):
+			continue
+		n += 1
 		var r := TextureRect.new()
 		r.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		r.texture = _frame(_cocoon_tex, 10, 19, 1 if rescued.has(f) else 0)
-		_cocoon_row.add_child(r)
-	_cocoon_row.position.x = 640 - 8 - level_cocoons.size() * 12
+		r.texture = _frame(_letter_tex, 9, 11, i + (4 if flags.has(level_letters[l]) else 0))
+		_letter_row.add_child(r)
+		if l == flare:
+			r.modulate = Color(2.0, 1.8, 1.3)
+			r.create_tween().tween_property(r, "modulate", Color.WHITE, 0.5)
+	_letter_row.position.x = 640 - 8 - n * 10
+	_token_box.visible = not level_tokens.is_empty()
+	_token_count.text = "%d/%d" % [tokens_found(), level_tokens.size()]
+	_token_box.position.x = 640 - 8 - 12 - 2 - 18
 
 
 ## A line of text in the middle of the screen for a moment (a tally, a bonus).
@@ -333,32 +369,60 @@ func level_begin(room: Node, start: Vector2, facing: int) -> void:
 	checkpoint_facing = facing
 	_unbanked.clear()
 	respawning = false
-	level_cocoons.clear()
+	level_letters.clear()
+	level_tokens.clear()
+	bonus = null
 	_flames.visible = true
 	_show_health()
-	# The cocoons register themselves as they enter the tree.
+	# The letters and tokens register themselves as they enter the tree.
 	await get_tree().process_frame
-	_show_cocoons()
+	_show_finds()
 	if room.get("is_level"):
 		_hud.modulate.a = 0.85
 
 
-func register_cocoon(flag: String) -> void:
-	if not level_cocoons.has(flag):
-		level_cocoons.append(flag)
-	_show_cocoons()
+func register_letter(letter: String, flag: String) -> void:
+	level_letters[letter] = flag
+	_show_finds()
 
 
-func rescue(flag: String) -> void:
-	rescued[flag] = true
-	flags[flag] = true
-	_show_cocoons()
+func take_letter(letter: String, flag: String) -> void:
+	level_letters[letter] = flag
+	if flag != "":
+		flags[flag] = true
+	_show_finds(letter)
+	if letters_found() == 4:
+		banner("K - L - E - O !", 1.2)
+		add_currency(LETTERS_PRIZE)
+	else:
+		banner(letter, 0.4)
 
 
-func cocoons_found() -> int:
+func letters_found() -> int:
 	var n := 0
-	for f in level_cocoons:
-		if rescued.has(f):
+	for l in level_letters:
+		if flags.has(level_letters[l]):
+			n += 1
+	return n
+
+
+func register_token(flag: String) -> void:
+	if not level_tokens.has(flag):
+		level_tokens.append(flag)
+	_show_finds()
+
+
+func take_token(flag: String) -> void:
+	if flag != "" and not flags.has(flag):
+		flags[flag] = true
+		tokens_won += 1
+	_show_finds()
+
+
+func tokens_found() -> int:
+	var n := 0
+	for f in level_tokens:
+		if flags.has(f):
 			n += 1
 	return n
 
@@ -417,6 +481,9 @@ func respawn(kleo: Node, refill: bool) -> void:
 		if is_instance_valid(p):
 			p.call("restore")
 	_unbanked.clear()
+	if bonus and is_instance_valid(bonus):
+		bonus.call("abort")
+	bonus = null
 	if lost > 0:
 		currency -= lost
 		_hud_count.text = str(currency)

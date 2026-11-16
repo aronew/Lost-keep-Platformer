@@ -2,7 +2,7 @@ class_name LevelEnd
 extends Area2D
 ## The level's end: an arched doorway (or a waystone, a gate). Walking into it
 ## ends the level: Kleo walks on through, the view fades, and the tally shows
-## (Resin, cocoons found). `next_scene` is where she goes after ("" stays:
+## (Resin, letters and bonus tokens found). `next_scene` is where she goes after ("" stays:
 ## until the world map exists, the level ends on the tally).
 
 signal finished
@@ -32,7 +32,7 @@ func _on_body_entered(body: Node) -> void:
 	kleo.sprite.play("idle")
 	Game.flags["level_done_" + (Game.level.name if Game.level else "")] = true
 	await Game.fade_to(0.85, 0.4)
-	var lines := "Level complete\nResin  %d\nCocoons  %d / %d" % [Game.currency, Game.cocoons_found(), Game.level_cocoons.size()]
+	var lines := "Level complete\nResin  %d\nLetters  %d / 4\nBonus tokens  %d / %d" % [Game.currency, Game.letters_found(), Game.tokens_found(), Game.level_tokens.size()]
 	Game.banner(lines, 2.4)
 	await get_tree().create_timer(3.0).timeout
 	finished.emit()

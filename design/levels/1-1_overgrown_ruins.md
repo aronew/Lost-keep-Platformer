@@ -1,4 +1,4 @@
-# 1-1 The Overgrown Ruins (blockout approved; art pass from the kit in)
+# 1-1 The Overgrown Ruins (bright day; letters and bonus areas in)
 
 Builder: `game/tools/build_l1_1.gd` → `game/scenes/levels/l1_1_overgrown_ruins.tscn`.
 Pictures: `docs/levels/1-1/blockout/` (the approved blockout: the poster and
@@ -16,7 +16,9 @@ wall into a bonus game, and nothing out of place.
 
 ## Size and shape
 - 440 × 40 tiles (7,040 × 640 px): about 11 screens long and 1.8 high (40
-  rows so the view holds the water under the walking line).
+  rows so the view holds the water under the walking line). The room is 540
+  wide: its two bonus areas lie beside the level (x 452–536), out of its
+  view; the camera holds to the level (`MAIN`) unless she is in one.
 - The walking line is row 30 (y 480) unless a beat lifts it; the canopy
   route runs at rows 14 to 16.
 - Start at x 5. The arched doorway out is at x 428, on the end ledge (row 24).
@@ -25,10 +27,10 @@ wall into a bonus game, and nothing out of place.
 
 | Beat | Tiles | What happens |
 |---|---|---|
-| **TEACH** | 0–94 | Stone terraces (2 up each) onto **the stall on arches** (a crate to carry, a pot), a **nook** under the arches (a pot, 3 beads), a **Mossback** (7 hits, or one thrown crate), **the water pit and the mushroom island** (two gaps of 4), and **the chest on a high ledge** (a 5-tile ledge catch onto a ruin block). |
-| **TEST** | 94–200 | **Checkpoint 1.** Wall terraces (3 up, 3 up) to the plateau and **the first rat**, on flat ground with room to fight. **A fallen log** over a ravine. A gap of 4 up 2 to a ruin mass, then down its steps. The step's east face is **a false wall** (cocoon 1). |
-| **TWIST** | 200–340 | **Checkpoint 2. Two crates.** Carry one to the hill's foot and throw it at **the cracked wall**: a tunnel drops into **the bonus room** under the hill (gather 12 beads in 14 s → cocoon 2 and a spill of Resin). Up on the hill, **a root bank with a crate and a stack of two crates** on it: climbing them crosses the hill, and from the stack's top **the treetop route** is in reach (four treetops at different heights, 8 tiles over the hill so only the crates reach them; gaps of 4, beads all the way, cocoon 3 at its end). On the hill, **the second rat**. Then **the islands at different heights** across the second water (2 up, 2 up, 3 down, 2 up, 3 down; gaps of 4). |
-| **FINISH** | 340–440 | **Checkpoint 3.** A Mossback, **a pit** (4), **a thorn bed**, a pit with a step up beyond it, terraces up to the end ledge, **the last chest**, and **the arched doorway**. |
+| **TEACH** | 0–94 | Stone terraces (2 up each) onto **the stall on arches** (a crate to carry, a pot), a **nook** under the arches (a pot, 3 beads), a **Mossback** (7 hits, or one thrown crate), **the water pit and the mushroom island** (two gaps of 4; **letter K** over the island), and **the chest on a high ledge** (a 5-tile ledge catch onto a ruin block). |
+| **TEST** | 94–200 | **Checkpoint 1.** Wall terraces (3 up, 3 up) to the plateau and **the first rat**, on flat ground with room to fight. **A fallen log** over a ravine. A gap of 4 up 2 to a ruin mass, then down its steps. The step's east face is **a false wall** (**letter L** in the hollow behind it). |
+| **TWIST** | 200–340 | **Checkpoint 2. A crate** (to throw at the rat). The hill's foot is **a false wall** (motes drift into it): a tunnel drops into **a hidden cave** under the hill, and at its end **a glowing hollow takes her to bonus 1** (gather 12 beads over raised ground in 12 s; the token appears over the last block). Up on the hill, **a root bank with a crate and a stack of two crates** on it: from the stack's top **the treetop route** is in reach (four treetops at different heights, 8 tiles over the hill so only the crates reach them; gaps of 4, beads all the way, **letter E** on the third; at its end **a hollow in the last crown takes her to bonus 2**: a course of four small pillars over a drop to the token, 10 s). On the hill, **the second rat**. Then **the islands at different heights** across the second water (2 up, 2 up, 3 down, 2 up, 3 down; gaps of 4). |
+| **FINISH** | 340–440 | **Checkpoint 3.** A Mossback, **a pit** (4), **a thorn bed** (a hit: it throws her back), a pit with a step up beyond it (**letter O** over it, on the jump), terraces up to the end ledge, **the last chest**, and **the arched doorway**. |
 
 ## Region 1 rules it keeps
 - Widest required gap 4 tiles (a standing jump does it); smallest landing 3
@@ -43,15 +45,16 @@ wall into a bonus game, and nothing out of place.
   climbed four floating branches up the great tree; replaced.)
 
 ## Secrets and Resin
-- **Cocoons (3):** 1 behind the false wall (Wren, a Rootling baker), 2 the
-  bonus room's prize (Oren, an Ironbark scout), 3 at the canopy's end
-  (Ysolde, a Hearth-Plains weaver).
+- **Letters (4):** K over the mushroom island and O over the last pit (on
+  the main line's jumps), L behind the false wall, E on the treetops.
+- **Bonus areas (2), a token each:** 1 "gather", through the hill's false
+  wall and hidden cave; 2 "course", at the treetops' end.
 - **Chests (2):** on the ruin block (8), by the doorway (8). **Caches:** the
-  nook (3), the false wall's hollow (2). **The bonus room:** 10 Resin.
+  nook (3), the false wall's hollow (2), the hidden cave (3).
 - **Bead trails** show every jump (arcs over each gap) and lead up the
   great tree: about 60 beads in all.
-- **Tells:** motes drifting into the false wall; beads climbing the tree; the
-  cracked wall's pale, cracked stone.
+- **Tells:** motes drifting into both false walls; beads climbing the crates;
+  a faint teal glow and motes at each bonus entrance.
 
 ## Validation (in engine)
 `cd game` then:
@@ -60,15 +63,18 @@ wall into a bonus game, and nothing out of place.
 xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playtest.tscn -- room=l1_1 mode=tour
 ```
 
-- `mode=tour` (the main line, enemies held still): **ALL PASS**, 28 checks:
-  every terrace, jump, ledge catch, gap and island, all three checkpoints
-  lit, through the doorway; 37 Resin on the main line.
-- `mode=secrets`: **ALL PASS**, 25 checks: both chests; the false wall fades
-  while she is inside and closes when she leaves; a crate lifted, carried and
-  thrown breaks the cracked wall; the bonus game won with about 8 s to spare;
-  back out over the blocks and up the 4-tile catch; the crates up to the
-  treetops, the treetop jumps, and that the treetops can't be reached from
-  the hill without the crates; all 3 cocoons freed.
+- `mode=tour` (the main line, enemies held still): **ALL PASS**: every
+  terrace, jump, ledge catch, gap and island, all three checkpoints lit,
+  through the doorway; 43 Resin on the main line.
+- `mode=secrets`: **ALL PASS**: all four letters (K and O on the main line's
+  jumps, L behind the false wall, E on the treetops); both chests; the false
+  wall fades while she is inside and closes when she leaves; through the
+  hill's false wall into the hidden cave, over its blocks to the glowing
+  hollow; bonus 1 gathered block to block in time and its token won; back
+  out in the cave, over the blocks and up the 4-tile catch; the crates up to
+  the treetops (and the treetops out of reach without them); bonus 2's
+  pillars crossed with time to spare and its token won; back out on the
+  last treetop, whose hollow, won, lets her by.
 - `mode=shots` (in-game blockout pictures of each beat) and `mode=map`, then
   `python3 tools/stitch_map.py l1_1` and
   `python3 tools/level_poster.py l1_1` for the poster.
@@ -137,6 +143,25 @@ moons). Pilot: W1, W3, C1.
 - **The rat** (from the creative lead's roster) is the enemy that fights,
   twice: on the plateau and on the hill.
 - Tour and secrets still ALL PASS; the camera shows no slide or wobble.
+
+## Changed after the creative lead played it (2026-11)
+"It still was playing" the old room from Play (fixed: Play opens 1-1), then:
+"the game is super dark, I couldn't see the spikes so I had no idea why I
+was dying, I think the cocoons to save people is dumb, the bonus areas are
+dumb with the throwing the crates ... the grab animations isn't in it ...
+the lighting in the game makes it almost impossible to see the creatures."
+- **Bright day** (`_daylight()`): no dusk tint or vignette, a blue sky, the
+  water and the masses lifted, a sky-light rim on the creatures and thorns.
+  The bright-day kit (Book 4, after the six `bright_day/` mockups) replaces
+  the dusk kit as it arrives.
+- **Thorns** drawn across their whole bed, in front of the plants (they only
+  drew two small ends at the bed's middle), and **a hit** that throws her
+  back out, not a trip back to the checkpoint.
+- **Kleo's carry frames** (the kit's C2): she lifts, holds, runs and throws
+  with the crate in her hands.
+- **Cocoons → letters K-L-E-O**; **the cracked-wall bonus room → two bonus
+  areas** behind hidden entrances, each won for a token. The crate stays (one,
+  to throw at the rat); the cracked wall is gone from 1-1.
 
 ## Open for the review
 - The first art pass, in the game (`docs/levels/1-1/art_pass/`).

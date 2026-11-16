@@ -15,7 +15,11 @@ const TILE := 16
 @export var is_level := false
 @export var level_name := ""
 
-## Falling this far below the room's bottom edge is a pit.
+## The part of the room the camera and the pit edge hold to while she is in
+## the level (bonus areas lie beside it, out of view). Empty: the whole room.
+@export var main_area := Rect2i()
+
+## Falling this far below the area's bottom edge is a pit.
 const PIT_DEPTH := 40.0
 
 @onready var kleo: Kleo = $Kleo
@@ -37,18 +41,36 @@ func _ready() -> void:
 		kleo.place(spawn, 1)
 	Game.level_begin(self, kleo.global_position, kleo.facing)
 	camera.target = kleo
-	camera.limit_left = room_rect.position.x * TILE
-	camera.limit_top = room_rect.position.y * TILE
-	camera.limit_right = room_rect.end.x * TILE
-	camera.limit_bottom = room_rect.end.y * TILE
-	# The camera eases into these edges itself; the limits above are only a backstop.
-	camera.bounds = Rect2(Vector2(room_rect.position * TILE), Vector2(room_rect.size * TILE))
+	set_area(Rect2i())
 	camera.snap_to_target()
 
 
+var _area := Rect2i()
+
+## Hold the camera (and the pit edge) to `r`, in tiles: a bonus area while she
+## is in one; empty, the level itself.
+func set_area(r: Rect2i) -> void:
+	if r.size == Vector2i.ZERO:
+		r = main_area if main_area.size != Vector2i.ZERO else room_rect
+	_area = r
+	camera.limit_left = r.position.x * TILE
+	camera.limit_top = r.position.y * TILE
+	camera.limit_right = r.end.x * TILE
+	camera.limit_bottom = r.end.y * TILE
+	# The camera eases into these edges itself; the limits above are only a backstop.
+	camera.bounds = Rect2(Vector2(r.position * TILE), Vector2(r.size * TILE))
+
+
+func area() -> Rect2i:
+	return _area
+
+
 func _physics_process(_delta: float) -> void:
-	if kleo and kleo.global_position.y > (room_rect.end.y * TILE) + PIT_DEPTH:
-		kleo.hazard("pit")
+	if kleo and kleo.global_position.y > (_area.end.y * TILE) + PIT_DEPTH:
+		if Game.bonus and is_instance_valid(Game.bonus):
+			Game.bonus.call("fail", "Missed!")
+		else:
+			kleo.hazard("pit")
 
 
 func set_box_view(on: bool) -> void:

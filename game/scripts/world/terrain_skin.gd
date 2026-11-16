@@ -54,6 +54,12 @@ const SIDES := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 ## False: this skin paints over layers another skin owns (a false wall's), so
 ## it never shows or hides the collision layers itself.
 @export var owns_layers := true
+## What each mass's inside fades to with depth (the void by default; a level
+## by day lifts it to a deep stone, so masses don't read as holes).
+@export var void_color := Color(0.043, 0.031, 0.071):
+	set(v):
+		void_color = v
+		_queue_rebuild()
 ## Turn off to see the bare black box (F1 in game).
 @export var skin_visible := true:
 	set(v):
@@ -197,6 +203,7 @@ func _build_cell_texture(p: Dictionary) -> void:
 	mat.set_shader_parameter("cells", ImageTexture.create_from_image(img))
 	mat.set_shader_parameter("origin_cell", Vector2(room_rect.position))
 	mat.set_shader_parameter("size_cells", Vector2(w, h))
+	mat.set_shader_parameter("void_color", void_color)
 	for m in range(min(materials.size(), 2)):
 		var tm: TerrainMaterial = materials[m]
 		if tm:

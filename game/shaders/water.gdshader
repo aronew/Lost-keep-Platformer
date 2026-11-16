@@ -18,6 +18,8 @@ uniform sampler2D paint : filter_nearest, repeat_enable;
 uniform vec2 paint_size = vec2(966.0, 86.0);
 uniform float width_px = 384.0;
 uniform float world_x = 0.0;
+// Multiplies the painted water (a level by day lifts the dusk paint).
+uniform vec4 paint_tint : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 
 float hash(float n) {
 	return fract(sin(n * 12.9898) * 43758.5453);
@@ -36,7 +38,7 @@ void fragment() {
 		float px = floor(world_x + UV.x * width_px);
 		float py = min(floor(y_px), paint_size.y - 1.0);
 		vec4 p = texture(paint, vec2((mod(px, paint_size.x) + 0.5) / paint_size.x, (py + 0.5) / paint_size.y));
-		water = p.rgb;
+		water = min(p.rgb * paint_tint.rgb, vec3(1.0));
 		a = p.a;
 	}
 	float r = reflect_strength * (1.0 - smoothstep(0.0, 0.7, depth));
