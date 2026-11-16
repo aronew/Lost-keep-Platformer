@@ -73,8 +73,11 @@ const SPACES := [
 ## floating islands are 3 thick.
 const STONES := [
 	[64, 29, 5], [73, 28, 4],                                  # the first water
-	[144, 29, 4], [152, 28, 3], [159, 29, 4], [167, 27, 5],    # the long pool, low path
-	[176, 29, 3], [183, 28, 4], [191, 29, 5],
+	# The long pool, low path: a chain that changes at every hop (wide and
+	# near, then narrower, higher, a drop, a rest, a small one, and out).
+	[143, 29, 5], [152, 28, 4], [160, 26, 3], [167, 29, 4],
+	[175, 28, 6], [185, 27, 3], [192, 29, 4],
+	[171, 31, 3],                                              # a low stone off the safe line: risky Resin
 	[348, 29, 4], [356, 27, 4], [388, 26, 4],                  # the last water
 ]
 const FLOATING := [
@@ -98,6 +101,9 @@ func _initialize() -> void:
 	# face (4 down from the terrace) and a low stone shelf by the water.
 	m.append([232, 31, 7, 9, 0])
 	m.append([232, 27, 2, 4, 0])
+	# The thorn knot's island (the great secret): behind and above the way she
+	# came, reached only by jumping back west from the tower's top.
+	m.append([119, 18, 4, 2, 0])
 	masses = m
 	skip = []
 	spawn = Vector2(5 * TILE, G)
@@ -161,15 +167,25 @@ func _teach() -> void:
 # --- TEST: the long pool: seven small islands; the big floating islands above ---------------------
 
 func _test() -> void:
-	_checkpoint(_t(112), G, "l12_cp1")
-	_label("CHECKPOINT 1", Vector2(_t(110), G - 76))
 	_label("TEST", Vector2(_t(114), _t(8)))
 	_beads([Vector2(_t(120), _t(27) - 12), Vector2(_t(124), _t(24) - 12), Vector2(_t(129), _t(21) - 12)], "l12_ramp")
 	_label("THE OLD RAMPART\n(terraces up and down)", Vector2(_t(119), _t(15)))
 	# The low path (the main line): seven small islands, each at its own height.
-	_hops([[139.5, 30, 144.5, 29], [147.5, 29, 152.5, 28], [154.5, 28, 159.5, 29], [162.5, 29, 167.5, 27],
-		[171.5, 27, 176.5, 29], [178.5, 29, 183.5, 28], [186.5, 28, 191.5, 29], [195.5, 29, 200.5, 30]], "l12_low")
-	_label("THE LONG POOL: seven small islands at different heights (the main line)", Vector2(_t(146), _t(33) + 4))
+	# Every level goes right: the knot is the one thing that asks her to turn
+	# back. She sees it from the terraces, out of reach (6 up); the way is a
+	# jump west from the tower's top (3 across, 3 up).
+	_knot(Vector2(_t(120.5), _t(18) - 16), "l12_knot")
+	# A chain, each hop a step on from the last (Super Mario World's way):
+	# near and wide; farther; narrower and higher; a drop; a wide stone to
+	# rest on (a pot); a small high one; down and out.
+	_hops([[139.5, 30, 143.5, 29], [147.5, 29, 152.5, 28], [155.5, 28, 160.5, 26], [162.5, 26, 167.5, 29],
+		[170.5, 29, 175.5, 28], [180.5, 28, 185.5, 27], [187.5, 27, 192.5, 29], [195.5, 29, 200.5, 30]], "l12_low")
+	_breakable(CRATES, POT, _t(178.5), _t(28), CLAY)
+	# Risky Resin beside the safe line: a low stone two tiles wide, a drop
+	# onto it, a step back up. Beads never lie: where they hang, there is ground.
+	_beads([Vector2(_t(171.7), _t(31) - 12), Vector2(_t(172.7), _t(31) - 12), Vector2(_t(173.4), _t(31) - 12)], "l12_risk")
+	_label("risky Resin", Vector2(_t(170.6), _t(33) + 16))
+	_label("THE LONG POOL: a chain of stones, no two hops alike (the main line)", Vector2(_t(146), _t(33) + 4))
 	# The high path (secret): from the tower's top, over the big floating islands.
 	_hops([[131.5, 21, 136.5, 19], [147.5, 19, 152.5, 17], [159.5, 17, 164.5, 18], [187.5, 18, 192.5, 16], [197.5, 16, 202.5, 20]], "l12_high")
 	_chest(_t(156), _t(17), 6, "l12_chest2")
@@ -195,8 +211,9 @@ func _test() -> void:
 # --- TWIST: the road ends: the floating islands are the only way, an enemy on the great one -------
 
 func _twist() -> void:
-	_checkpoint(_t(220), G, "l12_cp2")
-	_label("CHECKPOINT 2", Vector2(_t(218), G - 76))
+	# The level's one checkpoint, at its middle: the Guard's banner.
+	_checkpoint(_t(220), G, "l12_mid")
+	_label("MIDWAY BANNER\n(the checkpoint)", Vector2(_t(218), G - 84))
 	_label("TWIST", Vector2(_t(222), _t(8)))
 	_beads([Vector2(_t(226), _t(27) - 12), Vector2(_t(230), _t(24) - 12)], "l12_up")
 	_hops([[231.5, 24, 236.5, 22], [245.5, 22, 250.5, 24], [255.5, 24, 260.5, 22], [285.5, 22, 290.5, 24],
@@ -228,8 +245,6 @@ func _twist() -> void:
 # --- FINISH: thorns, stones up to the last islands, the gatehouse ---------------------------------
 
 func _finish_beat() -> void:
-	_checkpoint(_t(322), G, "l12_cp3")
-	_label("CHECKPOINT 3", Vector2(_t(320), G - 76))
 	_label("FINISH", Vector2(_t(324), _t(16)))
 	_thorns(_t(332), _t(335), G)
 	_label("THORNS", Vector2(_t(331), G - 30))

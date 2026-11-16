@@ -28,9 +28,9 @@ wall into a bonus game, and nothing out of place.
 | Beat | Tiles | What happens |
 |---|---|---|
 | **TEACH** | 0–94 | Stone terraces (2 up each) onto **the stall on arches** (a crate to carry, a pot), a **nook** under the arches (a pot, 3 beads), a **Mossback** (7 hits, or one thrown crate), **the water pit and the mushroom island** (two gaps of 4; **letter K** over the island), and **the chest on a high ledge** (a 5-tile ledge catch onto a ruin block). |
-| **TEST** | 94–200 | **Checkpoint 1.** Wall terraces (3 up, 3 up) to the plateau and **the first rat**, on flat ground with room to fight. **A fallen log** over a ravine. A gap of 4 up 2 to a ruin mass, then down its steps. The step's east face is **a false wall** (**letter L** in the hollow behind it). |
-| **TWIST** | 200–340 | **Checkpoint 2. A crate** (to throw at the rat). The hill's foot is **a false wall** (motes drift into it): a tunnel drops into **a hidden cave** under the hill, and at its end **a glowing hollow takes her to bonus 1** (gather 12 beads over raised ground in 12 s; the token appears over the last block). Up on the hill, **a root bank with a crate and a stack of two crates** on it: from the stack's top **the treetop route** is in reach (four treetops at different heights, 8 tiles over the hill so only the crates reach them; gaps of 4, beads all the way, **letter E** on the third; at its end **a hollow in the last crown takes her to bonus 2**: a course of four small pillars over a drop to the token, 10 s). On the hill, **the second rat**. Then **the islands at different heights** across the second water (2 up, 2 up, 3 down, 2 up, 3 down; gaps of 4). |
-| **FINISH** | 340–440 | **Checkpoint 3.** A Mossback, **a pit** (4), **a thorn bed** (a hit: it throws her back), a pit with a step up beyond it (**letter O** over it, on the jump), terraces up to the end ledge, **the last chest**, and **the arched doorway**. |
+| **TEST** | 94–200 | Wall terraces (3 up, 3 up) to the plateau and **the first rat**, on flat ground with room to fight. **A fallen log** over a ravine. A gap of 4 up 2 to a ruin mass, then down its steps. The step's east face is **a false wall** (**letter L** in the hollow behind it). |
+| **TWIST** | 200–340 | **The midway banner** (the level's one checkpoint). **A crate** (to throw at the rat). The hill's foot is **a false wall** (motes drift into it): a tunnel drops into **a hidden cave** under the hill, and at its end **a glowing hollow takes her to bonus 1** (gather 12 beads over raised ground in 12 s; the token appears over the last block). Up on the hill, **a root bank with a crate and a stack of two crates** on it: from the stack's top **the treetop route** is in reach (four treetops at different heights, 8 tiles over the hill so only the crates reach them; gaps of 4, beads all the way, **letter E** on the third; at its end **a hollow in the last crown takes her to bonus 2**: a course of four small pillars over a drop to the token, 10 s). On the hill, **the second rat**. Then **the islands at different heights** across the second water (2 up, 2 up, 3 down, 2 up, 3 down; gaps of 4). |
+| **FINISH** | 340–440 | A Mossback, **a pit** (4), **a thorn bed** (a hit: it throws her back), a pit with a step up beyond it (**letter O** over it, on the jump), terraces up to the end ledge, **the last chest**, and **the arched doorway**. |
 
 ## Region 1 rules it keeps
 - Widest required gap 4 tiles (a standing jump does it); smallest landing 3
@@ -162,6 +162,21 @@ the lighting in the game makes it almost impossible to see the creatures."
 - **Cocoons → letters K-L-E-O**; **the cracked-wall bonus room → two bonus
   areas** behind hidden entrances, each won for a token. The crate stays (one,
   to throw at the rat); the cracked wall is gone from 1-1.
+
+## Changed after the research and the creative lead's notes (2026-11)
+- **One checkpoint, at the middle** (the creative lead: "there should be a
+  middle point where you get a checkpoint; I don't want lanterns"): the
+  Guard's banner at x 196, where checkpoint 2 stood. Checkpoints 1 and 3 are
+  gone. The four beats stand; they are no longer opened by checkpoints.
+- **The great secret: Morvath's thorn knot,** asleep in the dark at the end
+  of the hidden cave, behind bonus 1's glowing hollow (a secret within a
+  secret). The hollow takes her to the bonus every time she walks in; only
+  once the bonus is won does it let her by, to the knot.
+- **Kleo's stride** (a second of unbroken running: faster, a longer jump)
+  applies here as everywhere. No secret here is reached by it alone.
+- The level opens from **the world map** and its end leads back there; the
+  map shows its letters, tokens and knot, found or missing.
+- Tour and secrets ALL PASS with these in (the secrets run wakes the knot).
 
 ## Open for the review
 - The first art pass, in the game (`docs/levels/1-1/art_pass/`).
