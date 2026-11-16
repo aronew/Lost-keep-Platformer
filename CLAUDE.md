@@ -255,7 +255,8 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   kit's green guide box was in each frame (`Kleo.CARRY_REST`), behind her.
 - **Cracked walls** (`cracked_wall.gd`, `_cracked_wall`): solid; the sword
   rings off; a thrown crate breaks them open. Not the way into bonus areas.
-- **Bonus areas** (`bonus_zone.gd` + `bonus_door.gd` + `bonus_token.gd`;
+- **Bonus areas** (tokens open each region's secret level; bosses free the
+  captives to the Refuge: `design/game-structure.md` §5) (`bonus_zone.gd` + `bonus_door.gd` + `bonus_token.gd`;
   `_bonus_zone`, `_bonus_door`): another zone beside the level, out of its
   view (the room is wider than the level; `Room.main_area` is the level and
   `Room.set_area` moves the camera's bounds and the pit edge to a zone while
@@ -299,7 +300,12 @@ water's paint and the masses' depth lifted (`paint_tint`, the skin's
 `void_color`), lanterns faint, and a rim of sky light along the tops of
 everything that hurts (`hit_flash.gdshader`'s `rim`: creatures, thorns).
 The dusk kit below is a stopgap under it until the bright-day kit (Book 4,
-after `docs/mockups/platformer/bright_day/`) arrives.
+after `docs/mockups/platformer/bright_day/`) arrives. By day the stone
+settles into the masses' deep plum (`DAY_DEPTH`) over `RUIN_FADE_DAY` (5)
+tiles: the stopgap fill repeats too plainly to show deep ("all these
+repetitive tiles on the wall look really weird"); Book 4's D3 is a real fill.
+(A shader on the skin's bands darkened them, even one that changed nothing:
+leave the skin's edges on the default material.)
 
 **The look of a level (the art pass), after the creative lead's mockups:**
 - **Ruin stone** everywhere (`_ruin_material()`: Book 3's W1 and W2 cut by
@@ -507,7 +513,10 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 - **Bright and readable** (the creative lead, on the dusk art pass): the
   game must look like the mockups, bright and fun, never "super dark". Every
   hazard and creature must be seen at a glance: if Kleo is hurt, the player
-  must know by what.
+  must know by what. Later regions may go darker ("we can go from a brighter
+  setting to a darker setting in later regions"), but stay readable.
+- **No visibly repeating texture** across a mass: a fill must be a real,
+  varied tile.
 - **Floating islands on a path sit at different heights** so a run doesn't
   feel straight; vary heights around the big pieces rather than swapping them
   for small ones.

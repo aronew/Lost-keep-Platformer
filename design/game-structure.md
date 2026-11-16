@@ -63,7 +63,7 @@ The vertical level can move (X-2 or X-4) where a region's story wants it.
 
 | # | Region | Biome and look | Teaches | Boss | Reward |
 |---|---|---|---|---|---|
-| 1 | **The Ironbark Wilds** | Teal forest, overgrown purple stone ruins, aqueducts, pools, dusk under three moons | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
+| 1 | **The Ironbark Wilds** | Bright day: a sunlit forest of great trees, orange earth banks with grey ruin stone, floating islands, clear ponds (`docs/mockups/platformer/bright_day/`) | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
 | 2 | **The Hearth-Plains** | Golden fields at late afternoon, silk orchards, windmills, Rootling villages, hay barns, butterflies | The Ward (parry, bash-dash), bounce silk, windmill sails, hay carts | **The Silk Mother** | **Barkgrip** |
 | 3 | **The Dusk-Drifter Wastes** | Ash dunes and glass flats under a violet dusk, slate canyons, nomad caravans, bone-white ruins, ember vents (orange and gold, never red) | Barkgrip (wall cling, wall jump) in canyons; sinking ash, ember geysers, wind | **The Cinder Warden** | **Emberwick** |
 | 4 | **Thornveil** (Fen-Stalker) | A lush swamp of giant roots and stilt huts, glowing fungi, fireflies; the first crimson Blight veins | Emberwick (burn bramble and silk, light braziers); rising and sinking water, sinking lily pads | **The Thornveil Reaper** | **Wing-Cloak** |
@@ -72,10 +72,13 @@ The vertical level can move (X-2 or X-4) where a region's story wants it.
 | 7 | **The Anima Vats** | The harvesting works under the Spire: vats of teal Anima, Blight crystal growths, iron, icy-blue Prism light at the very end | Anima Siphon (drain Blight crystals, power machines); everything at once | **The Alchemist** | The finale: the Sovereign Prism |
 
 ### Why this order
-- **Colour and mood run from lively to grave.** Teal forest, gold fields,
-  violet dusk, green swamp in the open air; then fire, sky, and finally the
-  vats. You asked for colourful outdoors first; the first underground level
-  comes about four hours in.
+- **Colour and mood run from lively to grave, bright to dark.** The
+  creative lead: "we can go from a brighter setting to a darker setting in
+  later regions". Region 1 is bright day; then gold fields, violet dusk,
+  green swamp in the open air; then fire, sky, and finally the vats. Darker
+  regions stay readable: every hazard and creature is seen at a glance. You
+  asked for colourful outdoors first; the first underground level comes
+  about four hours in.
 - **Story:** Kleo leaves home (1), follows the trail of the missing into the
   farmlands where the Silk Mother is cocooning villagers (2), crosses the
   wastes to win the Ash-Walkers' fire (3), finds the Blight's source growing
@@ -251,9 +254,11 @@ Each level hides:
 Tells, always: motes drifting into a false wall, moss on its stones, a Resin
 bead trail leading off the path, a faint Anima glow at a bonus entrance.
 
-**Open:** what bonus tokens buy (proposed: they open each region's secret
-level, as DKC2's Kremkoins open the Lost World), and how the Refuge fills now
-that cocoons are gone (proposed: each region's boss frees its captives).
+**Decided** (the creative lead, 2026-11, "I'll go with suggestions"):
+**bonus tokens open each region's secret level** (as DKC2's Kremkoins open
+the Lost World), and **each region's boss frees its captives**: beating the
+boss sends the people held there to the Refuge, where they open their
+services.
 
 ### Resin on the way
 Beads lead along the main path in short trails (DKC's bananas): they show

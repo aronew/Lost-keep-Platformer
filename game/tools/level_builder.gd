@@ -212,10 +212,11 @@ func _daylight() -> void:
 ## stay faintly visible as they darken, as in the mockups (RUIN_FADE tiles).
 const RUIN := "res://assets/environment/wilds/terrain/"
 const RUIN_FADE := 6.0
-## By day the stone fades far more gently with depth (the mockups' masses are
-## ground all through), which also hides a false wall's cover: its own depth
-## differs from the wall's round the hidden space.
-const RUIN_FADE_DAY := 18.0
+## By day the stone settles into the masses' deep colour (DAY_DEPTH) a few
+## tiles in: the stopgap fill (a 16 px course of W1, moss and all) repeats
+## too plainly to show deep (the creative lead: "all these repetitive tiles
+## on the wall look really weird"). Book 4's D3 is a real fill.
+const RUIN_FADE_DAY := 5.0
 
 func _ruin_material() -> Resource:
 	var m: Resource = load("res://scripts/world/terrain_material.gd").new()
