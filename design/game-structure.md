@@ -135,7 +135,7 @@ lights dark corners and pulses near hidden letters and bonus entrances).
 first plan to keep the kit lean; Memory-Meld survives as the story's Reveal.
 They can come back as late additions if the kit feels thin.
 
-**Her stride** (built, to be tuned by the creative lead's play; from the
+**Her stride** (built; the creative lead, on playing it: "the boost is cool"; from the
 research: Donkey Kong's roll, Mario's run). Run on for a second without
 stopping and Kleo finds her stride: about a third faster (182 px/s against
 140), with a jump of 8.3 tiles against 6.4. It lasts through jumps while she
@@ -238,6 +238,7 @@ lanterns in tree hollows).
   in the level, refills her flames and banks her Resin. (A stand-in sprite
   until the creative lead's art.)
 - It stands **before** the level's hard half, on safe ground.
+- Played and confirmed by the creative lead: "1 checkpoint is perfect."
 - The level's start is the other place she can come back to.
 
 ### Lives or checkpoints: **checkpoints, no lives**
