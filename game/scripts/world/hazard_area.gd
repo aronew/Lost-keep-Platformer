@@ -7,6 +7,9 @@ extends Area2D
 ## area: the room catches a fall out of its bottom edge.
 
 @export var kind := "thorns"
+## Thorns: which way a hit throws her. 0: back out the side she came in by
+## (a narrow bed). -1 or 1: always that way (a wide thicket with one way out).
+@export var push_dir := 0
 
 
 func _ready() -> void:
@@ -30,6 +33,8 @@ func _touch(kleo: Kleo) -> void:
 		var dir := int(signf(kleo.global_position.x - centre))
 		if dir == 0:
 			dir = -kleo.facing
+		if push_dir != 0:
+			dir = push_dir
 		kleo.hurt(dir, true, 1)
 		Fx.burst(kleo, kleo.global_position + Vector2(0, -6), Color(0.86, 0.78, 0.62), 12, 110.0)
 	else:

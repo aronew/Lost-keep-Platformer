@@ -134,6 +134,9 @@ var held: Node = null
 
 func _ready() -> void:
 	add_to_group("player")
+	# A jump from a rising platform keeps its lift; a jump from a falling one
+	# is never weaker (design/rulebook.md K4: a mill's cradle, a hoist).
+	platform_on_leave = CharacterBody2D.PLATFORM_ON_LEAVE_ADD_UPWARD_VELOCITY
 	sprite.frame_changed.connect(_on_frame)
 	sprite.animation_finished.connect(_on_animation_finished)
 	for layer in get_tree().get_nodes_in_group("solid_tiles"):

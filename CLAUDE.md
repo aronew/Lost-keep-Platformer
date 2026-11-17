@@ -4,8 +4,9 @@ A side-scrolling, **level-based action platformer** in **Godot 4.7.2**, in
 premium pixel art. Mostly horizontal levels in the manner of Donkey Kong
 Country: running, jumping, fighting, platforming, hazards and pits, with
 secrets and Resin hidden along the way. Some levels climb (about 2 screens
-wide and 4 to 5 high). Seven regions, each a biome, each a run of levels that
-ends in a boss. It is **not a Metroidvania**: no interconnected map, no
+wide and 4 to 5 high). Seven regions, each a biome: **six regular levels, a
+bonus level, and a boss as its last level** (the creative lead, 2026-11; it
+was five). It is **not a Metroidvania**: no interconnected map, no
 backtracking, no ability-gated locks between levels.
 
 The bar is top-tier, AAA presentation: the world must look natural, real and
@@ -26,6 +27,18 @@ those games to be studied and their methods put into this one; the study is
 here), and its rules now live in `design/game-structure.md` §5. **Read the
 research before designing or changing a level.**
 
+**The rulebook** (`design/rulebook.md`, asked for by the creative lead:
+"TRIPLE A TOP TIER in every way"): the game loop, the economy, the golden
+rules of movement and combat, how levels and secrets are built, how a boss
+is staged, the six-level template, and **an audit of the game against all
+of it**. Every rule has a code (M, E, P, K, C, T, R, A, S, B); level specs
+cite them. Its §4.3 is the checklist a level must pass before it is shown.
+**Read it before designing a level, a creature or a boss.**
+
+**Region 2 has begun.** `design/regions/2_hearth_plains.md` plans its eight
+stops; **2-2 Millers' Row** is built as a blockout (windmills whose cradles
+she rides; bells and wind vanes as the puzzles).
+
 **The loop, as it works today.** The game opens on **the world map**. Kleo
 walks to a stop and enters a level; the level has four beats on one idea,
 one **midway banner** (the only checkpoint), four **letters**, two **bonus
@@ -38,7 +51,10 @@ what is missing in every level.
 |---|---|
 | 1-1 The Overgrown Ruins | Playable, dressed in the dusk kit under daylight. Waiting for Book 4's bright-day art and the creative lead's play |
 | 1-2 The Gate Road | A **blockout**, awaiting review. No art until it is approved |
-| 1-3 to 1-5, 1-S, 1-B | Not started (stops on the map, dim) |
+| 1-3 to 1-5, 1-S, 1-B | Not started (stops on the map, dim). Region 1 also needs a sixth level now |
+| 2-2 Millers' Row | A **blockout**, awaiting review: 14 mills, three puzzles, both tours pass |
+| 2-1, 2-3 to 2-6, 2-?, 2-B | Planned (`design/regions/2_hearth_plains.md`); not started |
+| The rulebook | Written; its proposals await the creative lead (wicks, the bonus level's two doors, the stride cut) |
 | World map, save file | Built, on the creative lead's painted region map ("Flooded Sanctuary") |
 | Kleo's stride | Built; untuned by play |
 | Stand-in sprites | Letters, token, thorn knot, banner (`tools/make_standins.py`) |
@@ -58,7 +74,12 @@ never a lantern**; blockout first, art last.
 The knots' hiding places and the map's look have not been commented on.
 
 **What to do next, in order.**
-1. Take the creative lead's review of the 1-2 blockout and of this
+0. Take the creative lead's word on **the rulebook's proposals and audit**
+   (`design/rulebook.md` §5: the order I would fix things in), on **region
+   2's plan**, and on **the 2-2 blockout** (questions at the end of
+   `design/levels/2-2_millers_row.md`). The audit's first finding is the
+   one that changes levels: **a swing ends her stride** (the stride cut).
+1. Take the creative lead's review of the 1-2 blockout and of that
    session's additions (the questions are at the end of
    `design/levels/1-2_gate_road.md`).
 2. Give 1-2's twist the chain treatment its long pool got
@@ -75,9 +96,11 @@ start.
 
 | File | What it holds |
 |---|---|
+| `design/rulebook.md` | **The rulebook:** the macro loop and economy, the golden rules of movement and combat (with Kleo's measured frame data), telegraphs and fairness, reading the screen, level architecture, the psychology of secrets, boss staging, the six-level template and its checklists, and **the audit** |
+| `design/regions/` | One plan per region (region 2, the Hearth-Plains: eight stops, where each idea came from, what must be built) |
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
-| `design/levels/` | One spec per level, with its validation (1-1; 1-2, a blockout) |
+| `design/levels/` | One spec per level, with its validation (1-1; 1-2 and 2-2, blockouts) |
 | `design/research/platformer-fun.md` | **The research:** what makes 2D platformers fun (DKC 1 to 3, Super Mario), sourced, with what each finding means here and which are built |
 | `design/levels/ratings.md` | The levels' ratings board (×, △, ○, ◎) and the checklist every level is held to |
 | `design/enemies.md` | The creative lead's enemy roster: names, proposed roles, what is in the game |
@@ -227,7 +250,7 @@ game/                     the Godot project
                           lunger, chest, carriable (+ carry_handle),
                           cracked_wall, moving_platform, letter,
                           bonus_zone, bonus_door, bonus_token, level_end,
-                          thorn_knot
+                          thorn_knot; region 2's: windmill, mill_bell
   scripts/ui/             world_map.gd (the map: stops, records, travel)
   scenes/ui/              world_map.tscn (the game opens on it)
   shaders/                terrain fill, water, fog, glow, vignette, hit flash
@@ -239,7 +262,8 @@ game/                     the Godot project
   tools/                  room_builder.gd (shared base), surface_builder.gd,
                           level_builder.gd (the systems and the blockout look),
                           build_l1_1.gd (level 1-1), build_l1_2.gd (level 1-2's
-                          blockout), build_systems.gd (the
+                          blockout), build_l2_2.gd (level 2-2's blockout),
+                          build_systems.gd (the
                           systems arena), build_test_room.gd (IB-01),
                           build_ib03.gd, build_ib04.gd
   tests/                  playtest.gd/.tscn (scripted play + captures), framelog
@@ -354,6 +378,39 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   turning, a hit or a swing ends it. Length, never height. **Design every
   required gap for the plain jump**; the stride is the skilled player's
   shortcut. `room=l1_2 mode=stride` measures it.
+- **Windmills** (`windmill.gd`, `_windmill(centre, radius, arms, period,
+  turn, start_deg, cradle_w, running)`; region 2's machine): the sails
+  turn and a hoist cradle hangs from each arm's tip, level as a Ferris
+  wheel's. Each cradle is a one-way `AnimatableBody2D` on layer 7 whose top
+  travels a circle of `radius` round the node; `turn` 1 is clockwise on
+  screen (the top moves right). She rides them: up and over, or down and
+  under. **A mill is a loop**: staying on brings her round again, so a
+  missed landing costs seconds, never a flame. It eases into every change
+  (`spin_time`). A faint ring marks the cradles' path. `_mill_tower` draws
+  its tower in the blockout's backdrop. **Geometry to keep:** a cradle 3
+  tiles wide wants its centre on a half tile, 2 wide on a whole tile, so
+  its ends meet the grid at 3 and 9 o'clock; leave 2 tiles of air above the
+  whole circle and no solid tile inside its bounds (a rider is pushed off
+  by anything solid, and squeezed by anything above a rising cradle); a
+  one-way branch may hang over a mill's top (she jumps up through it).
+  Mills of one `period` and four arms hand her on with no waiting
+  (rulebook A14).
+- **Bells and wind vanes** (`mill_bell.gd`, `_mill_bell(pos, mills, kind)`):
+  struck by the sword or a thrown crate (layer 3, `take_hit`). **A bell
+  wakes** a sleeping mill (`Windmill.wake`; `running = false` builds one
+  asleep, its sails furled). **A vane turns** its mill the other way
+  (`Windmill.reverse`); its arrow shows which way the top moves. One
+  meaning each, everywhere. A dotted rope runs from each to its mill, and
+  one strike makes one change (0.9 s before the next).
+- **A crate that comes back** (`Carriable.returns`, seconds): for a crate a
+  puzzle needs. **A wide thicket** throws her one way
+  (`HazardArea.push_dir`), so a hit never knocks her deeper in.
+- **A pair takes turns** (`Lunger._may_wind_up`, rulebook T8): only one
+  lunger near her winds up or strikes at a time; the other waits 0.4 s
+  after the first has landed. Every new creature must take the same turn.
+- **A jump from a rising platform keeps its lift**; from a falling one it
+  is never weaker (`kleo.gd`: `platform_on_leave`, upward only; rulebook
+  K4).
 - **The level's end** (`level_end.gd`, `_level_end`): she walks on through,
   the view dims, the tally shows (Resin, letters, tokens, the knot), the
   level is marked done and saved, and she is back on the world map
@@ -379,7 +436,11 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   mark, letters, tokens and knot, plus the Resin. Everything else a level
   remembers is wiped by `Game.enter_level`. Esc leaves a level for the map.
   **A new level needs an entry in `Game.LEVELS`.** `room=map mode=map` tests
-  it.
+  it. **Each region has a page** (`region` in `Game.LEVELS`, 1 unless
+  given): region 1's is the painting; **region 2's is a stand-in drawn in
+  the script** (`R2_PADS`, `_draw_plains`) until the creative lead paints
+  one. **Tab turns the page; F4 opens every built stop** and stays on while
+  the game runs. To play 2-2: F4, Tab, jump.
 - **The art for the systems** comes from the creative lead's Book 3 kit
   (`tools/make_wilds.py`): the chest (3 frames), the HUD lanterns, the Resin
   drop (6 turning frames), the cracked wall and its rubble, the brambles,
@@ -520,9 +581,10 @@ head).
 
 ## Branches
 Work happens on feature branches (Claude's: `claude/...`); the creative lead
-merges finished work into `main`, which holds the current game. The current
-working branch is `claude/region-1-levels` (from `main`, 2026-11; the first
-branch, `claude/platformer-game-setup-oatrq2`, is merged and finished).
+merges finished work into `main`, which holds the current game. Region 2's
+work (the rulebook, the region's plan, the 2-2 blockout) is on
+`claude/happy-feynman-8zne0m` (from `main`, 2026-11). `claude/region-1-levels`
+and `claude/platformer-game-setup-oatrq2` are merged and finished.
 
 ## How to test (use a virtual display in the cloud)
 
@@ -531,8 +593,9 @@ cd game
 xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playtest.tscn -- room=ib03 mode=tour
 ```
 
-- Levels: `l1_1` and `l1_2` (`mode=tour`: the main line; `mode=secrets`:
-  every secret, letter, bonus area and chest; `shots`; `map`) and `sys`, the systems arena
+- Levels: `l1_1`, `l1_2` and `l2_2` (`mode=tour`: the main line; `mode=secrets`:
+  every secret, letter, bonus area and chest; `shots`; `map`; `l2_2` also
+  `knot`, its great secret alone) and `sys`, the systems arena
   (`mode=systems`; run it with `--max-fps 60` too). Rooms: `ib01`
   (default), `ib03`, `ib04`. Output: `game/tests/out/<room>/<mode>/`.
 - **Pictures for a blockout review:** `mode=shots` (one in-game shot per
@@ -545,6 +608,15 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   `doors`, `enemy` (the Mossback), `shots` (screenshots, art and black box),
   `map` (the whole level), `measure` (Kleo's numbers), `edge`, `click`,
   `props` and `hitstop`.
+- **`nocap=1`** runs a tour without saving a frame every other tick: about
+  twice as fast, and the routes and results are still written. Use it
+  while working; drop it for the film.
+- **A tour's frames are game frames.** A hit-stop ends on the real clock,
+  so `_step` waits it out: count frames, never hit-stops. A rider is known
+  by where she stands (`_ride`), not by a collision report.
+- **Riding in a tour** (`playtest.gd`, level 2-2's helpers): `_await_cradle`
+  (wait for a cradle between two angles), `_onto`, `_ride`, `_alight`,
+  `_over` (a whole crossing), `_hand_over` (cradle to cradle), `_leap`.
 - Run `props`, `hitstop` and `enemy` **without** `--fixed-fps` (use
   `--max-fps 60`): timing bugs only show with real frame times.
 - Then `python3 tools/stitch_map.py ib03` (map images and walked routes),
@@ -663,6 +735,27 @@ set"): the slab is an earth terrace on earth piers (`DAY_PIERS`), which the
 creative lead approved ("the slab looks good like that").
 `docs/mockups/platformer/world_map/` holds the creative lead's map mockup
 (a map screen for each region's levels).
+
+## Open items (region 2 and the rulebook)
+- **Level 2-2, Millers' Row: a blockout, awaiting the creative lead's
+  review** (`design/levels/2-2_millers_row.md`, pictures in
+  `docs/levels/2-2/blockout/`). No art: there are no region 2 mockups yet.
+  Its hood is the roster's `hood_knife` as a lunger.
+- **The mills are not in the systems arena**; 2-2's two tours are their
+  proof. Add a mill, a bell and a vane to the arena when it is next
+  rebuilt.
+- **The rulebook's proposals await the creative lead:** wicks (E3), the
+  bonus level's two doors (S9), Resin paid once (E8), knots opening
+  Morvath's Observatory (E7), the stride cut and a jump out of a hit that
+  lands (C3, C4).
+- **Six levels a region:** region 1 needs a sixth level (its remix), and
+  its painted map a seventh pad, or the boss through level 6's gate.
+  `Game.LEVELS` still lists region 1 as five, a secret and a boss.
+- **There is no sound in the game at all** (rulebook R12).
+- **Region 2's map page is a stand-in** drawn in code.
+- **IB-04's room tour** (`room=ib04 mode=tour`) reports "0 of 7 jumps
+  landed" on the pool's low path, on `main` as it was merged too: an old
+  fault in the carried-over room's scripted route, not in the level code.
 
 ## Open items
 - **Level 1-1: lit as bright day, letters and two bonus areas in, awaiting

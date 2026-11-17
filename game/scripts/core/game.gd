@@ -113,7 +113,8 @@ var _hud_layer: CanvasLayer
 # --- The world: its levels, what is found in each, the save file ---------------
 ## The world map, where a level's end leads.
 const MAP_SCENE := "res://scenes/ui/world_map.tscn"
-## Region 1's stops in order. A stop with no scene isn't built yet. `node` is
+## The stops in order, region by region (`region`, 1 unless given). A stop
+## with no scene isn't built yet. `node` is
 ## the level's root node (its "level_done_" flag); `prefix` starts every flag
 ## the level owns. `letters`, `tokens` and `knot` are what the map keeps score
 ## of: these flags, and each level's done flag, are all that is saved.
@@ -132,6 +133,20 @@ const LEVELS := [
 	# On the map the secret level hangs off the path, and the boss follows 1-5.
 	{"id": "1-S", "name": "The Hollow Oak", "scene": "", "after": "1-5"},
 	{"id": "1-B", "name": "The Keep Gate", "scene": "", "after": "1-5"},
+	# Region 2, the Hearth-Plains: six levels, the bonus level, the boss
+	# (design/rulebook.md M9; design/regions/2_hearth_plains.md). Its page of
+	# the map is a stand-in (world_map.gd). The first stop follows 1-B.
+	{"id": "2-1", "name": "The Golden Road", "scene": "", "region": 2},
+	{"id": "2-2", "name": "Millers' Row", "node": "L2_2_MillersRow", "prefix": "l22_", "region": 2,
+		"scene": "res://scenes/levels/l2_2_millers_row.tscn",
+		"letters": ["l22_letter_k", "l22_letter_l", "l22_letter_e", "l22_letter_o"],
+		"tokens": ["l22_token1", "l22_token2"], "knot": "l22_knot"},
+	{"id": "2-3", "name": "The Great Mill", "scene": "", "region": 2},
+	{"id": "2-4", "name": "The Thorn Hedges", "scene": "", "region": 2},
+	{"id": "2-5", "name": "The Harvest Run", "scene": "", "region": 2},
+	{"id": "2-6", "name": "Silkfall", "scene": "", "region": 2},
+	{"id": "2-S", "name": "The Loom Loft", "scene": "", "region": 2, "after": "2-6"},
+	{"id": "2-B", "name": "The Silk Mother", "scene": "", "region": 2, "after": "2-6"},
 ]
 ## Where the game is saved. Tests turn saving off.
 var save_path := "user://save.json"

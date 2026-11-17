@@ -29,6 +29,7 @@ const ROOMS := {
 	"sys": "res://scenes/levels/systems_arena.tscn",
 	"l1_1": "res://scenes/levels/l1_1_overgrown_ruins.tscn",
 	"l1_2": "res://scenes/levels/l1_2_gate_road.tscn",
+	"l2_2": "res://scenes/levels/l2_2_millers_row.tscn",
 }
 const TILE := 16.0
 
@@ -43,6 +44,8 @@ var only := ""
 var out_dir := ""
 var _frame := 0
 var _held := {}
+## nocap=1: a tour saves no frames (the routes and the results still are): faster.
+var _no_frames := false
 
 
 func _ready() -> void:
@@ -53,6 +56,8 @@ func _ready() -> void:
 			room_id = arg.substr(5)
 		if arg.begins_with("only="):
 			only = arg.substr(5)
+		if arg == "nocap=1":
+			_no_frames = true
 	out_dir = "res://tests/out/" + ("" if room_id == "ib01" else room_id + "/") + mode
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	# Tests start from nothing and leave the player's save alone.
@@ -96,6 +101,23 @@ func _ready() -> void:
 				await _secrets_l1_2()
 			"stride":
 				await _stride_l1_2()
+			"shots":
+				await _shots()
+			"map":
+				await _map()
+		get_tree().quit()
+		return
+	if room_id == "l2_2":
+		match mode:
+			"tour":
+				await _tour_l2_2()
+			"secrets":
+				await _secrets_l2_2()
+			"knot":
+				var res := []
+				_start_tour()
+				await _knot_l2_2(res)
+				_results(res, [], "knot")
 			"shots":
 				await _shots()
 			"map":
@@ -220,6 +242,11 @@ func _shots() -> void:
 		# The bonus areas' Resin, lit as it is while a bonus runs.
 		for z in _find("bonus_zone"):
 			z._show_beads(true)
+	if room_id == "l2_2":
+		places = SHOTS_L22
+		_calm_enemies()
+		for z in _find("bonus_zone"):
+			z._show_beads(true)
 	if room_id == "sys":
 		places = [["01_arena", 20.0, 20, 1], ["02_bonus", 72.0, 20, 1], ["03_platform", 96.0, 20, 1]]
 	if room_id == "ib03":
@@ -233,7 +260,7 @@ func _shots() -> void:
 			room.call("set_area", p[4] if p.size() > 4 else Rect2i())
 		_place(p[1], p[2], p[3])
 		# long enough for a banner set off by the shot before (1.5 s) to fade
-		await _frames(100 if room_id.begins_with("l1_") else 40)
+		await _frames(100 if room_id.begins_with("l1_") or room_id.begins_with("l2_") else 40)
 		await _capture(p[0])
 	get_tree().call_group("box_view", "set_box_view", true)
 	for p in places:
@@ -258,11 +285,19 @@ var _cam_log: FileAccess
 func _step() -> void:
 	await get_tree().physics_frame
 	await get_tree().process_frame
+	# A hit-stop ends on the real clock, so how many frames it lasts depends
+	# on how fast the test runs: its frames don't count as a tour's.
+	var held := 0
+	while Game.in_hitstop() and held < 400:
+		await get_tree().physics_frame
+		await get_tree().process_frame
+		held += 1
 	# Every frame: Kleo and the view, for tools/camera_report.py.
 	var view := cam.get_screen_center_position()
 	_cam_log.store_line("%.2f,%.2f,%.2f,%.2f" % [kleo.global_position.x, kleo.global_position.y, view.x, view.y])
 	if _n % 2 == 0:
-		await _capture("f%04d" % (_n / 2))
+		if not _no_frames:
+			await _capture("f%04d" % (_n / 2))
 		var sp := kleo.get_global_transform_with_canvas().origin
 		_log.store_line("%d,%d,%d,%s,%d,%d,%d" % [_n / 2, int(sp.x), int(sp.y), kleo.sprite.animation,
 			kleo.sprite.frame, int(kleo.global_position.x), int(kleo.global_position.y)])
@@ -829,6 +864,10 @@ func _map() -> void:
 	_map_hide()
 	cam.target = null
 	cam.offset = Vector2.ZERO
+	# The whole room, bonus areas too (the level's own bounds would hold the
+	# view to its main area).
+	if room.has_method("set_area"):
+		room.call("set_area", room.room_rect)
 	var rect: Rect2i = room.room_rect
 	var size := Vector2(rect.size * 16)
 	var xs := []
@@ -837,7 +876,10 @@ func _map() -> void:
 		xs.append(x)
 		x += 640.0
 	xs.append(size.x - 320.0)
-	var ys := [180.0, size.y - 180.0]
+	# Rows of screens down the room (two for a 40-row room; a taller one needs more).
+	var ys := [180.0]
+	while ys[-1] < size.y - 180.0:
+		ys.append(minf(ys[-1] + 360.0, size.y - 180.0))
 	var lines := []
 	for view in ["art", "box"]:
 		get_tree().call_group("box_view", "set_box_view", view == "box")
@@ -1833,6 +1875,578 @@ func _map_test() -> void:
 	await _frames(40)
 	res.append(["jump enters the level she stands on", _entered == Game.LEVELS[1]["scene"]])
 	res.append(["entering puts the level's beads back and keeps its letters", not Game.flags.has("l12_a_0") and Game.flags.has("l12_letter_k")])
+	# Region 2's page (a stand-in): Tab turns to it; its stops are shut until
+	# the stop before each is done, or F4 opens every built one.
+	map._busy = false
+	map._turn_page()
+	await _frames(6)
+	res.append(["Tab turns to region 2's page; 2-2 is shut (2-1 isn't built)", map._region == 2 and not map._open(8)])
+	map._turn_page()
+	map._all_open = true
+	map._turn_page()
+	await _frames(20)
+	await _capture("04_region_2")
+	res.append(["with every built stop open (F4), she stands on 2-2", map._region == 2 and map._stop == 8 and map._open(8)])
+	res.append(["region 2 has eight stops: six levels, the bonus level, the boss",
+		Game.LEVELS.filter(func(l): return int(l.get("region", 1)) == 2).size() == 8])
+	_entered = ""
+	await _key("jump")
+	await _frames(40)
+	res.append(["jump enters 2-2", _entered == Game.LEVELS[8]["scene"]])
+	map._all_open = false
 	Game.save_enabled = false
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(Game.save_path))
 	_results(res, [], "map")
+
+
+# --- Level 2-2 (room=l2_2) ------------------------------------------------------------------------
+
+const SHOTS_L22 := [
+	["01_start_cart_rut", 14.0, 30, 1],
+	["02_first_mill_over_the_road", 36.0, 30, 1],
+	["03_yard_false_wall", 52.0, 24, 1],
+	["04_first_gorge_letter_k", 85.0, 27, 1],
+	["05_great_wheel_stay_on", 117.0, 24, 1],
+	["06_cave_bonus2_entrance", 139.0, 29, 1],
+	["07_threshing_road_rats_hoist", 163.0, 30, 1],
+	["08_twin_mills", 199.0, 22, 1],
+	["09_roof_road", 234.0, 13, 1],
+	["10_narrow_cradles_high_landing", 245.0, 22, 1],
+	["11_midway_banner_sleeping_mill", 281.0, 18, 1],
+	["12_hood", 315.0, 18, 1],
+	["13_wrong_way_mill_vane", 326.0, 18, 1],
+	["14_bramble_lane", 331.0, 25, 1],
+	["15_far_bell_crate", 367.0, 21, 1],
+	["16_old_mill_thorn_knot", 422.0, 21, 1],
+	["17_three_mills_in_step", 445.0, 21, 1],
+	["18_great_mills_door", 508.0, 20, 1],
+	["19_bonus_wheel", 556.0, 40, 1, Rect2i(542, 20, 44, 26)],
+	["20_bonus_sails", 596.0, 36, 1, Rect2i(590, 20, 44, 26)],
+]
+
+
+func _wm(mill_name: String) -> Windmill:
+	return room.get_node(mill_name) as Windmill
+
+
+## The cradle (or hoist) she stands on, or null.
+func _riding() -> Node:
+	if not kleo.is_on_floor():
+		return null
+	for i in kleo.get_slide_collision_count():
+		var c := kleo.get_slide_collision(i).get_collider()
+		if c is AnimatableBody2D:
+			return c
+	return null
+
+
+func _ang_in(a: float, a0: float, a1: float) -> bool:
+	return (a >= a0 and a <= a1) if a0 <= a1 else (a >= a0 or a <= a1)
+
+
+## Wait for a cradle of `m` to be between `a0` and `a1` degrees; its index, or -1.
+func _await_cradle(m: Windmill, a0: float, a1: float, limit := 900) -> int:
+	for k in limit:
+		for i in m.cradle_count():
+			if _ang_in(m.cradle_angle(i), a0, a1):
+				return i
+		await _step()
+	return -1
+
+
+func _steer(tx: float, slack := 4.0) -> void:
+	var dx := tx - kleo.global_position.x
+	if dx > slack:
+		_release("move_left")
+		_press("move_right")
+	elif dx < -slack:
+		_release("move_right")
+		_press("move_left")
+	else:
+		_release("move_left")
+		_release("move_right")
+
+
+## A jump held `hold` frames, steered toward `target` (a Callable giving an x,
+## so it can follow a cradle) until `landed` is true.
+func _leap(target: Callable, landed: Callable, hold := 6, limit := 170) -> bool:
+	_press("jump")
+	for i in limit:
+		await _step()
+		if i == hold:
+			_release("jump")
+		_steer(target.call())
+		if i > 4 and landed.call():
+			break
+	_release_all()
+	await _wait(3)
+	return landed.call()
+
+
+## Onto cradle `i` of `m` from where she stands.
+func _onto(m: Windmill, i: int, hold := 6) -> bool:
+	return await _leap(func() -> float: return m.cradle_top(i).x, func() -> bool: return _riding() == m.cradle(i), hold)
+
+
+## Stand on cradle `i` of `m`, keeping to its middle, until `done`.
+func _ride(m: Windmill, i: int, done: Callable, limit := 1200) -> bool:
+	var off := 0
+	for k in limit:
+		await _step()
+		_steer(m.cradle_top(i).x, 5.0)
+		if done.call():
+			_release_all()
+			return true
+		var top := m.cradle_top(i)
+		var on: bool = absf(kleo.global_position.y - top.y) < 7.0 and absf(kleo.global_position.x - top.x) < float(m.cradle(i).get_meta("width")) * 0.5 + 6.0
+		off = off + 1 if not on else 0
+		if off > 20:
+			break
+	_release_all()
+	return false
+
+
+func _on_tiles(row: int, x0: float, x1: float) -> bool:
+	return _floor_at(row) and _riding() == null and kleo.global_position.x >= x0 * TILE - 6.0 and kleo.global_position.x <= x1 * TILE + 6.0
+
+
+## Off a cradle onto the ground [x0, x1] (tiles) on `row`.
+func _alight(x0: float, x1: float, row: int, hold := 6) -> bool:
+	var mid := (x0 + x1) * 0.5 * TILE
+	var near := x0 * TILE + 14.0 if kleo.global_position.x < mid else x1 * TILE - 14.0
+	return await _leap(func() -> float: return near, func() -> bool: return _on_tiles(row, x0, x1), hold)
+
+
+func _go(x: float, limit := 400) -> void:
+	var px := x * TILE
+	if kleo.global_position.x > px:
+		await _hold_until(["move_left"], func(): return kleo.global_position.x <= px, limit)
+	else:
+		await _hold_until(["move_right"], func(): return kleo.global_position.x >= px, limit)
+	await _wait(4)
+
+
+## Over a mill that turns clockwise: from its west landing (its edge at
+## `west` tiles) onto a cradle coming up to it, over the top, and off onto
+## the ground [x0, x1] on `row`, once the cradle is between `out0` and `out1`.
+func _over(mill_name: String, west: float, x0: float, x1: float, row: int, out0 := 336.0, out1 := 356.0, hold_out := 6) -> bool:
+	var m := _wm(mill_name)
+	await _go(west - 0.5)
+	var i := await _await_cradle(m, 152.0, 168.0)
+	if i < 0 or not await _onto(m, i):
+		print("  %s: not boarded (x %.0f y %.0f)" % [mill_name, kleo.global_position.x, kleo.global_position.y])
+		return false
+	if not await _ride(m, i, func() -> bool: return _ang_in(m.cradle_angle(i), out0, out1)):
+		print("  %s: fell off the ride" % mill_name)
+		return false
+	var ok := await _alight(x0, x1, row, hold_out)
+	if not ok:
+		print("  %s: missed the landing (x %.0f y %.0f)" % [mill_name, kleo.global_position.x, kleo.global_position.y])
+	return ok
+
+
+## From cradle `i` of `a` to the cradle of `b` that comes to meet it.
+func _hand_over(a: Windmill, i: int, b: Windmill, a0: float, a1: float, hold := 6) -> int:
+	if not await _ride(a, i, func() -> bool: return _ang_in(a.cradle_angle(i), a0, a1)):
+		return -1
+	var j := 0
+	for k in b.cradle_count():
+		if absf(angle_difference(deg_to_rad(b.cradle_angle(k)), PI)) < absf(angle_difference(deg_to_rad(b.cradle_angle(j)), PI)):
+			j = k
+	return j if await _onto(b, j, hold) else -1
+
+
+func _strike(x: float, face := 1) -> void:
+	await _go(x)
+	kleo.facing = face
+	await _wait(4)
+	await _tap("attack")
+	await _wait(40)
+
+
+func _tour_l2_2() -> void:
+	_calm_enemies()
+	var res := []
+	_start_tour()
+	await _wait(20)
+	# TEACH: the rut, the first mill.
+	res.append(["over the cart rut (5 across)", await _hop(18, 23, 30, 30)])
+	var m1 := _wm("Mill1")
+	await _go(39.0)
+	var i := await _await_cradle(m1, 96.0, 112.0)
+	res.append(["the first mill: up onto a cradle from the road", await _onto(m1, i, 20)])
+	await _ride(m1, i, func() -> bool: return _ang_in(m1.cradle_angle(i), 350.0, 359.0))
+	res.append(["it lifts her to the yard (6 up)", await _alight(47, 69, 24)])
+	res.append(["down the step", await _off(69, 27)])
+	res.append(["down to the road", await _off(73, 30)])
+	res.append(["the bank (3 up)", await _rise(80, 87, 27)])
+	# TEST.
+	res.append(["the first gorge: over the top (4 cradles)", await _over("Mill2", 87, 102, 112, 27)])
+	res.append(["a step up (3)", await _rise(112, 118, 24)])
+	res.append(["the great wheel (3 cradles): over the top", await _over("Mill3", 118, 137, 150, 24)])
+	res.append(["down the step", await _off(150, 27)])
+	res.append(["down to the threshing road", await _off(154, 30)])
+	await _go(174.5)
+	var hoist: Node = _find("moving_platform")[0]
+	res.append(["onto the sack hoist (1 up)", await _leap(func() -> float: return 174.5 * TILE, func() -> bool: return _riding() == hoist, 14)])
+	for k in 400:
+		await _step()
+		if kleo.global_position.y <= 22.0 * TILE + 2.0 and _riding() == hoist:
+			break
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 178.0 * TILE, 200)
+	await _wait(6)
+	res.append(["the hoist lifts her to the granary (8 up)", _on_tiles(22, 176, 200)])
+	var a := _wm("Mill4a")
+	var b := _wm("Mill4b")
+	await _go(199.5)
+	i = await _await_cradle(a, 152.0, 168.0)
+	res.append(["the twin mills: onto the first", await _onto(a, i)])
+	var j := await _hand_over(a, i, b, 344.0, 358.0)
+	res.append(["cradle to cradle, over the gorge", j >= 0])
+	await _ride(b, maxi(j, 0), func() -> bool: return _ang_in(b.cradle_angle(maxi(j, 0)), 336.0, 356.0))
+	res.append(["off onto the upper field", await _alight(230, 246, 22)])
+	res.append(["the narrow cradles; off early, onto the high landing (4 above the hub)",
+		await _over("Mill5", 246, 264, 290, 18, 306.0, 322.0, 12)])
+	# The banner.
+	await _go(275.0)
+	res.append(["the midway banner flies (the level's one checkpoint)", _find("checkpoint").size() == 1 and _find("checkpoint")[0].lit])
+	# TWIST.
+	var w1 := _wm("Sleeper")
+	await _wait(60)
+	res.append(["the first mill of the twist is asleep", not w1.is_awake() and absf(w1.pace()) < 0.01])
+	await _strike(285.0)
+	res.append(["a sword strike rings its bell: it wakes", w1.is_awake()])
+	res.append(["over the woken mill", await _over("Sleeper", 290, 305, 327, 18)])
+	var w2 := _wm("WrongWay")
+	res.append(["the wrong-way mill turns counter-clockwise (down into the brambles)", w2.turn == -1])
+	await _strike(323.6)
+	await _wait(150)
+	res.append(["a strike on the vane turns it: clockwise, up and over", w2.turn == 1 and w2.pace() > 0.95])
+	res.append(["over it", await _over("WrongWay", 327, 344, 360, 18)])
+	res.append(["down the step", await _off(360, 21)])
+	# The far bell: lift the crate, throw it from the landing's edge.
+	var w3 := _wm("FarBell")
+	await _go(363.2)
+	await _tap("interact")
+	await _wait(30)
+	res.append(["the crate, lifted", kleo.held != null])
+	await _go(369.2)
+	kleo.facing = 1
+	await _wait(6)
+	await _tap("attack")
+	await _wait(70)
+	res.append(["thrown across the gorge, it rings the bell at the hub: the mill wakes", w3.is_awake()])
+	res.append(["over the woken mill", await _over("FarBell", 370, 386, 404, 21)])
+	res.append(["over the last plain mill", await _over("Mill6", 404, 420, 446, 21)])
+	# FINISH: three mills in step.
+	var f1 := _wm("Flow1")
+	var f2 := _wm("Flow2")
+	var f3 := _wm("Flow3")
+	await _go(445.5)
+	i = await _await_cradle(f1, 152.0, 168.0)
+	res.append(["three mills in step: onto the first", await _onto(f1, i)])
+	j = await _hand_over(f1, i, f2, 344.0, 358.0)
+	res.append(["to the second (2 across, 2 down)", j >= 0])
+	var k2 := await _hand_over(f2, maxi(j, 0), f3, 344.0, 358.0)
+	res.append(["to the third, which goes under (2 across)", k2 >= 0])
+	await _ride(f3, maxi(k2, 0), func() -> bool: return _ang_in(f3.cradle_angle(maxi(k2, 0)), 346.0, 358.0))
+	res.append(["up its far side and off onto the Great Mill's steps", await _alight(486, 500, 23)])
+	res.append(["the last step (3 up)", await _rise(500, 530, 20)])
+	var end: Node = _find("level_end")[0]
+	await _hold_until(["move_right"], func(): return end.done, 400)
+	await _wait(10)
+	res.append(["through the Great Mill's door: the level ends", end.done])
+	_results(res, ["flames left %d; Resin on the main line %d" % [Game.health, Game.currency]], "tour")
+
+
+func _on_y(y: float) -> bool:
+	return kleo.is_on_floor() and absf(kleo.global_position.y - y) < 2.5 and _riding() == null
+
+
+## A running jump from `takeoff` to `target` (tiles).
+func _run_leap(takeoff: float, target: float, landed: Callable, hold := 30) -> bool:
+	var dir := 1.0 if target > takeoff else -1.0
+	var key := "move_right" if dir > 0.0 else "move_left"
+	await _hold_until([key], func(): return dir * (kleo.global_position.x - takeoff * TILE) >= 0.0, 300)
+	_press(key)
+	return await _leap(func() -> float: return target * TILE, landed, hold)
+
+
+func _chest_by(flag: String) -> Node:
+	for c in _find("chest"):
+		if c.flag == flag:
+			return c
+	return null
+
+
+func _zone_by(flag: String) -> BonusZone:
+	for z in _find("bonus_zone"):
+		if z.token.flag == flag:
+			return z
+	return null
+
+
+## The secrets: every letter, chest, bonus area and dare, and the knot.
+func _secrets_l2_2() -> void:
+	_calm_enemies()
+	var res := []
+	_start_tour()
+	await _wait(20)
+	# The yard can't be reached from the road: the mill is the way.
+	_place(45.5, 30)
+	await _wait(10)
+	await _hop_up(24)
+	res.append(["from the road, the yard is out of reach (6 up)", _floor_at(30)])
+	# The false wall under the yard: letter E.
+	var cover: Node = room.get_node("YardWall")
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 49.6 * TILE, 200)
+	await _wait(40)
+	res.append(["the road's dead end is a false wall: it fades while she is inside", cover.modulate.a < 0.1])
+	res.append(["letter E (behind the false wall)", _letter_taken("E")])
+	await _hold_until(["move_left"], func(): return kleo.global_position.x < 44.0 * TILE, 200)
+	await _wait(70)
+	res.append(["the wall closes again once she leaves", cover.modulate.a > 0.95])
+	_place(50.6, 24)
+	await _wait(10)
+	await _tap("attack")
+	await _wait(40)
+	res.append(["the yard's chest opens", _chest_by("l22_chest1").opened])
+	# Letter K: a hop at the top of the first gorge's ride. Then stay on,
+	# round the bottom, for the risky Resin, and off the second time round.
+	_place(84.0, 27)
+	await _wait(10)
+	var m2 := _wm("Mill2")
+	await _go(86.5)
+	var i := await _await_cradle(m2, 152.0, 168.0)
+	await _onto(m2, i)
+	await _ride(m2, i, func() -> bool: return _ang_in(m2.cradle_angle(i), 258.0, 266.0))
+	await _leap(func() -> float: return m2.cradle_top(i).x, func() -> bool: return _riding() == m2.cradle(i), 30)
+	res.append(["letter K (a hop at the top of the ride)", _letter_taken("K")])
+	var before := Game.currency
+	await _ride(m2, i, func() -> bool: return _ang_in(m2.cradle_angle(i), 20.0, 30.0))
+	before = Game.currency
+	await _ride(m2, i, func() -> bool: return _ang_in(m2.cradle_angle(i), 140.0, 150.0))
+	res.append(["she stays on past the landing: round the bottom, over the gorge, the risky Resin (5)", Game.currency - before >= 5])
+	await _ride(m2, i, func() -> bool: return _ang_in(m2.cradle_angle(i), 336.0, 356.0))
+	res.append(["and the mill brings her round to the landing again", await _alight(102, 112, 27)])
+	# The great wheel: stay on past the landing, down to the cliff's foot.
+	_place(115.0, 24)
+	await _wait(10)
+	var m3 := _wm("Mill3")
+	await _go(117.5)
+	i = await _await_cradle(m3, 152.0, 168.0)
+	await _onto(m3, i)
+	await _ride(m3, i, func() -> bool: return _ang_in(m3.cradle_angle(i), 36.0, 44.0))
+	res.append(["the great wheel: she stays on, and steps off at the cliff's foot (5 below the landing)", await _alight(135, 137, 29, 3)])
+	var sails := _zone_by("l22_token2")
+	await _hold_until(["move_right"], func(): return sails.running(), 300)
+	res.append(["the cave under the landing takes her to bonus 2", sails.running()])
+	await _wait(10)
+	var ba := _wm("BonusSailA")
+	var bb := _wm("BonusSailB")
+	await _go(597.5)
+	i = await _await_cradle(ba, 152.0, 168.0)
+	var run := await _onto(ba, i)
+	await _ride(ba, i, func() -> bool: return _ang_in(ba.cradle_angle(i), 336.0, 356.0))
+	run = await _alight(610, 613, 36) and run
+	await _go(612.4)
+	i = await _await_cradle(bb, 160.0, 176.0)
+	run = await _onto(bb, i) and run
+	await _ride(bb, i, func() -> bool: return _ang_in(bb.cradle_angle(i), 344.0, 357.0))
+	run = await _alight(625, 634, 36) and run
+	await _go(629.8)
+	res.append(["bonus 2: over the first mill, under the second", run])
+	res.append(["bonus 2: all %d Resin taken (%d left, %.1f s to spare)" % [sails.beads.get_child_count(), sails.remaining(), maxf(sails._left, 0.0)], sails.remaining() == 0])
+	_bead_report(sails)
+	await _go(631.0)
+	await _hop_up(36)
+	res.append(["bonus 2's token", Game.flags.has("l22_token2")])
+	await _bonus_over()
+	res.append(["back out in the cave", absf(kleo.global_position.x - 139.5 * TILE) < 3.0 and _floor_at(29)])
+	res.append(["back up from the cliff's foot (a 5-tile ledge catch)", await _jump_to(136.2 * TILE, 137.0 * TILE + 3.0, 150.0 * TILE, 24)])
+	_place(182.6, 22)
+	await _wait(10)
+	await _tap("attack")
+	await _wait(40)
+	res.append(["the granary's chest opens", _chest_by("l22_chest2").opened])
+	# The roof road: straight up from the top of the second twin.
+	_place(198.0, 22)
+	await _wait(10)
+	var a := _wm("Mill4a")
+	var b := _wm("Mill4b")
+	await _go(199.5)
+	i = await _await_cradle(a, 152.0, 168.0)
+	await _onto(a, i)
+	var j := maxi(await _hand_over(a, i, b, 344.0, 358.0), 0)
+	await _ride(b, j, func() -> bool: return _ang_in(b.cradle_angle(j), 256.0, 264.0))
+	res.append(["the roof road: straight up from the top of the wheel, through the branch (2.75 up)",
+		await _leap(func() -> float: return 222.5 * TILE, func() -> bool: return _on_y(228.0), 30)])
+	res.append(["to the second roof (3.5 across, 1 up)", await _run_leap(225.0, 231.0, func() -> bool: return _on_y(212.0))])
+	await _go(236.5)
+	res.append(["to the third (4 across, 1.25 up)", await _run_leap(238.5, 244.5, func() -> bool: return _on_y(192.0))])
+	await _go(245.8)
+	res.append(["letter L (on the roof road)", _letter_taken("L")])
+	res.append(["to the fourth, the highest (4 across, 1.75 up)", await _run_leap(247.5, 253.5, func() -> bool: return _on_y(164.0))])
+	await _go(259.5)
+	res.append(["down to the last roof (4 across, 2.75 down)", await _run_leap(260.5, 266.5, func() -> bool: return _on_y(208.0), 10)])
+	var wheel := _zone_by("l22_token1")
+	await _hold_until(["move_right"], func(): return wheel.running(), 300)
+	res.append(["the hollow at the roof road's end takes her to bonus 1", wheel.running()])
+	await _wait(10)
+	var bw := _wm("BonusWheel")
+	await _go(562.6)
+	i = await _await_cradle(bw, 66.0, 84.0)
+	run = await _onto(bw, i, 16)
+	await _ride(bw, i, func() -> bool: return _ang_in(bw.cradle_angle(i), 258.0, 266.0))
+	await _leap(func() -> float: return bw.cradle_top(i).x, func() -> bool: return _riding() == bw.cradle(i), 30)
+	await _ride(bw, i, func() -> bool: return _ang_in(bw.cradle_angle(i), 0.0, 20.0))
+	await _ride(bw, i, func() -> bool: return _ang_in(bw.cradle_angle(i), 96.0, 110.0))
+	run = run and _riding() == bw.cradle(i)
+	res.append(["bonus 1: once round the great wheel, a hop at its top", run])
+	res.append(["bonus 1: all %d Resin taken (%d left, %.1f s to spare)" % [wheel.beads.get_child_count(), wheel.remaining(), maxf(wheel._left, 0.0)], wheel.remaining() == 0])
+	_bead_report(wheel)
+	await _hold_until(["move_left"], func(): return Game.flags.has("l22_token1") or kleo.global_position.x < 548.0 * TILE, 300)
+	res.append(["bonus 1's token (off the wheel, on the floor)", Game.flags.has("l22_token1")])
+	await _bonus_over()
+	res.append(["back out beside the hollow, on the last roof", absf(kleo.global_position.x - 267.0 * TILE) < 3.0 and _on_y(208.0)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x > 271.6 * TILE, 200)
+	for k in 120:
+		await _step()
+		if kleo.is_on_floor():
+			break
+	await _wait(8)
+	res.append(["off the roof's end onto the midway terrace (the hollow, won, lets her by)", _on_tiles(18, 264, 290)])
+	# The wrong way: on the mill as it first turns, down into the brambles.
+	# One flame, and she lands in the lane, not in a pit.
+	_place(323.0, 18)
+	await _wait(10)
+	var w2 := _wm("WrongWay")
+	await _go(326.5)
+	i = await _await_cradle(w2, 162.0, 176.0)
+	await _onto(w2, i)
+	var flames := Game.health
+	for k in 600:
+		await _step()
+		if Game.health < flames:
+			break
+	_release_all()
+	for k in 240:
+		await _step()
+		if kleo.is_on_floor() and kleo.state == Kleo.State.NORMAL:
+			break
+	await _wait(20)
+	res.append(["the wrong way: the cradle takes her down into the brambles (one flame, no more)", Game.health == flames - 1])
+	res.append(["thrown clear, she is in the lane under the mill, not in a pit", _on_tiles(25, 327, 338)])
+	await _go(330.2)
+	kleo.facing = 1
+	await _wait(6)
+	await _tap("attack")
+	await _wait(40)
+	res.append(["the lane's chest opens", _chest_by("l22_chest3").opened])
+	await _go(327.4)
+	kleo.facing = 1
+	await _wait(6)
+	await _tap("attack")
+	await _wait(170)
+	res.append(["the lane has a vane of its own: struck, the mill turns clockwise", w2.turn == 1 and w2.pace() > 0.95])
+	await _go(334.6)
+	i = await _await_cradle(w2, 64.0, 82.0)
+	res.append(["up onto a cradle from the lane (1 up)", await _onto(w2, i, 16)])
+	await _ride(w2, i, func() -> bool: return _ang_in(w2.cradle_angle(i), 336.0, 356.0))
+	res.append(["it carries her up its west side, over the top, to the far landing", await _alight(344, 360, 18)])
+	await _knot_l2_2(res)
+	# Letter O, over the hand-over to the third of the last three mills.
+	_place(444.0, 21)
+	await _wait(10)
+	var f1 := _wm("Flow1")
+	var f2 := _wm("Flow2")
+	var f3 := _wm("Flow3")
+	await _go(445.5)
+	i = await _await_cradle(f1, 152.0, 168.0)
+	await _onto(f1, i)
+	j = maxi(await _hand_over(f1, i, f2, 344.0, 358.0), 0)
+	var k2 := maxi(await _hand_over(f2, j, f3, 344.0, 358.0, 14), 0)
+	res.append(["letter O (over the last hand-over)", _letter_taken("O")])
+	res.append(["all four letters: K-L-E-O", Game.letters_found() == 4])
+	await _ride(f3, k2, func() -> bool: return _ang_in(f3.cradle_angle(k2), 346.0, 358.0))
+	await _alight(486, 500, 23)
+	_place(506.6, 20)
+	await _wait(10)
+	await _tap("attack")
+	await _wait(40)
+	res.append(["the chest by the Great Mill's door opens", _chest_by("l22_chest4").opened])
+	# A pair takes turns (design/rulebook.md T8): she stands between the two
+	# rats, and no two wind-ups or lunges ever overlap.
+	var rats := _find("enemy").filter(func(e): return e is Lunger and e.global_position.x < 200.0 * TILE)
+	for e in rats:
+		e.process_mode = Node.PROCESS_MODE_INHERIT
+	_place(163.5, 30)
+	kleo._invuln = 99.0
+	var both := 0
+	var lunges := 0
+	var was := [false, false]
+	for k in 600:
+		await _step()
+		var busy := 0
+		for n in rats.size():
+			var s: int = rats[n].state
+			var striking := s == Lunger.S.WINDUP or s == Lunger.S.LUNGE
+			if striking:
+				busy += 1
+			if s == Lunger.S.LUNGE and not was[n]:
+				lunges += 1
+			was[n] = s == Lunger.S.LUNGE
+		if busy > 1:
+			both += 1
+	kleo._invuln = 0.0
+	res.append(["the pair of rats take turns: %d lunges in 10 s, never two at once (%d frames overlapping)" % [lunges, both], lunges >= 3 and both == 0])
+	_results(res, ["letters found: %d of 4; bonus tokens: %d of %d; flames left %d" % [Game.letters_found(), Game.tokens_found(), Game.level_tokens.size(), Game.health]], "secrets")
+
+
+## The great secret: the old mill, its bell, the crate thrown from the top
+## of the last plain mill's ride.
+func _knot_l2_2(res: Array) -> void:
+	var i := 0
+	# The great secret. The old mill is asleep: its cradles are out of reach.
+	var old := _wm("OldMill")
+	var knot: Node = room.get_node("ThornKnot")
+	_place(431.5, 20)
+	await _wait(20)
+	_press("jump")
+	await _wait(70)
+	_release_all()
+	await _wait(30)
+	res.append(["the old mill sleeps: from its still cradle the knot is out of reach", not old.is_awake() and not knot.is_awake()])
+	_place(389.0, 21)
+	await _wait(10)
+	await _go(390.2)
+	await _tap("interact")
+	await _wait(30)
+	res.append(["the second crate, lifted", kleo.held != null])
+	var m6 := _wm("Mill6")
+	await _go(403.3)
+	i = await _await_cradle(m6, 152.0, 168.0)
+	res.append(["carried onto the wheel", await _onto(m6, i) and kleo.held != null])
+	await _ride(m6, i, func() -> bool: return _ang_in(m6.cradle_angle(i), 282.0, 292.0))
+	kleo.facing = 1
+	await _tap("attack")
+	for k in 90:
+		await _step()
+		_steer(m6.cradle_top(i).x, 5.0)
+		if old.is_awake():
+			break
+	_release_all()
+	res.append(["thrown from the top of the ride, it rings the old mill's bell: the old mill wakes", old.is_awake()])
+	await _ride(m6, i, func() -> bool: return _ang_in(m6.cradle_angle(i), 336.0, 356.0))
+	var landed := await _alight(420, 446, 21)
+	if not landed:
+		print("  after the throw: x %.0f y %.0f state %d riding %s flames %d angle %.0f" % [kleo.global_position.x, kleo.global_position.y, kleo.state, _riding(), Game.health, m6.cradle_angle(i)])
+	res.append(["off at the old mill's yard", landed])
+	await _wait(60)
+	await _go(430.4)
+	i = await _await_cradle(old, 66.0, 84.0)
+	res.append(["onto the old mill's cradle (1 up)", await _onto(old, i, 16)])
+	await _ride(old, i, func() -> bool: return _ang_in(old.cradle_angle(i), 256.0, 264.0))
+	res.append(["from its top, up through the branch (2.75 up)", await _leap(func() -> float: return 431.5 * TILE, func() -> bool: return _on_y(148.0), 30)])
+	await _go(431.5)
+	res.append(["Morvath's knot wakes (the great secret)", Game.flags.has("l22_knot")])

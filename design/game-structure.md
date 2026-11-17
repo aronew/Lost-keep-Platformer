@@ -1,4 +1,11 @@
-# Game structure (v0.2, approved by the creative lead)
+# Game structure (v0.3, approved by the creative lead)
+
+> **Changed, 2026-11:** a region is now **six regular levels, one bonus
+> level and the boss** (the creative lead: "7 distinct regions, each
+> containing 6 regular levels, 1 bonus/secret level, and a major boss fight
+> as the final level"). It was five. §2 below is rewritten for it. The
+> rules every level, creature and boss is held to, and the audit of the
+> game against them, are in **`design/rulebook.md`**.
 
 > Approved as written ("Approved, start on the systems then the 1-1
 > blockout"), with their additions from Donkey Kong Country folded in (§5:
@@ -26,38 +33,41 @@
   about 45 to 60 minutes per region, **6 to 8 hours** for the story and about
   10 to 12 with every secret.
 
-## 2. Levels per region: 7 (5 levels, 1 secret level, 1 boss)
+## 2. Levels per region: 8 (6 levels, 1 bonus level, 1 boss)
 
-**Proposed: 5 main levels + 1 hidden secret level + 1 boss level = 7 stops
-per region, 49 in all** (instead of 10 per region, 70 in all).
+**Decided by the creative lead (2026-11): six regular levels, one bonus
+level, and the boss as the region's last level: 8 stops a region, 56 in
+all.** (My first plan was five levels; the creative lead's own region map
+has always said "0/6 levels completed".)
 
-Why not 10:
-- **Each level should own one idea** (teach it, test it, twist it, §5). A
-  region has about five strong ideas: its new ability, its signature machine,
-  its signature hazard, its enemy mix, and the vertical climb. Ten levels
-  would mean five levels repeating an idea, which is filler.
-- **The art kit is per region.** Ten levels on one kit start to look the same;
-  five carry a kit without repeating, and each region still gets a full look.
-- **Benchmarks:** Donkey Kong Country runs about 6 levels a world (40 in
-  all), DKC 2 about 6, DKC Returns 6 to 9 including bonus levels, Rayman
-  Origins 6 to 10. Five plus a secret plus a boss sits right in that range.
-- **AAA presentation per level** is the priority. 49 handcrafted levels is a
-  big game already; 70 at that bar is roughly a third more work for no new
-  ideas.
+- **Each level still owns one idea** (teach it, test it, twist it, §5). The
+  sixth level is **the remix**: two of the region's ideas joined, with one
+  from an earlier region, and the region's set piece (a chase, a ride). It
+  is new ground, not a repeat.
+- **Difficulty climbs as a saw** (`design/rulebook.md` P1): 3, 5, 4, 6, 7,
+  8 out of ten, then the bonus level at 9 or 10 and the boss at 8.
 
-Within each region:
+Within each region (the full template, with what each stop should make the
+player feel, is `design/rulebook.md` §4.1):
 
 | Stop | Role |
 |---|---|
 | X-1 | **Arrival.** The region's look and its new ability, taught gently. Short. |
-| X-2 | **The signature machine**: the region's own moving thing (a raft, a lift, a rolling log), used sparingly. |
-| X-3 | **The vertical level**: a climb, about 2 screens wide and 4 to 5 high. |
-| X-4 | **The signature hazard**, with the region's enemies at full strength. |
-| X-5 | **The gauntlet:** everything the region taught, mixed and twisted. Hides the secret exit. |
-| X-S | **Secret level** (found through a hidden exit, usually in X-5 or X-4). Harder, short, a big reward. |
-| X-B | **Boss level:** a short approach, then the arena. The ability is the reward. |
+| X-2 | **The machine**: the region's own moving thing (a raft, a lift, a mill), and the first puzzle. |
+| X-3 | **The climb**: about 2 screens wide and 4 to 5 high. A breath. |
+| X-4 | **The hazard**, with the region's creatures at strength and in pairs. May hide the exit. |
+| X-5 | **The remix:** two of the region's ideas joined, one from an earlier region, the set piece. Hides the exit if X-4 doesn't. |
+| X-6 | **The gauntlet:** everything the region taught, in order. Ends at the boss's door. |
+| X-? | **The bonus level** (opened by 8 of the region's 12 tokens, or at once by the hidden exit: Proposed, rulebook S9). Short, hard, no banner; a wick and a knot. |
+| X-B | **The boss** (the region's level 7): a quiet approach, then the arena (rulebook §3.3). The ability is the reward. |
 
-The vertical level can move (X-2 or X-4) where a region's story wants it.
+The slots can trade places where a region's story wants it (region 1's
+climb and machine are 1-3 and 1-4); the hardness curve does not.
+
+**Region 1 needs a sixth level** (its remix, between The Aqueduct and The
+Lantern Clearing), and its painted map has six pads and a "?": with six
+levels, a bonus level and a boss it needs a seventh pad, or the boss lies
+through level 6's gate at the skull. Both are the creative lead's to say.
 
 ## 3. The regions, in order
 
@@ -104,7 +114,7 @@ honest (Kleo's envelope is in `CLAUDE.md`):
 | Region | Widest required gap | Smallest landing | Timing | Enemies | Checkpoints |
 |---|---|---|---|---|---|
 | 1 | 4 tiles (a standing jump does it) | 3 tiles | Generous, nothing chases | One at a time | 1, at the middle |
-| 2 | 5 tiles | 2 tiles | Platforms move slowly, in sight | Pairs | 1, at the middle |
+| 2 | 5 tiles | 2 tiles | Platforms move slowly, in sight; never more than 3 s to the next chance | Pairs, who take turns | 1, at the middle |
 | 3 | 6 tiles (a running jump) | 2 tiles | Timed hazards (geysers) | Ranged enemies added | 1, at the middle |
 | 4 | Running jump into a wall jump | 2 tiles, sinking | Water rises on a clock | Mixed groups | 1, at the middle |
 | 5 | Glides of 12+ tiles | 1 tile | Machines in sequence | Armoured Carapax | 1, at the middle |
@@ -262,8 +272,11 @@ punishing the player twice.
 - **Lantern flames** (amber, top left; never a red bar). Kleo starts with
   **3**. An enemy hit costs 1, a hazard costs 1 and returns her to the
   checkpoint. After a hit she flickers and can't be hurt for about 1 second.
-- **More flames:** up to 8 in all, from the secret levels (one each) and the
-  Refuge (bought with Resin).
+- **More flames:** up to 8 in all. **Proposed** (`design/rulebook.md` E3):
+  flames come in **wicks**, two to a flame: one wick from each region's
+  bonus level and three sold by the healer make ten, which is the five
+  flames from 3 to 8. (The first draft said one flame from each secret
+  level and four for sale: that is 14.)
 - **Healing:** a checkpoint refills her; **amber sap** (rare drops, sometimes
   in chests) restores one flame.
 
@@ -285,7 +298,9 @@ Each level hides:
   to go left). What the knots do when all are awake is undecided
   (**Proposed:** Morvath's test at the Foundry gate is gentler, or they open
   a last secret).
-- **In X-4 or X-5, a hidden exit** to the region's secret level.
+- **In X-4 or X-5, a hidden exit** to the region's bonus level. **Proposed**
+  (`design/rulebook.md` S9): the bonus level has two doors, 8 of the
+  region's 12 tokens, or the hidden exit, which opens it at once.
 
 Tells, always: motes drifting into a false wall, moss on its stones, a Resin
 bead trail leading off the path, a faint Anima glow at a bonus entrance.
@@ -417,6 +432,12 @@ the main collectible (since replaced: letters and bonus tokens, §5); 1-1 new af
 vertical 1-3; a world map plus a walkable Refuge; "Lost Keep: Platformer"
 stays the working title.
 
+## 9b. Region 2: the Hearth-Plains
+Planned to the six-level template in `design/regions/2_hearth_plains.md`:
+The Golden Road, Millers' Row, The Great Mill, The Thorn Hedges, The
+Harvest Run, Silkfall, The Loom Loft, the Silk Mother. **Proposed**, for the
+creative lead's review. 2-2 Millers' Row is built as a blockout.
+
 ## 10. What is built (see `CLAUDE.md` for how)
 - **The systems** (all in the systems arena, `room=sys mode=systems`, 28
   checks): flames and damage, hazards (pits, water) back to the checkpoint,
@@ -428,6 +449,9 @@ stays the working title.
   kit, water and foreground: `design/levels/1-1_overgrown_ruins.md`.
 - **Level 1-2**: a blockout, awaiting review:
   `design/levels/1-2_gate_road.md`.
+- **Level 2-2, Millers' Row**: a blockout, awaiting review:
+  `design/levels/2-2_millers_row.md`. With it: windmills and their cradles,
+  bells and wind vanes, a crate that comes back, a pair that takes turns.
 - **From the research** (`design/research/platformer-fun.md`): the world map
   with each level's record, the save file, Morvath's thorn knot (one a
   level), Kleo's stride, the chain inside a beat and risky Resin (1-2's
