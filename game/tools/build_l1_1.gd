@@ -83,33 +83,45 @@ const SPACES := [
 	[380, 30, 4, 10],         # a pit, with a step up beyond it
 ]
 const MASSES := [
-	[68, 29, 5, 11, 0],       # the mushroom island (1 up), the width of its painting
+	# The islands float over the water (Book 4's D5): each mass is the top of
+	# its painting, as wide as its walking line.
+	[68, 29, 6, 2, 0],        # the mushroom island (1 up): island C, 96 wide
 	[246, 31, 3, 3, 0],      # the cave's two stone blocks (3 up from its floor)
 	[253, 31, 3, 3, 0],
-	[301, 28, 4, 12, 0],      # the islands: 2 up, 2 up, 3 down, 2 up, then 3 down to the bank
-	[309, 26, 4, 14, 0],     # (each the width of its painting, gaps of 4)
-	[317, 29, 4, 11, 0],
-	[325, 27, 3, 13, 0],
+	[301, 28, 4, 2, 0],       # the islands: 2 up, 2 up, 3 down, 2 up, then 3 down to the bank
+	[309, 26, 4, 2, 0],       # (islands B, 64 wide, and A, 48; gaps of 4)
+	[317, 29, 4, 2, 0],
+	[325, 27, 3, 2, 0],
 ]
 
 
 ## The canopy route: [x0, x1, row, tree, flip] of each treetop (8 rows over
 ## the hill at its lowest, so only the crates reach it): each walkway is the
 ## flat top of one of Book 3's three trees (W7), centred on its crown.
-const TREETOPS := [[244, 251, 18, 1, false], [255, 263, 17, 0, false], [267, 273, 19, 2, false], [277, 284, 17, 1, true]]
+## By day each crown (Book 4's D9) is a whole tree standing on the hill: its
+## trunk's foot is 108 px under its walking line, so the walkways are rows 20
+## and 21 (7 and 6 over the hill: still out of a jump's reach, and the
+## creative lead saw the old, higher crowns "floating above the ground").
+## The first stands a tile east of the crate stack (level with its top): a
+## hop she must choose, so walking over the stack still drops to the hill.
+const TREETOPS := [[248, 254, 20, 1, false], [258, 265, 21, 0, false], [269, 275, 20, 2, false], [279, 286, 21, 1, true]]
 ## The stall's piers, from its painting (art x, width; the painting's left
 ## edge stands at the slab's left end, x 352).
 const STALL_PIERS := [[9, 31], [123, 32], [243, 33]]
-## The islands' paintings (wilds/water_islands.png pieces) for each mass.
-const ISLAND_ART := [[68, 29, 0], [301, 28, 3], [309, 26, 1], [317, 29, 4], [325, 27, 2]]
+## By day the stall is gone (the creative lead: it "looks out of place with
+## the new tile set"): its slab is an earth terrace on three earth piers,
+## drawn by the ground's own skin, where the painted piers stood.
+const DAY_PIERS := [[22, 26, 3, 4, 0], [30, 26, 2, 4, 0], [37, 26, 3, 4, 0]]
+## The islands' paintings (Book 4's D5) for each mass: [x, row, piece].
+const ISLAND_ART := [[68, 29, "island-c"], [301, 28, "island-b"], [309, 26, "island-b"], [317, 29, "island-b"], [325, 27, "island-a"]]
 
 
 func _initialize() -> void:
 	room = ROOM
-	rock = ROCK
+	rock = ROCK + (DAY_PIERS if daylight else [])
 	spaces = SPACES
 	masses = MASSES
-	skip = [] if blockout else [[22, 24, 18, 2]] + MASSES.filter(func(m): return m[0] != 246 and m[0] != 253).map(func(m): return [m[0], m[1], m[2], m[3]])
+	skip = [] if blockout else ([] if daylight else [[22, 24, 18, 2]]) + MASSES.filter(func(m): return m[0] != 246 and m[0] != 253).map(func(m): return [m[0], m[1], m[2], m[3]])
 	spawn = Vector2(5 * TILE, G)
 	room_path = ROOM_PATH
 	blockout = false
@@ -128,7 +140,10 @@ func _initialize() -> void:
 	_twist()
 	_finish_beat()
 	if not blockout:
-		_dress()
+		if daylight:
+			_dress_day()
+		else:
+			_dress()
 	_level_finish()
 	quit()
 
@@ -147,15 +162,15 @@ func _teach() -> void:
 		Vector2(_t(20), _t(26) - 12), Vector2(_t(25), _t(24) - 12), Vector2(_t(27), _t(24) - 12)], "l11_a")
 	_label("stone terraces", Vector2(_t(14), _t(25) - 4))
 	_label("THE STALL ON ARCHES\n(a crate to carry)", Vector2(_t(26), _t(20)))
-	for p in STALL_PIERS:
+	for p in ([] if daylight and not blockout else STALL_PIERS):
 		var b := _body("StallPier", 1)
 		_node(_rect_shape(Vector2(p[1], 64), Vector2(_t(22) + p[0] + p[1] * 0.5, _t(26) + 32)), "Shape", b)
 		if blockout:
 			_shape(_blockout_node, _box(Rect2(_t(22) + p[0], _t(26), p[1], 64)), Color("#0b0812"), "Pier")
 	_crate(_t(33), _t(24), CRATE_B)
-	_breakable(CRATES, POT, _t(28), _t(24), CLAY)
+	_day_breakable("clay-pot", _t(28), _t(24), CLAY)
 	# The nook under the arches, reached from the east: a pot and a little cache.
-	_breakable(CRATES, POT_BIG, _t(26), G, CLAY)
+	_day_breakable("clay-pot", _t(26), G, CLAY)
 	_resin_cache(_root, _t(33), _t(36), G, 3, "l11_nook")
 	_label("nook", Vector2(_t(32), G - 36))
 	# The Mossback: seven hits, or one thrown crate.
@@ -164,7 +179,7 @@ func _teach() -> void:
 	# The water pit and the mushroom island (gaps of 4).
 	_bead_arc(Vector2(_t(63.5), G), Vector2(_t(69), _t(29)), 30.0, 3, "l11_pit1a")
 	_bead_arc(Vector2(_t(72), _t(29)), Vector2(_t(77.5), G), 30.0, 3, "l11_pit1b")
-	_letter(Vector2(_t(70.5), _t(29) - 24), "K", "l11_letter_k")
+	_letter(Vector2(_t(69.5), _t(29) - 22), "K", "l11_letter_k")
 	_label("K", Vector2(_t(70), _t(29) - 60))
 	_label("WATER PIT + MUSHROOM ISLAND", Vector2(_t(63), _t(25)))
 	# The ruin block: a ledge catch up to the chest.
@@ -177,6 +192,8 @@ func _teach() -> void:
 func _test() -> void:
 	_label("TEST", Vector2(_t(96), _t(16)))
 	_beads([Vector2(_t(101), _t(27) - 12), Vector2(_t(104), _t(27) - 12), Vector2(_t(107), _t(24) - 12)], "l11_t")
+	# The first power-up, on the terrace before the first rat: the Anima Spark.
+	_power_up(Vector2(_t(103), _t(27) - 16), "spark")
 	_lunger(_t(122), _t(24), _t(108), _t(130), "rat")
 	_label("RAT\n(notices, winds up, lunges)", Vector2(_t(112), _t(18)))
 	# The fallen trunk over the ravine (one-way): Book 3's W5 in the art pass.
@@ -195,7 +212,7 @@ func _test() -> void:
 	_letter(Vector2(_t(179), G - 14), "L", "l11_letter_l")
 	_resin_cache(_root, _t(180), _t(181.5), G, 2, "l11_secret1_cache")
 	_label("FALSE WALL\n(letter L)", Vector2(_t(176), _t(23) - 30))
-	_breakable(CRATES, BARREL, _t(188), G, WOOD)
+	_day_breakable("barrel", _t(188), G, WOOD)
 
 
 # --- TWIST: the hill's hidden cave, the treetops, the islands --------------------------------------
@@ -221,7 +238,7 @@ func _twist() -> void:
 		Vector2(_t(463), _t(25) - 30), Vector2(_t(466), _t(25) - 12), Vector2(_t(468), _t(25) - 12),
 		Vector2(_t(471.5), _t(25) - 52), Vector2(_t(475.5), _t(27) - 12), Vector2(_t(480), _t(25) - 30),
 		Vector2(_t(484), _t(25) - 12), Vector2(_t(487), _t(25) - 12), Vector2(_t(490), _t(25) - 12)])
-	_bonus_door(_t(258.5), floor_b, gather, Vector2(_t(256), floor_b), -1)
+	_bonus_door(_t(258.5), floor_b, gather, Vector2(_t(256), floor_b), -1, "ruin-hollow")
 	_label("BONUS 1 ENTRANCE\n(in the hidden cave)", Vector2(_t(250), _t(28) + 2))
 	# The level's great secret, a secret within a secret: Morvath's thorn knot
 	# sleeps in the dark behind the glowing hollow. The hollow takes her to the
@@ -258,7 +275,7 @@ func _twist() -> void:
 		"l11_token2", 10.0, "Reach the token!")
 	_beads([Vector2(_t(503.5), _t(29) - 22), Vector2(_t(510), _t(27) - 26), Vector2(_t(517), _t(27) - 22), Vector2(_t(524), _t(27) - 26),
 		Vector2(_t(530.5), _t(27) - 22)], "l11_course")
-	_bonus_door(_t(283.5), _t(17), course, Vector2(_t(280.5), _t(17)), -1)
+	_bonus_door(_t(285.5), _t(21), course, Vector2(_t(282.5), _t(21)), -1, "root-hollow")
 	_label("CANOPY ROUTE (secret, over the treetops; letter E)", Vector2(_t(252), _t(11)))
 	_label("BONUS 2 ENTRANCE", Vector2(_t(281), _t(11)))
 	# The hill: a second rat.
@@ -285,7 +302,7 @@ func _finish_beat() -> void:
 	_bead_arc(Vector2(_t(379), G), Vector2(_t(385), _t(28)), 30.0, 3, "l11_pit3")
 	_label("PIT, STEP UP", Vector2(_t(378), G - 46))
 	_letter(Vector2(_t(382), G - 62), "O", "l11_letter_o")
-	_breakable(CRATES, POT, _t(397), G, CLAY)
+	_day_breakable("clay-pot", _t(397), G, CLAY)
 	_beads([Vector2(_t(402), _t(27) - 12), Vector2(_t(406), _t(27) - 12), Vector2(_t(413), _t(24) - 12)], "l11_end")
 	_chest(_t(419), _t(24), 8, "l11_chest2")
 	_level_end(_t(428), _t(24), 48, 72)
@@ -362,6 +379,130 @@ func _lilies(parent: Node, x0: float, x1: float, water_y: float) -> void:
 		i += 1
 
 
+# --- The art pass by day: Book 4's Sunlit Woodland kit (D1 to D19) ---------------------------------
+
+## The day kit's crowns by the width of the walkway each carries.
+func _crown_for(tiles: int) -> String:
+	return "tree-crown-b" if tiles <= 6 else "tree-crown-c"
+
+
+## A day island (D5) on its mass: its walking line on the mass's top row,
+## its walking span centred on the mass `tiles` wide at `tile_x`.
+func _day_island(parent: Node, tile_x: int, row: int, piece: String, tiles: int) -> void:
+	var d := _day(piece)
+	var r: Rect2 = d["rect"]
+	var span: Array = d["walking_span"]
+	var span_w := float(span[1]) - float(span[0])
+	var x := _t(tile_x) - (float(span[0]) - r.position.x) - (span_w - tiles * TILE) * 0.5
+	var y := _t(row) - (float(d["walking_y"]) - r.position.y)
+	_day_sprite(parent, piece, Vector2(x, y))
+
+
+## Lily pads on the water surface `y` across [x0, x1).
+func _day_lilies(x0: float, x1: float, y: float) -> void:
+	var holder := _root.get_node_or_null("Lilies")
+	if holder == null:
+		holder = _node(Node2D.new(), "Lilies", _root)
+		(holder as Node2D).z_index = 13
+	var names := ["lily-pads-a", "lily-pads-b", "lily-pads-flower", "lily-pads-a"]
+	var x := x0 + 14.0
+	var k := int(x0) % 4
+	while x < x1 - 20.0:
+		_day_ground(holder, names[k % names.size()], x, y + 3.0, k % 2 == 1)
+		x += 46.0 + float((k * 29) % 40)
+		k += 1
+
+
+func _dress_day() -> void:
+	var behind: Node = _root.get_node("Behind")
+	var placed: Node = _root.get_node("PlacedArt")
+	var w := WATER_Y
+	# TEACH. A ruined wall where she starts; grass and flowers up the terraces.
+	_day_sprite(behind, "ruined-wall", Vector2(-24, G - 64))
+	_day_ground(behind, "bank-grass-a", 150, G)
+	_day_ground(behind, "flower-cluster", 232, _t(28))
+	_day_ground(behind, "bank-grass-b", 300, _t(26), true)
+	# The terrace where the stall stood: a ruined wall and a banner on it.
+	_day_ground(behind, "ruined-wall", _t(34), _t(24))
+	_day_ground(behind, "red-banner-pole", _t(24), _t(24))
+	_day_ground(behind, "red-mushrooms", 640, G)
+	_day_ground(behind, "wooden-bench", 880, G)
+	_day_ground(behind, "flower-cluster", 1010, G, true)
+	# The water pit and the mushroom island.
+	_day_lilies(_t(64), _t(77), w)
+	_day_ground(behind, "cattails-a", _t(64) - 10, G)
+	_day_ground(behind, "reeds-a", _t(77) + 8, G)
+	for isl in ISLAND_ART:
+		var m: Array = MASSES.filter(func(mm): return mm[0] == isl[0])[0]
+		_day_island(placed, isl[0], isl[1], isl[2], m[2])
+	_day_ground(placed, "red-mushrooms", _t(73), _t(29))
+	# The ruin block and its chest.
+	_day_ground(behind, "broken-pillar", _t(83), _t(25))
+	_day_ground(behind, "flower-cluster", _t(88), _t(25))
+	# TEST. The wall terraces and the plateau's ruins.
+	_day_ground(behind, "bank-grass-a", _t(101), _t(27))
+	_day_ground(behind, "ruined-wall", _t(112), _t(24))
+	_day_ground(behind, "broken-pillar", _t(127), _t(24))
+	_day_ground(behind, "bank-grass-b", _t(119), _t(24), true)
+	# The ravine and the fallen log (D6): its walking line (6 below its top)
+	# on row 24, centred over the ravine, its ends on the banks.
+	_day_lilies(_t(135), _t(144), w)
+	_day_sprite(placed, "fallen-log", Vector2(_t(139.5) - 80.0, _t(24) - 6.0))
+	_day_ground(behind, "cattails-b", _t(145), _t(25), true)
+	_day_ground(behind, "flower-cluster", _t(151), _t(25))
+	_day_lilies(_t(160), _t(164), w)
+	_day_ground(behind, "ruined-wall", _t(170), _t(23))
+	# The false wall's tell: ivy over its face, and the draught.
+	for v in [[VINES[0], _t(181) + 4], [VINES[2], _t(181) - 10]]:
+		var vine := _sprite(placed, FLORA, v[0], Vector2(v[1], _t(26) - 2))
+		vine.name = "WallIvy"
+		vine.z_index = 18  # over the false wall's cover: the tell must show
+	# TWIST. A signpost by the crate; a great tree (D8) by the checkpoint.
+	_day_ground(behind, "blank-signpost", _t(192), G)
+	var gt := _day_ground(behind, "great-tree-1", _t(214), G + 12.0)  # its root tips under the grass
+	gt.z_index = -1
+	# The treetop route: each walkway a crown (D9), a whole tree whose trunk
+	# stands on the hill.
+	var k := 0
+	for c in TREETOPS:
+		var tiles: int = c[1] - c[0]
+		var cx := _t((c[0] + c[1]) * 0.5)
+		var piece := _crown_for(tiles)
+		var d := _day(piece)
+		var r: Rect2 = d["rect"]
+		var span: Array = d["walking_span"]
+		var span_mid := (float(span[0]) + float(span[1])) * 0.5 - r.position.x
+		var crown := _day_sprite(behind, piece, Vector2(cx - span_mid, _t(c[2]) - (float(d["walking_y"]) - r.position.y)), c[4])
+		crown.z_index = -1
+		k += 1
+	_day_ground(behind, "flower-cluster", _t(232), G)
+	# The hill: grass, a ruin; the hidden cave's lamps.
+	_day_ground(behind, "bank-grass-a", _t(244), _t(27))
+	_day_ground(behind, "broken-pillar", _t(262), _t(27))
+	_hanging_lamp(behind, _t(247), _t(28), 22.0)
+	_hanging_lamp(behind, _t(255), _t(28), 22.0)
+	_day_ground(behind, "red-banner-pole", _t(290), _t(27))
+	# The islands across the second water.
+	_day_lilies(_t(297), _t(332), w)
+	_day_ground(behind, "cattails-a", _t(296), G)
+	_day_ground(behind, "reeds-a", _t(333), G, true)
+	# The water in front of the ground, all along: lily pads here and there.
+	_day_lilies(_t(80), _t(130), w)
+	_day_lilies(_t(185), _t(232), w)
+	_day_lilies(_t(336), _t(360), w)
+	# FINISH. The last run.
+	_day_ground(behind, "bank-grass-b", _t(346), G)
+	_day_ground(behind, "flower-cluster", _t(366), G)
+	_day_lilies(_t(362), _t(366), w)
+	_day_lilies(_t(380), _t(384), w)
+	_day_ground(behind, "broken-pillar", _t(389), _t(28))
+	_day_ground(behind, "lit-lantern-post", _t(404), _t(27))
+	_day_ground(behind, "red-mushrooms", _t(410), _t(27))
+	_day_ground(behind, "wooden-bench", _t(415), _t(24))
+	_day_ground(behind, "red-banner-pole", _t(436), _t(24))
+
+
+## The dusk art pass (Book 3 and Book 1), kept for `daylight = false`.
 func _dress() -> void:
 	var behind: Node = _root.get_node("Behind")
 	var placed: Node = _root.get_node("PlacedArt")

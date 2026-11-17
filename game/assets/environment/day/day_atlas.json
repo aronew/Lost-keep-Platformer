@@ -1,0 +1,1165 @@
+{
+  "project": "Lost Keep: Platformer",
+  "coordinates": "native logical pixels; multiply by sheet scale for exported coordinates",
+  "sheets": [
+    {
+      "name": "01-ground-bands",
+      "native_size": [
+        384,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        3072,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [
+        "x"
+      ],
+      "pieces": [
+        {
+          "name": "walkable-ground-band",
+          "rect_native": [
+            0,
+            8,
+            384,
+            48
+          ],
+          "walking_y": 16,
+          "walking_span": [
+            0,
+            384
+          ],
+          "repeat_axes": [
+            "x"
+          ],
+          "fill_join_y": 56
+        },
+        {
+          "name": "ground-underside-band",
+          "rect_native": [
+            0,
+            72,
+            384,
+            48
+          ],
+          "repeat_axes": [
+            "x"
+          ],
+          "fill_join_y": 72
+        }
+      ]
+    },
+    {
+      "name": "03-earth-fill",
+      "native_size": [
+        128,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        1024,
+        1024
+      ],
+      "opaque": true,
+      "repeat_axes": [
+        "x",
+        "y"
+      ],
+      "pieces": [
+        {
+          "name": "earth-fill",
+          "rect_native": [
+            0,
+            0,
+            128,
+            128
+          ],
+          "repeat_axes": [
+            "x",
+            "y"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02-ground-wall-corners",
+      "native_size": [
+        256,
+        256
+      ],
+      "scale": 8,
+      "output_size": [
+        2048,
+        2048
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "right-facing-wall",
+          "rect_native": [
+            0,
+            0,
+            44,
+            256
+          ],
+          "face_x": 40,
+          "repeat_axes": [
+            "y"
+          ],
+          "inward_side": "left"
+        },
+        {
+          "name": "outer-top",
+          "rect_native": [
+            128,
+            0,
+            64,
+            64
+          ],
+          "junction": [
+            160,
+            32
+          ]
+        },
+        {
+          "name": "outer-under",
+          "rect_native": [
+            192,
+            0,
+            64,
+            64
+          ],
+          "junction": [
+            224,
+            32
+          ]
+        },
+        {
+          "name": "inner-top",
+          "rect_native": [
+            128,
+            64,
+            64,
+            64
+          ],
+          "junction": [
+            160,
+            96
+          ]
+        },
+        {
+          "name": "inner-under",
+          "rect_native": [
+            192,
+            64,
+            64,
+            64
+          ],
+          "junction": [
+            224,
+            96
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04-ruin-pieces",
+      "native_size": [
+        256,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        2048,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "ruined-wall",
+          "rect_native": [
+            0,
+            0,
+            96,
+            64
+          ]
+        },
+        {
+          "name": "arched-doorway",
+          "rect_native": [
+            112,
+            0,
+            64,
+            80
+          ],
+          "opening_size": [
+            32,
+            56
+          ],
+          "opening_floor_y": 79
+        },
+        {
+          "name": "broken-pillar",
+          "rect_native": [
+            192,
+            0,
+            24,
+            56
+          ]
+        },
+        {
+          "name": "stone-steps",
+          "rect_native": [
+            0,
+            80,
+            64,
+            48
+          ],
+          "step_treads": [
+            [
+              16,
+              112,
+              16
+            ],
+            [
+              32,
+              96,
+              16
+            ],
+            [
+              48,
+              80,
+              16
+            ]
+          ],
+          "rise": 16,
+          "left_padding": 16
+        },
+        {
+          "name": "low-stone-ledge",
+          "rect_native": [
+            80,
+            112,
+            48,
+            16
+          ],
+          "walking_y": 112
+        }
+      ]
+    },
+    {
+      "name": "05-islands-abc",
+      "native_size": [
+        384,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        3072,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "island-a",
+          "rect_native": [
+            8,
+            16,
+            48,
+            40
+          ],
+          "walking_y": 32,
+          "walking_span": [
+            8,
+            56
+          ]
+        },
+        {
+          "name": "island-b",
+          "rect_native": [
+            88,
+            16,
+            64,
+            56
+          ],
+          "walking_y": 32,
+          "walking_span": [
+            88,
+            152
+          ]
+        },
+        {
+          "name": "island-c",
+          "rect_native": [
+            184,
+            16,
+            96,
+            72
+          ],
+          "walking_y": 32,
+          "walking_span": [
+            184,
+            280
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06-island-d",
+      "native_size": [
+        384,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        3072,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "island-d",
+          "rect_native": [
+            112,
+            16,
+            160,
+            96
+          ],
+          "walking_y": 32,
+          "walking_span": [
+            112,
+            272
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07-log-root-bridge",
+      "native_size": [
+        384,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        3072,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "fallen-log",
+          "rect_native": [
+            8,
+            24,
+            160,
+            32
+          ],
+          "walking_y": 30,
+          "walking_span": [
+            8,
+            168
+          ]
+        },
+        {
+          "name": "root-bridge",
+          "rect_native": [
+            184,
+            16,
+            192,
+            64
+          ],
+          "walking_y": 24,
+          "walking_span": [
+            192,
+            368
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07b-stepping-stones",
+      "native_size": [
+        256,
+        64
+      ],
+      "scale": 8,
+      "output_size": [
+        2048,
+        512
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "stepping-stone-1",
+          "rect_native": [
+            24,
+            20,
+            32,
+            24
+          ],
+          "walking_y": 20,
+          "waterline_y": 32
+        },
+        {
+          "name": "stepping-stone-2",
+          "rect_native": [
+            104,
+            20,
+            40,
+            24
+          ],
+          "walking_y": 20,
+          "waterline_y": 32
+        },
+        {
+          "name": "stepping-stone-3",
+          "rect_native": [
+            192,
+            20,
+            48,
+            24
+          ],
+          "walking_y": 20,
+          "waterline_y": 32
+        }
+      ]
+    },
+    {
+      "name": "08-great-trees",
+      "native_size": [
+        384,
+        256
+      ],
+      "scale": 8,
+      "output_size": [
+        3072,
+        2048
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "great-tree-1",
+          "rect_native": [
+            8,
+            0,
+            176,
+            256
+          ],
+          "decorative": true
+        },
+        {
+          "name": "great-tree-2",
+          "rect_native": [
+            200,
+            0,
+            176,
+            256
+          ],
+          "decorative": true
+        }
+      ]
+    },
+    {
+      "name": "09-crowns-ab",
+      "native_size": [
+        384,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        3072,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "tree-crown-a",
+          "rect_native": [
+            16,
+            4,
+            112,
+            120
+          ],
+          "walking_y": 16,
+          "walking_span": [
+            30,
+            114
+          ]
+        },
+        {
+          "name": "tree-crown-b",
+          "rect_native": [
+            176,
+            4,
+            128,
+            120
+          ],
+          "walking_y": 16,
+          "walking_span": [
+            192,
+            288
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10-crown-c",
+      "native_size": [
+        384,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        3072,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "tree-crown-c",
+          "rect_native": [
+            112,
+            4,
+            160,
+            120
+          ],
+          "walking_y": 16,
+          "walking_span": [
+            132,
+            252
+          ]
+        }
+      ]
+    },
+    {
+      "name": "11-pond-water",
+      "native_size": [
+        384,
+        64
+      ],
+      "scale": 8,
+      "output_size": [
+        3072,
+        512
+      ],
+      "opaque": true,
+      "repeat_axes": [
+        "x"
+      ],
+      "pieces": [
+        {
+          "name": "pond-water",
+          "rect_native": [
+            0,
+            0,
+            384,
+            64
+          ],
+          "surface_y": 0,
+          "repeat_axes": [
+            "x"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "12-pond-plants",
+      "native_size": [
+        256,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        2048,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "lily-pads-a",
+          "rect_native": [
+            20,
+            46,
+            24,
+            10
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "lily-pads-b",
+          "rect_native": [
+            80,
+            44,
+            32,
+            12
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "lily-pads-flower",
+          "rect_native": [
+            140,
+            36,
+            40,
+            20
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "reeds-a",
+          "rect_native": [
+            212,
+            16,
+            24,
+            40
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "cattails-a",
+          "rect_native": [
+            16,
+            72,
+            32,
+            48
+          ],
+          "baseline_y": 120
+        },
+        {
+          "name": "cattails-b",
+          "rect_native": [
+            84,
+            88,
+            24,
+            32
+          ],
+          "baseline_y": 120
+        },
+        {
+          "name": "bank-grass-a",
+          "rect_native": [
+            144,
+            92,
+            32,
+            28
+          ],
+          "baseline_y": 120
+        },
+        {
+          "name": "bank-grass-b",
+          "rect_native": [
+            208,
+            92,
+            32,
+            28
+          ],
+          "baseline_y": 120
+        }
+      ]
+    },
+    {
+      "name": "13-collectibles",
+      "native_size": [
+        128,
+        64
+      ],
+      "scale": 8,
+      "output_size": [
+        1024,
+        512
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "collectible-K",
+          "rect_native": [
+            8,
+            0,
+            16,
+            18
+          ]
+        },
+        {
+          "name": "collectible-L",
+          "rect_native": [
+            40,
+            0,
+            16,
+            18
+          ]
+        },
+        {
+          "name": "collectible-E",
+          "rect_native": [
+            72,
+            0,
+            16,
+            18
+          ]
+        },
+        {
+          "name": "collectible-O",
+          "rect_native": [
+            104,
+            0,
+            16,
+            18
+          ]
+        },
+        {
+          "name": "bonus-token-frame-0",
+          "rect_native": [
+            8,
+            24,
+            16,
+            16
+          ]
+        },
+        {
+          "name": "bonus-token-frame-1",
+          "rect_native": [
+            40,
+            24,
+            16,
+            16
+          ]
+        },
+        {
+          "name": "bonus-token-frame-2",
+          "rect_native": [
+            72,
+            24,
+            16,
+            16
+          ]
+        },
+        {
+          "name": "bonus-token-frame-3",
+          "rect_native": [
+            104,
+            24,
+            16,
+            16
+          ]
+        },
+        {
+          "name": "hud-K-dim",
+          "rect_native": [
+            4,
+            50,
+            9,
+            11
+          ]
+        },
+        {
+          "name": "hud-L-dim",
+          "rect_native": [
+            19,
+            50,
+            9,
+            11
+          ]
+        },
+        {
+          "name": "hud-E-dim",
+          "rect_native": [
+            34,
+            50,
+            9,
+            11
+          ]
+        },
+        {
+          "name": "hud-O-dim",
+          "rect_native": [
+            49,
+            50,
+            9,
+            11
+          ]
+        },
+        {
+          "name": "hud-K-found",
+          "rect_native": [
+            64,
+            50,
+            9,
+            11
+          ]
+        },
+        {
+          "name": "hud-L-found",
+          "rect_native": [
+            79,
+            50,
+            9,
+            11
+          ]
+        },
+        {
+          "name": "hud-E-found",
+          "rect_native": [
+            94,
+            50,
+            9,
+            11
+          ]
+        },
+        {
+          "name": "hud-O-found",
+          "rect_native": [
+            109,
+            50,
+            9,
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "name": "14-bonus-hollows",
+      "native_size": [
+        128,
+        64
+      ],
+      "scale": 8,
+      "output_size": [
+        1024,
+        512
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "root-hollow",
+          "rect_native": [
+            8,
+            8,
+            48,
+            48
+          ],
+          "opening_size": [
+            20,
+            28
+          ],
+          "floor_y": 55
+        },
+        {
+          "name": "ruin-hollow",
+          "rect_native": [
+            72,
+            8,
+            48,
+            48
+          ],
+          "opening_size": [
+            20,
+            28
+          ],
+          "floor_y": 55
+        }
+      ]
+    },
+    {
+      "name": "15-bramble-hazard",
+      "native_size": [
+        256,
+        64
+      ],
+      "scale": 8,
+      "output_size": [
+        2048,
+        512
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "bramble-repeat",
+          "rect_native": [
+            8,
+            24,
+            128,
+            24
+          ],
+          "repeat_axes": [
+            "x"
+          ]
+        },
+        {
+          "name": "bramble-left-cap",
+          "rect_native": [
+            160,
+            24,
+            24,
+            24
+          ]
+        },
+        {
+          "name": "bramble-right-cap",
+          "rect_native": [
+            208,
+            24,
+            24,
+            24
+          ]
+        }
+      ]
+    },
+    {
+      "name": "16-props",
+      "native_size": [
+        256,
+        128
+      ],
+      "scale": 8,
+      "output_size": [
+        2048,
+        1024
+      ],
+      "opaque": false,
+      "repeat_axes": [],
+      "pieces": [
+        {
+          "name": "unlit-lantern-post",
+          "rect_native": [
+            15,
+            16,
+            26,
+            40
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "lit-lantern-post",
+          "rect_native": [
+            64,
+            16,
+            26,
+            40
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "wooden-bench",
+          "rect_native": [
+            110,
+            38,
+            32,
+            18
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "red-banner-pole",
+          "rect_native": [
+            162,
+            16,
+            26,
+            40
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "wooden-crate",
+          "rect_native": [
+            212,
+            36,
+            24,
+            20
+          ],
+          "baseline_y": 56
+        },
+        {
+          "name": "barrel",
+          "rect_native": [
+            18,
+            96,
+            20,
+            24
+          ],
+          "baseline_y": 120
+        },
+        {
+          "name": "clay-pot",
+          "rect_native": [
+            65,
+            100,
+            24,
+            20
+          ],
+          "baseline_y": 120
+        },
+        {
+          "name": "blank-signpost",
+          "rect_native": [
+            112,
+            88,
+            28,
+            32
+          ],
+          "baseline_y": 120
+        },
+        {
+          "name": "red-mushrooms",
+          "rect_native": [
+            161,
+            100,
+            28,
+            20
+          ],
+          "baseline_y": 120
+        },
+        {
+          "name": "flower-cluster",
+          "rect_native": [
+            210,
+            96,
+            28,
+            24
+          ],
+          "baseline_y": 120
+        }
+      ]
+    },
+    {
+      "name": "17-daytime-sky",
+      "native_size": [
+        768,
+        360
+      ],
+      "scale": 4,
+      "output_size": [
+        3072,
+        1440
+      ],
+      "opaque": true,
+      "repeat_axes": [
+        "x"
+      ],
+      "pieces": [
+        {
+          "name": "daytime-sky",
+          "rect_native": [
+            0,
+            0,
+            768,
+            360
+          ],
+          "repeat_axes": [
+            "x"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "18-far-forest",
+      "native_size": [
+        768,
+        360
+      ],
+      "scale": 4,
+      "output_size": [
+        3072,
+        1440
+      ],
+      "opaque": false,
+      "repeat_axes": [
+        "x"
+      ],
+      "pieces": [
+        {
+          "name": "far-forest",
+          "rect_native": [
+            0,
+            0,
+            768,
+            360
+          ],
+          "repeat_axes": [
+            "x"
+          ],
+          "solid_bottom_from_y": 280,
+          "decorative": true
+        }
+      ]
+    },
+    {
+      "name": "19-mid-forest",
+      "native_size": [
+        768,
+        360
+      ],
+      "scale": 4,
+      "output_size": [
+        3072,
+        1440
+      ],
+      "opaque": false,
+      "repeat_axes": [
+        "x"
+      ],
+      "pieces": [
+        {
+          "name": "mid-forest",
+          "rect_native": [
+            0,
+            0,
+            768,
+            360
+          ],
+          "repeat_axes": [
+            "x"
+          ],
+          "solid_bottom_from_y": 320,
+          "decorative": true
+        }
+      ]
+    },
+    {
+      "name": "20-foreground",
+      "native_size": [
+        768,
+        96
+      ],
+      "scale": 4,
+      "output_size": [
+        3072,
+        384
+      ],
+      "opaque": false,
+      "repeat_axes": [
+        "x"
+      ],
+      "pieces": [
+        {
+          "name": "foreground-foliage",
+          "rect_native": [
+            0,
+            0,
+            768,
+            96
+          ],
+          "repeat_axes": [
+            "x"
+          ],
+          "solid_bottom_from_y": 84,
+          "decorative": true
+        }
+      ]
+    }
+  ]
+}

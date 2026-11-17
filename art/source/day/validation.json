@@ -1,0 +1,996 @@
+{
+  "passed": true,
+  "check_count": 247,
+  "failed": [],
+  "checks": [
+    {
+      "check": "01-ground-bands: canvas",
+      "passed": true
+    },
+    {
+      "check": "01-ground-bands: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "01-ground-bands: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "01-ground-bands: repeat x",
+      "passed": true
+    },
+    {
+      "check": "walkable-ground-band: in canvas",
+      "passed": true
+    },
+    {
+      "check": "walkable-ground-band: repeat x",
+      "passed": true
+    },
+    {
+      "check": "walkable-ground-band: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "walkable-ground-band: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "ground-underside-band: in canvas",
+      "passed": true
+    },
+    {
+      "check": "ground-underside-band: repeat x",
+      "passed": true
+    },
+    {
+      "check": "ground-underside-band: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "03-earth-fill: canvas",
+      "passed": true
+    },
+    {
+      "check": "03-earth-fill: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "03-earth-fill: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "03-earth-fill: opaque",
+      "passed": true
+    },
+    {
+      "check": "03-earth-fill: repeat x",
+      "passed": true
+    },
+    {
+      "check": "03-earth-fill: repeat y",
+      "passed": true
+    },
+    {
+      "check": "earth-fill: in canvas",
+      "passed": true
+    },
+    {
+      "check": "earth-fill: repeat x",
+      "passed": true
+    },
+    {
+      "check": "earth-fill: repeat y",
+      "passed": true
+    },
+    {
+      "check": "earth-fill: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "02-ground-wall-corners: canvas",
+      "passed": true
+    },
+    {
+      "check": "02-ground-wall-corners: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "02-ground-wall-corners: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "right-facing-wall: in canvas",
+      "passed": true
+    },
+    {
+      "check": "right-facing-wall: repeat y",
+      "passed": true
+    },
+    {
+      "check": "right-facing-wall: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "outer-top: in canvas",
+      "passed": true
+    },
+    {
+      "check": "outer-top: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "outer-under: in canvas",
+      "passed": true
+    },
+    {
+      "check": "outer-under: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "inner-top: in canvas",
+      "passed": true
+    },
+    {
+      "check": "inner-top: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "inner-under: in canvas",
+      "passed": true
+    },
+    {
+      "check": "inner-under: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "04-ruin-pieces: canvas",
+      "passed": true
+    },
+    {
+      "check": "04-ruin-pieces: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "04-ruin-pieces: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "ruined-wall: in canvas",
+      "passed": true
+    },
+    {
+      "check": "ruined-wall: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "arched-doorway: in canvas",
+      "passed": true
+    },
+    {
+      "check": "arched-doorway: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "broken-pillar: in canvas",
+      "passed": true
+    },
+    {
+      "check": "broken-pillar: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "stone-steps: in canvas",
+      "passed": true
+    },
+    {
+      "check": "stone-steps: solid tread 112",
+      "passed": true
+    },
+    {
+      "check": "stone-steps: solid tread 96",
+      "passed": true
+    },
+    {
+      "check": "stone-steps: solid tread 80",
+      "passed": true
+    },
+    {
+      "check": "stone-steps: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "low-stone-ledge: in canvas",
+      "passed": true
+    },
+    {
+      "check": "low-stone-ledge: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "05-islands-abc: canvas",
+      "passed": true
+    },
+    {
+      "check": "05-islands-abc: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "05-islands-abc: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "island-a: in canvas",
+      "passed": true
+    },
+    {
+      "check": "island-a: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "island-a: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "island-b: in canvas",
+      "passed": true
+    },
+    {
+      "check": "island-b: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "island-b: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "island-c: in canvas",
+      "passed": true
+    },
+    {
+      "check": "island-c: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "island-c: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "06-island-d: canvas",
+      "passed": true
+    },
+    {
+      "check": "06-island-d: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "06-island-d: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "island-d: in canvas",
+      "passed": true
+    },
+    {
+      "check": "island-d: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "island-d: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "07-log-root-bridge: canvas",
+      "passed": true
+    },
+    {
+      "check": "07-log-root-bridge: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "07-log-root-bridge: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "fallen-log: in canvas",
+      "passed": true
+    },
+    {
+      "check": "fallen-log: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "fallen-log: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "root-bridge: in canvas",
+      "passed": true
+    },
+    {
+      "check": "root-bridge: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "root-bridge: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "07b-stepping-stones: canvas",
+      "passed": true
+    },
+    {
+      "check": "07b-stepping-stones: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "07b-stepping-stones: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "stepping-stone-1: in canvas",
+      "passed": true
+    },
+    {
+      "check": "stepping-stone-1: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "stepping-stone-2: in canvas",
+      "passed": true
+    },
+    {
+      "check": "stepping-stone-2: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "stepping-stone-3: in canvas",
+      "passed": true
+    },
+    {
+      "check": "stepping-stone-3: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "08-great-trees: canvas",
+      "passed": true
+    },
+    {
+      "check": "08-great-trees: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "08-great-trees: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "great-tree-1: in canvas",
+      "passed": true
+    },
+    {
+      "check": "great-tree-1: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "great-tree-2: in canvas",
+      "passed": true
+    },
+    {
+      "check": "great-tree-2: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "09-crowns-ab: canvas",
+      "passed": true
+    },
+    {
+      "check": "09-crowns-ab: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "09-crowns-ab: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-a: in canvas",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-a: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-a: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-b: in canvas",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-b: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-b: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "10-crown-c: canvas",
+      "passed": true
+    },
+    {
+      "check": "10-crown-c: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "10-crown-c: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-c: in canvas",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-c: solid walking span",
+      "passed": true
+    },
+    {
+      "check": "tree-crown-c: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "11-pond-water: canvas",
+      "passed": true
+    },
+    {
+      "check": "11-pond-water: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "11-pond-water: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "11-pond-water: opaque",
+      "passed": true
+    },
+    {
+      "check": "11-pond-water: repeat x",
+      "passed": true
+    },
+    {
+      "check": "pond-water: in canvas",
+      "passed": true
+    },
+    {
+      "check": "pond-water: repeat x",
+      "passed": true
+    },
+    {
+      "check": "pond-water: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "12-pond-plants: canvas",
+      "passed": true
+    },
+    {
+      "check": "12-pond-plants: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "12-pond-plants: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "lily-pads-a: in canvas",
+      "passed": true
+    },
+    {
+      "check": "lily-pads-a: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "lily-pads-b: in canvas",
+      "passed": true
+    },
+    {
+      "check": "lily-pads-b: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "lily-pads-flower: in canvas",
+      "passed": true
+    },
+    {
+      "check": "lily-pads-flower: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "reeds-a: in canvas",
+      "passed": true
+    },
+    {
+      "check": "reeds-a: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "cattails-a: in canvas",
+      "passed": true
+    },
+    {
+      "check": "cattails-a: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "cattails-b: in canvas",
+      "passed": true
+    },
+    {
+      "check": "cattails-b: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "bank-grass-a: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bank-grass-a: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "bank-grass-b: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bank-grass-b: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "13-collectibles: canvas",
+      "passed": true
+    },
+    {
+      "check": "13-collectibles: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "13-collectibles: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "collectible-K: in canvas",
+      "passed": true
+    },
+    {
+      "check": "collectible-K: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "collectible-L: in canvas",
+      "passed": true
+    },
+    {
+      "check": "collectible-L: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "collectible-E: in canvas",
+      "passed": true
+    },
+    {
+      "check": "collectible-E: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "collectible-O: in canvas",
+      "passed": true
+    },
+    {
+      "check": "collectible-O: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "bonus-token-frame-0: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bonus-token-frame-0: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "bonus-token-frame-1: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bonus-token-frame-1: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "bonus-token-frame-2: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bonus-token-frame-2: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "bonus-token-frame-3: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bonus-token-frame-3: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "hud-K-dim: in canvas",
+      "passed": true
+    },
+    {
+      "check": "hud-K-dim: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "hud-L-dim: in canvas",
+      "passed": true
+    },
+    {
+      "check": "hud-L-dim: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "hud-E-dim: in canvas",
+      "passed": true
+    },
+    {
+      "check": "hud-E-dim: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "hud-O-dim: in canvas",
+      "passed": true
+    },
+    {
+      "check": "hud-O-dim: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "hud-K-found: in canvas",
+      "passed": true
+    },
+    {
+      "check": "hud-K-found: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "hud-L-found: in canvas",
+      "passed": true
+    },
+    {
+      "check": "hud-L-found: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "hud-E-found: in canvas",
+      "passed": true
+    },
+    {
+      "check": "hud-E-found: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "hud-O-found: in canvas",
+      "passed": true
+    },
+    {
+      "check": "hud-O-found: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "14-bonus-hollows: canvas",
+      "passed": true
+    },
+    {
+      "check": "14-bonus-hollows: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "14-bonus-hollows: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "root-hollow: in canvas",
+      "passed": true
+    },
+    {
+      "check": "root-hollow: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "ruin-hollow: in canvas",
+      "passed": true
+    },
+    {
+      "check": "ruin-hollow: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "15-bramble-hazard: canvas",
+      "passed": true
+    },
+    {
+      "check": "15-bramble-hazard: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "15-bramble-hazard: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "bramble-repeat: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bramble-repeat: repeat x",
+      "passed": true
+    },
+    {
+      "check": "bramble-repeat: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "bramble-left-cap: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bramble-left-cap: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "bramble-right-cap: in canvas",
+      "passed": true
+    },
+    {
+      "check": "bramble-right-cap: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "16-props: canvas",
+      "passed": true
+    },
+    {
+      "check": "16-props: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "16-props: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "unlit-lantern-post: in canvas",
+      "passed": true
+    },
+    {
+      "check": "unlit-lantern-post: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "lit-lantern-post: in canvas",
+      "passed": true
+    },
+    {
+      "check": "lit-lantern-post: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "wooden-bench: in canvas",
+      "passed": true
+    },
+    {
+      "check": "wooden-bench: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "red-banner-pole: in canvas",
+      "passed": true
+    },
+    {
+      "check": "red-banner-pole: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "wooden-crate: in canvas",
+      "passed": true
+    },
+    {
+      "check": "wooden-crate: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "barrel: in canvas",
+      "passed": true
+    },
+    {
+      "check": "barrel: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "clay-pot: in canvas",
+      "passed": true
+    },
+    {
+      "check": "clay-pot: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "blank-signpost: in canvas",
+      "passed": true
+    },
+    {
+      "check": "blank-signpost: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "red-mushrooms: in canvas",
+      "passed": true
+    },
+    {
+      "check": "red-mushrooms: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "flower-cluster: in canvas",
+      "passed": true
+    },
+    {
+      "check": "flower-cluster: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "17-daytime-sky: canvas",
+      "passed": true
+    },
+    {
+      "check": "17-daytime-sky: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "17-daytime-sky: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "17-daytime-sky: opaque",
+      "passed": true
+    },
+    {
+      "check": "17-daytime-sky: repeat x",
+      "passed": true
+    },
+    {
+      "check": "daytime-sky: in canvas",
+      "passed": true
+    },
+    {
+      "check": "daytime-sky: repeat x",
+      "passed": true
+    },
+    {
+      "check": "daytime-sky: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "18-far-forest: canvas",
+      "passed": true
+    },
+    {
+      "check": "18-far-forest: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "18-far-forest: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "18-far-forest: repeat x",
+      "passed": true
+    },
+    {
+      "check": "far-forest: in canvas",
+      "passed": true
+    },
+    {
+      "check": "far-forest: repeat x",
+      "passed": true
+    },
+    {
+      "check": "far-forest: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "19-mid-forest: canvas",
+      "passed": true
+    },
+    {
+      "check": "19-mid-forest: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "19-mid-forest: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "19-mid-forest: repeat x",
+      "passed": true
+    },
+    {
+      "check": "mid-forest: in canvas",
+      "passed": true
+    },
+    {
+      "check": "mid-forest: repeat x",
+      "passed": true
+    },
+    {
+      "check": "mid-forest: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "20-foreground: canvas",
+      "passed": true
+    },
+    {
+      "check": "20-foreground: exact integer pixels",
+      "passed": true
+    },
+    {
+      "check": "20-foreground: binary alpha",
+      "passed": true
+    },
+    {
+      "check": "20-foreground: repeat x",
+      "passed": true
+    },
+    {
+      "check": "foreground-foliage: in canvas",
+      "passed": true
+    },
+    {
+      "check": "foreground-foliage: repeat x",
+      "passed": true
+    },
+    {
+      "check": "foreground-foliage: exact dimensions",
+      "passed": true
+    },
+    {
+      "check": "ground: flora stays in y8..15",
+      "passed": true
+    },
+    {
+      "check": "ground: plain fill join",
+      "passed": true
+    },
+    {
+      "check": "underside: 16 rows plain fill",
+      "passed": true
+    },
+    {
+      "check": "corners: lower right quarter empty",
+      "passed": true
+    },
+    {
+      "check": "18-far-forest: solid lower band",
+      "passed": true
+    },
+    {
+      "check": "19-mid-forest: solid lower band",
+      "passed": true
+    },
+    {
+      "check": "20-foreground: solid lower band",
+      "passed": true
+    }
+  ],
+  "scope": "Dimensions, grid, alpha, seams and declared anchors. Does not certify subjective style equivalence or runtime collision implementation."
+}

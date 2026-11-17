@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="TerrainMaterial" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/environment/sanctuary/terrain/sanct_fill.png" id="1_hxhm4"]
+[ext_resource type="Script" path="res://scripts/world/terrain_material.gd" id="2_dfy00"]
+[ext_resource type="Texture2D" path="res://assets/environment/sanctuary/terrain/sanct_top.png" id="3_mai5k"]
+[ext_resource type="Texture2D" path="res://assets/environment/sanctuary/terrain/sanct_under.png" id="4_u36b2"]
+[ext_resource type="Texture2D" path="res://assets/environment/sanctuary/terrain/sanct_wall.png" id="5_hr56b"]
+
+[resource]
+script = ExtResource("2_dfy00")
+fill = ExtResource("1_hxhm4")
+fade_tiles = 2.2
+top_band = ExtResource("3_mai5k")
+top_line = 15
+top_lit = 36
+under_band = ExtResource("4_u36b2")
+under_line = 16
+wall_band = ExtResource("5_hr56b")
+wall_face = 34
+outline_color = Color(0, 0, 0, 0)
