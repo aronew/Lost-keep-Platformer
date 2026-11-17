@@ -129,8 +129,9 @@ const LEVELS := [
 	{"id": "1-3", "name": "The Ruin Gardens", "scene": ""},
 	{"id": "1-4", "name": "The Aqueduct", "scene": ""},
 	{"id": "1-5", "name": "The Lantern Clearing", "scene": ""},
-	{"id": "1-S", "name": "The Hollow Oak", "scene": ""},
-	{"id": "1-B", "name": "The Keep Gate", "scene": ""},
+	# On the map the secret level hangs off the path, and the boss follows 1-5.
+	{"id": "1-S", "name": "The Hollow Oak", "scene": "", "after": "1-5"},
+	{"id": "1-B", "name": "The Keep Gate", "scene": "", "after": "1-5"},
 ]
 ## Where the game is saved. Tests turn saving off.
 var save_path := "user://save.json"
@@ -656,11 +657,17 @@ func record(i: int) -> Dictionary:
 		"tokens": tokens, "tokens_of": l["tokens"].size(), "knot": flags.has(l["knot"])}
 
 
-## A stop can be entered once it is built and the stop before it is done.
+## A stop can be entered once it is built and the stop it follows is done
+## (the one before it in the list, unless it names another with `after`).
 func stop_open(i: int) -> bool:
 	if LEVELS[i].get("scene", "") == "":
 		return false
-	return i == 0 or record(i - 1)["done"]
+	var before := i - 1
+	if LEVELS[i].has("after"):
+		for k in LEVELS.size():
+			if LEVELS[k]["id"] == LEVELS[i]["after"]:
+				before = k
+	return before < 0 or record(before)["done"]
 
 
 ## Into stop `i` from the map. Its beads, chests and checkpoints start afresh;

@@ -1824,7 +1824,8 @@ func _map_test() -> void:
 	res.append(["beads and checkpoints are not saved", not Game.flags.has("l12_a_0") and not Game.flags.has("l12_cp1")])
 	await _key("move_right")
 	res.append(["she travels on to 1-2", map._stop == 1])
-	await _frames(30)
+	await _frames(100)
+	res.append(["along the map's path, to its pad", map._arrived() and map._pos.distance_to(map._pad(1)) < 1.0])
 	await _capture("03_at_1_2")
 	Game.flags["l12_a_0"] = true
 	Game.room_host = _note_entered

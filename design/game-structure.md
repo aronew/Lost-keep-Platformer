@@ -342,9 +342,12 @@ and beauty.
 ## 7. The hub: the Refuge
 
 - **The world map** of Vaelora is the menu: each region's levels are stops
-  along a road. **Built for region 1** (a stand-in look): Kleo walks stop to
-  stop; a stop opens when the one before it is done; a cleared stop's
-  banner flies. **Under each stop, its record:** the letters K-L-E-O, the
+  along a path. **Built for region 1 on the creative lead's painted map**
+  ("Flooded Sanctuary": six numbered pads and a "?" grotto; pads 1 to 5 are
+  the five levels, pad 6 at the skull gate is the boss, the grotto is the
+  secret level, reached off pad 3). Kleo walks pad to pad along its dotted
+  paths; a stop opens when the one it follows is done; a cleared pad is
+  ringed in amber. **For the stop she stands on, its record:** the letters K-L-E-O, the
   two bonus tokens and the thorn knot, each shown found or missing: the
   hunt kept in view (from the research: players hunt what they can see is
   missing). The game opens on the map; a level's end leads back to it; Esc
