@@ -678,8 +678,14 @@ of the room** (the skin hangs its underside), never a pinned or parallax
 band; **the distance is far darker than the sheets came** (Sky, Far and Mid
 modulated to deep teal); the water darker; dark ruins stand in the water
 behind the play (`_sanct_midground`), lanterns glow (`_sanct_glow`), a light
-vignette. **A level looks like a mockup only if its shapes are the
-mockup's:** build sanctuary levels from the mockups' shapes (thick masses
+vignette. **The stone is piles, not walls** ("they look nothing like the
+natural stone in the mockups"): lit boulders at the edges and deep shadow
+inside (the fill fades in 2 tiles to `SANCT_STONE_DEEP`), masses stepped one
+block at a time, never tall boxes, rubble and ferns at their feet. **The
+foreground has a second, nearer layer of silhouette plants** (the creative
+lead's; `fg_scroll`, Lost Keep's black forest band at 1.45). Drowned stone
+stands on the bed (`_sanct_bed`), never mid-water. **A level looks like a
+mockup only if its shapes are the mockup's:** build sanctuary levels from the mockups' shapes (thick masses
 stepping into water a tile below the low ground, a rock roof), then dress.
 1-2's layout predates this and still reads as a low road of hops.
 `_sanct(name)` looks a piece up (`SANCT`), `_sanct_ground` stands one on a

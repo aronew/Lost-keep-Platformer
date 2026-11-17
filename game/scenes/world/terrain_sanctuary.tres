@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("2_dfy00")
 fill = ExtResource("1_hxhm4")
-fade_tiles = 9.0
+fade_tiles = 2.2
 top_band = ExtResource("3_mai5k")
 top_line = 15
 top_lit = 36

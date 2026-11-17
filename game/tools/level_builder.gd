@@ -122,11 +122,12 @@ var _day_atlas := {}
 var kit := "day"
 const ENV_SANCT := "res://assets/environment/sanctuary/"
 ## The stone deep inside a sanctuary mass.
-const SANCT_STONE_DEEP := Color("#2c2140")
+const SANCT_STONE_DEEP := Color("#231a34")
 const SANCT_WATER_LIFT := Color(1.15, 1.5, 2.0)
 ## The sanctuary kit's pieces by name: [sheet, index in sanct_pieces.json].
 const SANCT := {
 	"arch": ["F4-ruins", 0], "archway": ["F4-ruins", 1], "pillar": ["F4-ruins", 2],
+	"rubble_steps": ["F4-ruins", 3], "rubble_block": ["F4-ruins", 4],
 	"hut": ["F10-hut-door", 0], "doorway": ["F10-hut-door", 1],
 	"mushroom_big": ["F11-flora", 0], "fern": ["F11-flora", 1], "fern_tall": ["F11-flora", 2],
 	"mushroom": ["F11-flora", 3], "mushroom_b": ["F11-flora", 4], "mushrooms": ["F11-flora", 5],
@@ -251,7 +252,9 @@ func _sanct_breakable(name: String, x: float, floor_y: float, chips: Color) -> N
 func _sanct_material() -> Resource:
 	var m: Resource = load("res://scripts/world/terrain_material.gd").new()
 	m.fill = load(ENV_SANCT + "terrain/sanct_fill.png")
-	m.fade_tiles = 9.0
+	# The mockups' stone is lit boulders at the edges and deep shadow inside,
+	# never an evenly lit wall: the fill sinks into shadow within two tiles.
+	m.fade_tiles = 2.2
 	m.top_band = load(ENV_SANCT + "terrain/sanct_top.png")
 	m.top_line = 15
 	m.top_lit = 36
@@ -475,6 +478,11 @@ func _level_foreground() -> void:
 		# Book 4's D19: one leafy band.
 		if kit == "sanctuary":
 			_fg_bands("sanct", Color(0, 0, 0, 0), ENV_SANCT, true, 0.0, "ForegroundLeaves", view_bottom, main_floor)
+			# One more layer, nearest the camera (the creative lead): plants in
+			# silhouette, sliding a little faster, as along the mockups' bottom.
+			fg_scroll = Vector2(1.45, 1.12)
+			_fg_bands("forest", Color(0, 0, 0, 0), ENV, false, 130.0, "ForegroundSilhouette", view_bottom, main_floor)
+			fg_scroll = Vector2.ZERO
 			return
 		_fg_bands("day", Color(0, 0, 0, 0), ENV_DAY, true, 0.0, "ForegroundLeaves", view_bottom, main_floor)
 		return

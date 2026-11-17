@@ -17,15 +17,16 @@ const ROCK := [
 	# The cavern's roof: real rock, thick at the left, broken toward the right.
 	[0, 0, 9, 6, 0], [9, 0, 6, 5, 0], [15, 0, 4, 4, 0], [26, 0, 5, 4, 0], [31, 0, 6, 5, 0], [37, 0, 3, 4, 0],
 	# The low ground at the left, the hut on it.
-	[0, 20, 9, 8, 0],
-	# The mound: block steps up its west side, its top, a steep east side.
-	[9, 19, 2, 9, 0], [11, 18, 2, 10, 0], [13, 17, 5, 11, 0],
+	[0, 20, 10, 8, 0],
+	# The mound: a pile, one block up at a time on its west side, a steep
+	# crumbling east side.
+	[10, 19, 9, 9, 0], [11, 18, 7, 10, 0], [12, 17, 5, 11, 0],
 	# Low rocky ground under the log, just above the water.
-	[18, 21, 5, 7, 0],
-	# The great block: a step up its west foot, its top, a ledge east of it.
-	[22, 20, 1, 8, 0], [23, 17, 5, 11, 0], [28, 19, 2, 9, 0],
+	[19, 21, 3, 7, 0],
+	# The great block: stepped up its west side, its top, ledges down its east.
+	[22, 20, 9, 8, 0], [23, 19, 7, 9, 0], [24, 18, 5, 10, 0], [24, 17, 4, 11, 0],
 	# The low ground east of it, the waterfall's gap, and on to the pillar.
-	[30, 20, 5, 8, 0], [36, 20, 2, 8, 0],
+	[31, 20, 4, 8, 0], [36, 20, 2, 8, 0],
 	# The tall pillar at the right edge.
 	[38, 15, 2, 13, 0],
 ]
@@ -54,10 +55,13 @@ func _initialize() -> void:
 	var log_art := _sprite(_root.get_node("PlacedArt"), ld["tex"], Rect2(lr.position.x + lr.size.x - 150.0, lr.position.y, 150.0, lr.size.y),
 		Vector2(16.4 * TILE, 19.0 * TILE - 12.0))
 	log_art.name = "Log"
-	_canopy(17.6 * TILE, 23.0 * TILE, 19.0 * TILE, false)
-	for p in [["flowers", 6.5, 20], ["fern", 8.2, 20], ["mushrooms", 15.0, 17], ["flowers_b", 16.6, 17],
-			["mushroom_big", 25.6, 17], ["mushroom_b", 27.0, 17], ["flowers", 24.2, 17], ["grass", 29.0, 19],
-			["fern_tall", 32.0, 20], ["flowers_b", 33.8, 20], ["flowers", 39.0, 15]]:
+	_canopy(18.0 * TILE, 23.0 * TILE, 19.0 * TILE, false)
+	# Rubble and ferns at the foot of each pile, as in the mockup.
+	_sanct_ground(behind, "rubble_steps", 20.2 * TILE, 21.0 * TILE, true).z_index = 2
+	_sanct_ground(behind, "rubble_block", 21.3 * TILE, 21.0 * TILE)
+	_sanct_ground(behind, "fern_tall", 19.6 * TILE, 21.0 * TILE)
+	for p in [["flowers", 6.5, 20], ["mushrooms", 14.5, 17],
+			["mushroom_big", 26.2, 17], ["fern_tall", 33.0, 20]]:
 		_sanct_plant(behind, p[0], p[1], p[2])
 	_lunger(32.5 * TILE, G, 30.5 * TILE, 34.5 * TILE, "rat")
 	# Under the water: drowned stone and weeds, lily pads on it.

@@ -281,6 +281,9 @@ const FG_DEPTHS := [
 	[Vector2(1.25, 1.08), Color(0.045, 0.04, 0.065), 6.0, "a", false],
 ]
 ## Fog laid in front of each depth but the nearest (none with one depth).
+## A band nearer the camera than the rest slides faster: set before a call
+## to `_fg_bands` (zero: the depth's own).
+var fg_scroll := Vector2.ZERO
 const FG_FOG := []
 ## Which bands to draw: the bottom only (the top band is now the ceilings' own trim).
 const FG_PARTS := ["bottom"]
@@ -328,7 +331,7 @@ func _fg_bands(kind: String, fog_tint: Color, dir := ENV, own_colour := false, s
 		lowest = lowest_floor
 	for i in FG_DEPTHS.size():
 		var d: Array = FG_DEPTHS[i]
-		var sc: Vector2 = d[0]
+		var sc: Vector2 = d[0] if fg_scroll == Vector2.ZERO else fg_scroll
 		var layer := _node(Parallax2D.new(), "FgDepth%d" % (i + 1), holder) as Parallax2D
 		layer.scroll_scale = sc
 		var band_w := float((load(dir + "fg_%s_bottom_a.png" % kind) as Texture2D).get_width())
