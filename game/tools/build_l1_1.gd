@@ -1,5 +1,5 @@
 extends "res://tools/level_builder.gd"
-## Builds level 1-1, The Overgrown Ruins, and saves it as an ordinary scene.
+## Builds level 1-1, Lantern Refuge (first called The Overgrown Ruins), and saves it as an ordinary scene.
 ## The blockout was approved by the creative lead; this is the art pass
 ## (`blockout = false`; set it true to see the black box and the labels
 ## again). Dressed from the Ironbark surface kit; what the kit lacks is asked
@@ -115,7 +115,7 @@ func _initialize() -> void:
 	blockout = false
 	main_floor = G
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://scenes/levels"))
-	_level_begin("L1_1_OvergrownRuins", "1-1 The Overgrown Ruins")
+	_level_begin("L1_1_OvergrownRuins", "1-1 Lantern Refuge")
 	_root.set("main_area", MAIN)
 	# The water under everything, but for the hill, which stands on the water
 	# bed with the bonus cave inside it.

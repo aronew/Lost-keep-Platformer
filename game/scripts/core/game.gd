@@ -118,7 +118,7 @@ const MAP_SCENE := "res://scenes/ui/world_map.tscn"
 ## the level owns. `letters`, `tokens` and `knot` are what the map keeps score
 ## of: these flags, and each level's done flag, are all that is saved.
 const LEVELS := [
-	{"id": "1-1", "name": "The Overgrown Ruins", "node": "L1_1_OvergrownRuins", "prefix": "l11_",
+	{"id": "1-1", "name": "Lantern Refuge", "node": "L1_1_OvergrownRuins", "prefix": "l11_",
 		"scene": "res://scenes/levels/l1_1_overgrown_ruins.tscn",
 		"letters": ["l11_letter_k", "l11_letter_l", "l11_letter_e", "l11_letter_o"],
 		"tokens": ["l11_token1", "l11_token2"], "knot": "l11_knot"},
@@ -129,8 +129,9 @@ const LEVELS := [
 	{"id": "1-3", "name": "The Ruin Gardens", "scene": ""},
 	{"id": "1-4", "name": "The Aqueduct", "scene": ""},
 	{"id": "1-5", "name": "The Lantern Clearing", "scene": ""},
-	# On the map the secret level hangs off the path, and the boss follows 1-5.
-	{"id": "1-S", "name": "The Hollow Oak", "scene": "", "after": "1-5"},
+	# On the map the secret level hangs off pad 3 (its hidden exit is in 1-3),
+	# and the boss follows 1-5.
+	{"id": "1-S", "name": "The Hollow Oak", "scene": "", "after": "1-3"},
 	{"id": "1-B", "name": "The Keep Gate", "scene": "", "after": "1-5"},
 ]
 ## Where the game is saved. Tests turn saving off.

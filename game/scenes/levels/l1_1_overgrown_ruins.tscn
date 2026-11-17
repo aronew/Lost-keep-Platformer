@@ -971,7 +971,7 @@ script = ExtResource("1_wvgjp")
 room_rect = Rect2i(0, 0, 540, 40)
 spawn = Vector2(80, 480)
 is_level = true
-level_name = "1-1 The Overgrown Ruins"
+level_name = "1-1 Lantern Refuge"
 main_area = Rect2i(0, 0, 440, 40)
 
 [node name="Sky" type="Parallax2D" parent="." unique_id=1783057653]

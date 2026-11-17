@@ -36,7 +36,7 @@ what is missing in every level.
 **State of each piece.**
 | Piece | State |
 |---|---|
-| 1-1 The Overgrown Ruins | Playable, dressed in the dusk kit under daylight. Waiting for Book 4's bright-day art and the creative lead's play |
+| 1-1 Lantern Refuge (first called The Overgrown Ruins; files and node keep that name) | Playable, dressed in the dusk kit under daylight. Waiting for Book 4's bright-day art and the creative lead's play |
 | 1-2 The Gate Road | A **blockout**, awaiting review. No art until it is approved |
 | 1-3 to 1-5, 1-S, 1-B | Not started (stops on the map, dim) |
 | World map, save file | Built, on the creative lead's painted region map ("Flooded Sanctuary") |
@@ -55,7 +55,11 @@ never a lantern**; blockout first, art last.
 - **"I was surprised that there was a boost in running"; "the boost is
   cool."** Decided: Kleo's stride stays. Levels are still designed for the
   plain jump; the stride is the skilled player's shortcut.
-The knots' hiding places and the map's look have not been commented on.
+- **"Use the map names and follow the map."** Decided: region 1 is
+  **Flooded Sanctuary** and level 1-1 is **Lantern Refuge**, as the creative
+  lead's region map has them; and the secret level is reached off pad 3, so
+  region 1's hidden exit goes in 1-3.
+The knots' hiding places have not been commented on.
 
 **What to do next, in order.**
 1. Take the creative lead's review of the 1-2 blockout and of this
@@ -665,12 +669,10 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax
   layers, so judge the look in `mode=shots`.
-- **The region map, awaiting the creative lead's word:** the region's name (the map says "Flooded
-  Sanctuary", the design docs "The Ironbark Wilds") and level 1's (the map
-  says "Lantern Refuge", the docs "The Overgrown Ruins"): the game shows the
-  docs' level names for now; the map's dusk look against region 1's
-  bright-day look; and that the map draws the secret's path from pad 3 (the
-  docs hide its exit in 1-4 or 1-5).
+- **Asked, not yet answered:** the map is dusk (dark teal and purple) while
+  region 1's levels are bright day by the creative lead's earlier decision.
+  "Follow the map" was taken to mean its names and its paths, **not** a
+  change of the levels' look: don't darken the levels on it.
 - **Awaiting the creative lead's word:** the thorn knots' hiding places and
   the banner stand-in. What waking every knot does is undecided.
 - 1-1's two bonus areas are still the old kinds (12 beads; a course), not

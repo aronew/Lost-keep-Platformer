@@ -12,7 +12,7 @@ mine.**
 
 | Level | Mark | Why | What would raise it |
 |---|---|---|---|
-| 1-1 The Overgrown Ruins | △ | It teaches seven things, so its beats don't share one idea; its gaps are all 4 tiles; its art is the dusk kit under daylight. Its secrets are its best part (the treetops, the knot behind the won bonus). | The bright-day kit (Book 4). A chain in the test beat: the log, the gap and the ruin mass each a step on from the last. |
+| 1-1 Lantern Refuge | △ | It teaches seven things, so its beats don't share one idea; its gaps are all 4 tiles; its art is the dusk kit under daylight. Its secrets are its best part (the treetops, the knot behind the won bonus). | The bright-day kit (Book 4). A chain in the test beat: the log, the gap and the ruin mass each a step on from the last. |
 | 1-2 The Gate Road | △ (a blockout) | One clear idea (hopping over water), a chain in the long pool, a rest, risky Resin, a high path, a knot that asks her to turn back. The twist's six floating islands still alternate up 2, down 2 like a metronome, and its finish is short. | Vary the twist's islands as the pool was varied (a narrow one, a far one, one with thorns at its middle). Play it. Then art. |
 | The systems arena | n/a | A test room. | |
 
