@@ -204,6 +204,7 @@ func _stalk(delta: float) -> void:
 	dir = 1 if dx > 0.0 else -1
 	if absf(dx) <= lunge_range and _cool <= 0.0 and is_on_floor() and _may_wind_up():
 		Fx.dust(self, global_position + Vector2(-dir * 12, 0), Fx.SKID, dir)
+		Sfx.play("enemy_tell")
 		_go(S.WINDUP)
 		return
 	if absf(dx) < 26.0:
@@ -239,6 +240,7 @@ func _lunge() -> void:
 	var land_x := clampf(global_position.x + dir * reach, left_x, right_x)
 	velocity = Vector2((land_x - global_position.x) / air, -lunge_rise)
 	Fx.dust(self, global_position, Fx.JUMP, dir)
+	Sfx.play("enemy_lunge")
 	_go(S.LUNGE)
 
 
@@ -268,6 +270,7 @@ func take_hit(hit: Dictionary) -> bool:
 	tw.tween_method(_flash, 1.0, 0.0, 0.14)
 	Fx.burst(self, hit.get("pos", global_position + Vector2(0, -12)), Color(0.42, 0.32, 0.52), 8, 110.0)
 	Fx.burst(self, hit.get("pos", global_position + Vector2(0, -12)), Color(0.76, 0.22, 0.35), 4, 90.0)
+	Sfx.play("hit_flesh_heavy" if hits >= hits_to_kill else "hit_flesh")
 	if hits >= hits_to_kill:
 		_die(from)
 		return true

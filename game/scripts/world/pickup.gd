@@ -108,6 +108,7 @@ func _on_body_entered(body: Node) -> void:
 		return
 	_taken = true
 	Game.take_resin(self, value)
+	Sfx.resin()
 	Fx.burst(self, global_position, Color(1.0, 0.8, 0.4), 8, 70.0)
 	set_deferred("monitoring", false)
 	var tw := create_tween()

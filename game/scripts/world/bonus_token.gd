@@ -38,6 +38,7 @@ func show_token(on: bool) -> void:
 		_taken = false
 		art.modulate.a = 1.0
 		Fx.burst(self, global_position, Color(0.62, 0.9, 0.96), 16, 90.0)
+		Sfx.play("token_appears")
 
 
 func _on_body_entered(body: Node) -> void:
@@ -46,6 +47,7 @@ func _on_body_entered(body: Node) -> void:
 	_taken = true
 	set_deferred("monitoring", false)
 	Game.take_token(flag)
+	Sfx.play("token")
 	Fx.burst(self, global_position, Color(1.0, 0.86, 0.5), 18, 110.0)
 	Game.hitstop(0.05)
 	var tw := create_tween()

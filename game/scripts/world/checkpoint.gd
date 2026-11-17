@@ -66,6 +66,7 @@ func _on_body_entered(body: Node) -> void:
 		if flag != "":
 			Game.flags[flag] = true
 		var flame_pos := lamp.global_position
+		Sfx.play("checkpoint")
 		Fx.burst(self, flame_pos, Color(1.0, 0.75, 0.35), 16, 80.0)
 		Fx.burst(self, flame_pos, Color(1.0, 0.92, 0.7), 6, 40.0)
 		# the old flame flares in the post's glass for a moment

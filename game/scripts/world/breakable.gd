@@ -37,6 +37,7 @@ func take_hit(hit: Dictionary) -> bool:
 	_hits += 1
 	if _hits < hits_to_break:
 		_flash()
+		Sfx.play("hit_pot")
 		return true
 	_break(int(hit.get("dir", 1)), int(hit.get("power", 1)))
 	return true
@@ -55,6 +56,7 @@ static func grid_for(size: Vector2) -> Vector2i:
 
 func _break(dir: int, power: int) -> void:
 	_broken = true
+	Sfx.play("smash_pot")
 	hurtbox.set_deferred("monitorable", false)
 	var r := art.region_rect
 	var grid := grid_for(r.size)

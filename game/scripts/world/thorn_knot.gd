@@ -47,6 +47,7 @@ func _on_body_entered(body: Node) -> void:
 	art.frame = 1
 	art.position.y = 0.0
 	Game.take_knot(flag)
+	Sfx.play("knot")
 	Fx.burst(self, global_position, Color(0.95, 0.69, 0.29), 22, 120.0)
 	Game.hitstop(0.08)
 	Game.shake(0.2)

@@ -255,7 +255,8 @@ game/                     the Godot project
   project.godot           640x360, integer scale, GL Compatibility; autoload Game;
                           the main scene (Play) is the world map
   scripts/player/kleo.gd  Kleo's controller and tuning
-  scripts/core/           game.gd (the Game autoload), camera_rig.gd
+  scripts/core/           game.gd (the Game autoload), sfx.gd (the Sfx autoload:
+                          sounds), camera_rig.gd
   scripts/fx/             dust, arcs, sparks, debris
   scripts/world/          room, room_exit, breakable, pickup, interactable,
                           secret_cover, lantern_light, mossback, moat_water,
@@ -284,8 +285,10 @@ game/                     the Godot project
                           build_systems.gd (the
                           systems arena), build_test_room.gd (IB-01),
                           build_ib03.gd, build_ib04.gd
-  tests/                  playtest.gd/.tscn (scripted play + captures), framelog
-  assets/                 characters (kleo, mossback, stranger, roster/),
+  tests/                  playtest.gd/.tscn (scripted play + captures), framelog,
+                          checks.gd/.tscn (sounds, pause, getting up after a blow)
+  assets/                 audio (sfx/, voice/: see "Sound"),
+                          characters (kleo, mossback, stranger, roster/),
                           items (resin, chest, letters, token), ui (flames,
                           letter icons), fx,
                           world (blockout tiles), environment/ironbark
@@ -337,6 +340,29 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   her Resin**. Resin taken since the last checkpoint is at risk: a fall puts
   those beads back where they hung (`Pickup.restore`, `Game.take_resin`).
   The level's start counts as a checkpoint.
+- **A heavy blow** (a lunge, thorns: the knockback) no longer holds her for
+  its whole 0.8 s get-up: from the slide on (`KNOCK_GET_UP`), moving or
+  jumping gets her up; and whenever she has her feet back she is safe for
+  `safe_after_hit` (0.6 s) more. Before, she was safe for 0.09 s after
+  regaining control. `tests/checks.tscn` measures it.
+- **Sound** (`scripts/core/sfx.gd`, autoload `Sfx`: `Sfx.play("jump")`,
+  `Sfx.resin()`): the creative lead's sound effects from their MetroidVania
+  project (`aronew/MetroidVania`, `game/assets/audio`: **only the `.ogg`
+  files came over**, 118 effects and 8 voice clips, made with ElevenLabs).
+  `CUES` in `sfx.gd` maps each of this game's events to one of that set's
+  sounds: random takes, never the same twice running, a little pitch drift;
+  Resin climbs in pitch bead after bead. **The cues were chosen by name, not
+  by ear** (a cloud session can't listen): judge them in the game and change
+  the table. Not there yet: music, ambience, water, UI sounds.
+  **Kleo's voice** (`Sfx.voice`, the `VOICE` table): the set's wordless
+  shouts, which the creative lead says are not gender-specific (measured
+  pitch about 300 to 470 Hz). A "hut" on about half her light swings,
+  always on the third and the finisher, sometimes on a ledge climb and a
+  throw; one throat, so a new shout cuts off the last. `vo_resonant` (a
+  spell's shout) waits for her spells.
+- **Pause** (`game.gd`): Esc, P or Start pauses a level: Resume, or Back to
+  the map, which asks once more. (Esc used to leave the level at once.) The
+  press that closes the menu is not also a jump (`Game.just_resumed`).
 - **The lunger** (`lunger.gd`, `_lunger(x, floor, left, right, sprite)`):
   any creature from the creative lead's roster (`design/enemies.md`; 1-1 uses
   the rat). Patrols its stretch, notices her (stops, rears), stalks, winds up
@@ -629,7 +655,8 @@ Set `blockout = false` once the layout is approved, and dress it.
 - **Lights** don't light the fog, haze or backdrops (light mask 2,
   `LIGHT_MASK_AIR`); falloff is smooth (`_soft_light_texture()`), glows are
   dithered additive discs (`shaders/glow.gdshader`, `_warm_glow()`).
-- **Debug keys:** F1 black-box view, F2 overlay, F3 slow motion, F5 restart,
+- **Debug keys** (debug builds only; an exported game ignores them, and F4
+  on the map): F1 black-box view, F2 overlay, F3 slow motion, F5 restart,
   H a heavy hit. **Controls:** move A/D or arrows; jump Space/Z/K; attack left
   click or X/J; interact E/C or up; spell right click or V/L (reserved).
 
@@ -671,6 +698,8 @@ cd game
 xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playtest.tscn -- room=ib03 mode=tour
 ```
 
+- The shell (sounds, pause, getting up after a blow):
+  `res://tests/checks.tscn` in place of the playtest scene (no arguments).
 - Levels: `l1_1`, `l1_2`, `l1_3`, `l1_4`, `l1_5`, `l1_s`, `l1_b`, `l2_2`
   (`mode=tour`: the main line; `mode=secrets`: every secret, letter, bonus
   area and chest (not `l1_b`: it has none); `shots`; `map`; `l2_2` also
@@ -894,6 +923,21 @@ onward take is undecided. When the kit arrives, process it as
   fault in the carried-over room's scripted route, not in the level code.
 
 ## Open items
+- **From the audit (2026-11), done:** sound effects, the heavy-blow fix, the
+  pause menu, debug keys out of exported builds. (The dusk kit's dark
+  floor plants, which read as holes and hid Kleo's feet, are gone by day:
+  main turned the whole detail pass off in daylight levels.)
+- **From the audit, open:** the creatures are one drawing squashed and
+  leaned in code (they need frames from the creative lead); no music or
+  ambience; the sound cues need the creative lead's ear; the audio's rights
+  log in the MetroidVania repo still says "to confirm: which paid plan".
+- **Physics interpolation is off, on purpose.** Measured at a 144 Hz
+  display: without it the world stands still on 87 frames of 150 and then
+  jumps 2 to 3 px (judder); with it the world moves 1 px a frame, but Kleo
+  flickers 1 px against the world three times as often (42 changes in 150
+  frames against 14), with the camera rounded or not. That breaks the
+  camera rule (she never shimmers against the world), so it stays off until
+  there is a way to have both. At 60 Hz there is no difference either way.
 - **Level 1-1: lit as bright day, letters and two bonus areas in, awaiting
   the creative lead's play** (`design/levels/1-1_overgrown_ruins.md`,
   pictures in `docs/levels/1-1/art_pass/`). Its art is still Book 3's dusk

@@ -133,6 +133,7 @@ func _on_bead(body: Node, bead: Area2D) -> void:
 	bead.set_meta("taken", true)
 	bead.set_deferred("monitoring", false)
 	Fx.burst(self, bead.global_position, Color(1.0, 0.8, 0.4), 8, 70.0)
+	Sfx.resin()
 	var tw := bead.create_tween()
 	tw.tween_property(bead, "scale", Vector2(1.6, 1.6), 0.1)
 	tw.tween_callback(func() -> void:
