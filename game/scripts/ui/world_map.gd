@@ -15,9 +15,9 @@ extends Node2D
 ## comes back. Jump, interact or attack enters. F4 opens every built stop (for
 ## reviewing a level before the ones in front of it are finished).
 ##
-## The painting has a Kleo, "0/6 levels completed" and "1 · Lantern Refuge"
-## painted into it. The two plates are covered here and written afresh; the
-## painted Kleo at pad 1 can't be, so she stays there (see CLAUDE.md).
+## The painting has "0/6 levels completed" and "1 · Lantern Refuge" painted
+## into it: the two plates are covered here and written afresh. (Its first
+## version also had a Kleo painted at pad 1; the creative lead took her out.)
 
 const MAP := preload("res://assets/ui/region1_map.png")
 ## The painting is 1672 px wide; the game shows it at 640.
@@ -212,11 +212,12 @@ func _draw() -> void:
 		_text(box.get_center() + Vector2(0, 3), "not built yet", 8, Color(PAPER, 0.7))
 		return
 	if not _open(_stop):
-		_text(box.get_center() + Vector2(0, 3), "clear the level before it", 8, Color(PAPER, 0.7))
+		var why := "find the secret exit" if Game.LEVELS[_stop].get("needs", "") != "" else "clear the level before it"
+		_text(box.get_center() + Vector2(0, 3), why, 8, Color(PAPER, 0.7))
 		return
 	var x := box.position.x + 5.0
 	var y := box.position.y
-	for k in 4:
+	for k in rec["letters"].size():
 		var found: bool = rec["letters"][k]
 		draw_texture_rect_region(_icons, Rect2(x + k * 10.0, y + 6.0, 9, 11), Rect2((k + (4 if found else 0)) * 9, 0, 9, 11))
 	x += 46.0
@@ -224,4 +225,7 @@ func _draw() -> void:
 		var won: bool = k < int(rec["tokens"])
 		draw_texture_rect_region(_token, Rect2(x + k * 15.0, y + 4.0, 14, 14), Rect2(1, 1, 14, 14), Color.WHITE if won else Color(0.25, 0.25, 0.35, 0.7))
 	x += 34.0
-	draw_texture_rect_region(_knot, Rect2(x, y + 1.0, 20, 20), Rect2(20 if rec["knot"] else 0, 0, 20, 20), Color.WHITE if rec["knot"] else Color(1, 1, 1, 0.45))
+	if rec["has_knot"]:
+		draw_texture_rect_region(_knot, Rect2(x, y + 1.0, 20, 20), Rect2(20 if rec["knot"] else 0, 0, 20, 20), Color.WHITE if rec["knot"] else Color(1, 1, 1, 0.45))
+	if rec["letters"].is_empty() and int(rec["tokens_of"]) == 0 and not rec["has_knot"]:
+		_text(box.get_center() + Vector2(0, 3), "cleared" if rec["done"] else "not cleared yet", 8, Color(PAPER, 0.8))

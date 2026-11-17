@@ -63,7 +63,7 @@ The vertical level can move (X-2 or X-4) where a region's story wants it.
 
 | # | Region | Biome and look | Teaches | Boss | Reward |
 |---|---|---|---|---|---|
-| 1 | **The Ironbark Wilds** | Bright day: a sunlit forest of great trees, orange earth banks with grey ruin stone, floating islands, clear ponds (`docs/mockups/platformer/bright_day/`) | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
+| 1 | **Flooded Sanctuary** (first called the Ironbark Wilds) | Bright day: a sunlit forest of great trees, orange earth banks with grey ruin stone, floating islands, clear ponds (`docs/mockups/platformer/bright_day/`) | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
 | 2 | **The Hearth-Plains** | Golden fields at late afternoon, silk orchards, windmills, Rootling villages, hay barns, butterflies | The Ward (parry, bash-dash), bounce silk, windmill sails, hay carts | **The Silk Mother** | **Barkgrip** |
 | 3 | **The Dusk-Drifter Wastes** | Ash dunes and glass flats under a violet dusk, slate canyons, nomad caravans, bone-white ruins, ember vents (orange and gold, never red) | Barkgrip (wall cling, wall jump) in canyons; sinking ash, ember geysers, wind | **The Cinder Warden** | **Emberwick** |
 | 4 | **Thornveil** (Fen-Stalker) | A lush swamp of giant roots and stilt huts, glowing fungi, fireflies; the first crimson Blight veins | Emberwick (burn bramble and silk, light braziers); rising and sinking water, sinking lily pads | **The Thornveil Reaper** | **Wing-Cloak** |
@@ -310,7 +310,8 @@ Each level hides:
   to go left). What the knots do when all are awake is undecided
   (**Proposed:** Morvath's test at the Foundry gate is gentler, or they open
   a last secret).
-- **In X-4 or X-5, a hidden exit** to the region's secret level.
+- **In X-4 or X-5, a hidden exit** to the region's secret level (region 1's
+  is in 1-3: the creative lead's map draws the secret's path from pad 3).
 
 Tells, always: motes drifting into a false wall, moss on its stones, a Resin
 bead trail leading off the path, a faint Anima glow at a bonus entrance.
@@ -394,18 +395,27 @@ and beauty.
   Prism**, a last level and the ending. The Lost Keep itself, "the last place
   taken back", is retaken in the epilogue.
 
-## 8. Region 1 in detail: the Ironbark Wilds
+## 8. Region 1 in detail: Flooded Sanctuary
+
+**Named by the creative lead's region map** (2026-11: "use the map names and
+follow the map"): the region is **Flooded Sanctuary** (it was the Ironbark
+Wilds in earlier drafts, and Book 3's kit keeps that name), and level 1-1 is
+**Lantern Refuge** (it was The Overgrown Ruins; its files and its node keep
+the old name so saves and tools still work). The map names no other level:
+1-2 to 1-B keep the names below until it does. **The map is followed where
+it and these docs differ:** the secret level is reached off pad 3, so
+**region 1's hidden exit is in 1-3**, not 1-4 or 1-5.
 
 The first region teaches the whole base kit in a teal forest of overgrown
 purple ruins, under a dusk sky with three moons.
 
 | Stop | Name | The idea | Where it comes from |
 |---|---|---|---|
-| 1-1 | **The Overgrown Ruins** | Run, jump, ledge catch, the combo, a water pit, chests, a false wall | **The mockup:** purple stone ruins in a teal forest, a timber stall on stone arches, a water pit crossed by a mushroom island, a chest on a high ledge, an arched doorway out, a far aqueduct, the black plant band along the bottom. Built new, on IB-03's kit |
+| 1-1 | **Lantern Refuge** | Run, jump, ledge catch, the combo, a water pit, chests, a false wall | **The mockup:** purple stone ruins in a teal forest, a timber stall on stone arches, a water pit crossed by a mushroom island, a chest on a high ledge, an arched doorway out, a far aqueduct, the black plant band along the bottom. Built new, on IB-03's kit |
 | 1-2 | **The Gate Road** | Hopping over water: small islands, then the big floating islands above | Lost Keep's IB-04 (its pool with six islands and the high path), made longer and horizontal |
-| 1-3 | **The Ruin Gardens** | The first vertical level: terraces, flights and floating islands climbing the hill to the cliff's arch | Lost Keep's IB-03 (already a climb), made 2 screens wide and 4 high |
+| 1-3 | **The Ruin Gardens** | **Hides the secret exit** (the map's path to the grotto leaves from pad 3). The first vertical level: terraces, flights and floating islands climbing the hill to the cliff's arch | Lost Keep's IB-03 (already a climb), made 2 screens wide and 4 high |
 | 1-4 | **The Aqueduct** | Things that really move: a raft on the aqueduct's channel and a counterweighted timber lift, first over ground, then over the gorge | New; the aqueduct of the mockup's backdrop, walked on |
-| 1-5 | **The Lantern Clearing** | The gauntlet: everything, the fighting enemy in numbers, at dusk turning to night; hides the secret exit | Lost Keep's IB-01 (the guard post), the way to the Keep |
+| 1-5 | **The Lantern Clearing** | The gauntlet: everything, the fighting enemy in numbers, at dusk turning to night (the secret exit moved to 1-3, after the map) | Lost Keep's IB-01 (the guard post), the way to the Keep |
 | 1-S | **The Hollow Oak** | A secret level inside the Great Ironbark | New |
 | 1-B | **The Keep Gate** | The fallen warden in the Keep's outer courtyard, under open sky | New |
 
@@ -453,6 +463,11 @@ stays the working title.
   kit, water and foreground: `design/levels/1-1_overgrown_ruins.md`.
 - **Level 1-2**: a blockout, awaiting review:
   `design/levels/1-2_gate_road.md`.
+- **Levels 1-3, 1-4, 1-5, 1-S and 1-B**: blockouts, awaiting review
+  (`design/levels/`): the climb, rafts and lifts, the gauntlet, the secret
+  climb, and the boss's approach and arena. **The boss itself is not
+  designed or built**, nor the secret level's extra flame. The secret exit
+  is in 1-3 and opens 1-S on the map.
 - **From the research** (`design/research/platformer-fun.md`): the world map
   with each level's record, the save file, Morvath's thorn knot (one a
   level), Kleo's stride, the chain inside a beat and risky Resin (1-2's

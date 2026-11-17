@@ -124,7 +124,7 @@ const MAP_SCENE := "res://scenes/ui/world_map.tscn"
 ## the level owns. `letters`, `tokens` and `knot` are what the map keeps score
 ## of: these flags, and each level's done flag, are all that is saved.
 const LEVELS := [
-	{"id": "1-1", "name": "The Overgrown Ruins", "node": "L1_1_OvergrownRuins", "prefix": "l11_",
+	{"id": "1-1", "name": "Lantern Refuge", "node": "L1_1_OvergrownRuins", "prefix": "l11_",
 		"scene": "res://scenes/levels/l1_1_overgrown_ruins.tscn",
 		"letters": ["l11_letter_k", "l11_letter_l", "l11_letter_e", "l11_letter_o"],
 		"tokens": ["l11_token1", "l11_token2"], "knot": "l11_knot"},
@@ -132,12 +132,26 @@ const LEVELS := [
 		"scene": "res://scenes/levels/l1_2_gate_road.tscn",
 		"letters": ["l12_letter_k", "l12_letter_l", "l12_letter_e", "l12_letter_o"],
 		"tokens": ["l12_token1", "l12_token2"], "knot": "l12_knot"},
-	{"id": "1-3", "name": "The Ruin Gardens", "scene": ""},
-	{"id": "1-4", "name": "The Aqueduct", "scene": ""},
-	{"id": "1-5", "name": "The Lantern Clearing", "scene": ""},
-	# On the map the secret level hangs off the path, and the boss follows 1-5.
-	{"id": "1-S", "name": "The Hollow Oak", "scene": "", "after": "1-5"},
-	{"id": "1-B", "name": "The Keep Gate", "scene": "", "after": "1-5"},
+	{"id": "1-3", "name": "The Ruin Gardens", "node": "L1_3_RuinGardens", "prefix": "l13_",
+		"scene": "res://scenes/levels/l1_3_ruin_gardens.tscn",
+		"letters": ["l13_letter_k", "l13_letter_l", "l13_letter_e", "l13_letter_o"],
+		"tokens": ["l13_token1", "l13_token2"], "knot": "l13_knot"},
+	{"id": "1-4", "name": "The Aqueduct", "node": "L1_4_Aqueduct", "prefix": "l14_",
+		"scene": "res://scenes/levels/l1_4_aqueduct.tscn",
+		"letters": ["l14_letter_k", "l14_letter_l", "l14_letter_e", "l14_letter_o"],
+		"tokens": ["l14_token1", "l14_token2"], "knot": "l14_knot"},
+	{"id": "1-5", "name": "The Lantern Clearing", "node": "L1_5_LanternClearing", "prefix": "l15_",
+		"scene": "res://scenes/levels/l1_5_lantern_clearing.tscn",
+		"letters": ["l15_letter_k", "l15_letter_l", "l15_letter_e", "l15_letter_o"],
+		"tokens": ["l15_token1", "l15_token2"], "knot": "l15_knot"},
+	# On the map the secret level hangs off pad 3: it opens when she leaves
+	# 1-3 by its secret exit (`needs`). The boss follows 1-5.
+	{"id": "1-S", "name": "The Hollow Oak", "node": "L1_S_HollowOak", "prefix": "l1s_",
+		"scene": "res://scenes/levels/l1_s_hollow_oak.tscn", "after": "1-3", "needs": "l13_secret_exit",
+		"letters": [], "tokens": [], "knot": "l1s_knot"},
+	{"id": "1-B", "name": "The Keep Gate", "node": "L1_B_KeepGate", "prefix": "l1b_",
+		"scene": "res://scenes/levels/l1_b_keep_gate.tscn", "after": "1-5",
+		"letters": [], "tokens": [], "knot": ""},
 ]
 ## Where the game is saved. Tests turn saving off.
 var save_path := "user://save.json"
@@ -654,6 +668,9 @@ func keeper(flag: String) -> bool:
 	if flag.begins_with("level_done_"):
 		return true
 	for l in LEVELS:
+		if l.get("needs", "") == flag:
+			return true
+	for l in LEVELS:
 		if l.get("scene", "") == "":
 			continue
 		if flag == l["knot"] or flag in l["letters"] or flag in l["tokens"]:
@@ -674,7 +691,7 @@ func record(i: int) -> Dictionary:
 		if flags.has(f):
 			tokens += 1
 	return {"built": true, "done": flags.has("level_done_" + l["node"]), "letters": letters,
-		"tokens": tokens, "tokens_of": l["tokens"].size(), "knot": flags.has(l["knot"])}
+		"tokens": tokens, "tokens_of": l["tokens"].size(), "knot": flags.has(l["knot"]), "has_knot": l["knot"] != ""}
 
 
 ## A stop can be entered once it is built and the stop it follows is done
@@ -687,6 +704,8 @@ func stop_open(i: int) -> bool:
 		for k in LEVELS.size():
 			if LEVELS[k]["id"] == LEVELS[i]["after"]:
 				before = k
+	if LEVELS[i].get("needs", "") != "" and not flags.has(LEVELS[i]["needs"]):
+		return false
 	return before < 0 or record(before)["done"]
 
 
