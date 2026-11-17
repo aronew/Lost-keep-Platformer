@@ -18,6 +18,12 @@ extends Node2D
 ## The painting has "0/6 levels completed" and "1 · Lantern Refuge" painted
 ## into it: the two plates are covered here and written afresh. (Its first
 ## version also had a Kleo painted at pad 1; the creative lead took her out.)
+##
+## **Each region has a page.** Region 1's is the painting. Region 2's (the
+## Hearth-Plains) is a stand-in drawn here, until the creative lead paints
+## it: its eight stops (six levels, the bonus level, the boss) along a road
+## through the fields. Tab turns the page; a page can always be looked at,
+## and its stops open as they would (F4 opens every built one).
 
 const MAP := preload("res://assets/ui/region1_map.png")
 ## The painting is 1672 px wide; the game shows it at 640.
@@ -41,6 +47,18 @@ const PATHS := {
 const CHAIN := [0, 1, 2, 3, 4, 6]
 const GROTTO := 5
 const GROTTO_FROM := 2
+
+## Region 2's stand-in page: each stop's pad by its index in Game.LEVELS
+## (screen px), its road in order, and the bonus level off the fourth stop.
+const R2_PADS := {7: Vector2(66, 250), 8: Vector2(148, 204), 9: Vector2(232, 246), 10: Vector2(316, 196),
+	11: Vector2(402, 240), 12: Vector2(486, 190), 13: Vector2(316, 296), 14: Vector2(574, 222)}
+const R2_CHAIN := [7, 8, 9, 10, 11, 12, 14]
+const R2_GROTTO := 13
+const R2_GROTTO_FROM := 10
+const R2_SKY_TOP := Color("#f4c98a")
+const R2_SKY_LOW := Color("#f7e3b0")
+const R2_FIELD := [Color("#e2b44f"), Color("#cf9a3c"), Color("#b98032")]
+const REGION_NAMES := {1: "THE IRONBARK WILDS", 2: "THE HEARTH-PLAINS"}
 const SPEED := 230.0
 
 const INK := Color("#0b0812")
@@ -53,7 +71,11 @@ const BOTTOM_PLATE := Rect2(239, 336, 162, 14)
 const BOTTOM_INK := Color("#532c3f")
 
 var _stop := 0
-var _all_open := false
+## The page shown: 1, the painting; 2, the Hearth-Plains.
+var _region := 1
+## F4: every built stop is open (for a review). It holds for as long as the
+## game runs, so coming back from a level doesn't shut the stops again.
+static var _all_open := false
 var _marker: Sprite2D
 var _pos := Vector2.ZERO
 var _route: Array[Vector2] = []
@@ -73,6 +95,7 @@ func _ready() -> void:
 	_stop = clampi(Game.map_stop, 0, Game.LEVELS.size() - 1)
 	if not _open(_stop):
 		_stop = 0
+	_region = _region_of(_stop)
 	_marker = Sprite2D.new()
 	_marker.texture = preload("res://assets/characters/kleo/idle.png")
 	_marker.region_enabled = true
@@ -85,7 +108,46 @@ func _ready() -> void:
 
 
 func _pad(i: int) -> Vector2:
-	return PADS[i] * S + Vector2(0, -2)
+	return _pad_at(i) + Vector2(0, -2)
+
+
+## A stop's pad on its page (screen px).
+func _pad_at(i: int) -> Vector2:
+	return R2_PADS[i] if R2_PADS.has(i) else PADS[i] * S
+
+
+func _region_of(i: int) -> int:
+	return int(Game.LEVELS[i].get("region", 1))
+
+
+func _chain() -> Array:
+	return R2_CHAIN if _region == 2 else CHAIN
+
+
+func _grotto() -> int:
+	return R2_GROTTO if _region == 2 else GROTTO
+
+
+func _grotto_from() -> int:
+	return R2_GROTTO_FROM if _region == 2 else GROTTO_FROM
+
+
+## Turn to the other region's page: she stands on its first open stop (or
+## its first stop, to look).
+func _turn_page() -> void:
+	_region = 2 if _region == 1 else 1
+	var first := -1
+	for i in _chain():
+		if first < 0:
+			first = i
+		if _open(i):
+			first = i
+			break
+	_stop = first
+	if _open(_stop):
+		Game.map_stop = _stop
+	_route.clear()
+	_pos = _pad(_stop)
 
 
 func _open(i: int) -> bool:
@@ -121,14 +183,14 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("move_right"):
 		_along(1)
 	elif Input.is_action_just_pressed("move_left"):
-		if _stop == GROTTO:
-			_travel(GROTTO_FROM)
+		if _stop == _grotto():
+			_travel(_grotto_from())
 		else:
 			_along(-1)
-	elif Input.is_action_just_pressed("move_down") and _stop == GROTTO_FROM:
-		_travel(GROTTO)
-	elif Input.is_action_just_pressed("move_up") and _stop == GROTTO:
-		_travel(GROTTO_FROM)
+	elif Input.is_action_just_pressed("move_down") and _stop == _grotto_from():
+		_travel(_grotto())
+	elif Input.is_action_just_pressed("move_up") and _stop == _grotto():
+		_travel(_grotto_from())
 	elif Input.is_action_just_pressed("jump") or Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("attack"):
 		if _open(_stop):
 			_busy = true
@@ -138,14 +200,17 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if OS.is_debug_build() and event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F4:
 		_all_open = not _all_open
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_TAB and not _busy and _arrived():
+		_turn_page()
 
 
 ## A step along the main path.
 func _along(dir: int) -> void:
-	var at := CHAIN.find(_stop)
-	if at < 0 or at + dir < 0 or at + dir >= CHAIN.size():
+	var chain := _chain()
+	var at := chain.find(_stop)
+	if at < 0 or at + dir < 0 or at + dir >= chain.size():
 		return
-	_travel(CHAIN[at + dir])
+	_travel(chain[at + dir])
 
 
 func _travel(to: int) -> void:
@@ -179,14 +244,62 @@ func _ring(at: Vector2, radius: float, color: Color, width: float) -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
+## Region 2's stand-in page: a late-afternoon sky, three bands of field,
+## mills on the skyline, the road as a dotted line from pad to pad.
+func _draw_plains() -> void:
+	draw_rect(Rect2(0, 0, 640, 150), R2_SKY_TOP)
+	draw_rect(Rect2(0, 110, 640, 60), R2_SKY_LOW)
+	for k in 3:
+		var pts := PackedVector2Array([Vector2(0, 360)])
+		for x in range(0, 641, 16):
+			pts.append(Vector2(x, 150.0 + k * 62.0 + sin(x * 0.011 + k * 1.9) * 14.0))
+		pts.append(Vector2(640, 360))
+		draw_colored_polygon(pts, R2_FIELD[k])
+	# Mills on the skyline.
+	for mx in [96.0, 262.0, 388.0, 540.0]:
+		var hub := Vector2(mx, 118.0 + sin(mx) * 6.0)
+		draw_colored_polygon(PackedVector2Array([hub + Vector2(-9, 40), hub + Vector2(-5, 0), hub + Vector2(5, 0), hub + Vector2(9, 40)]), Color("#8b6a4a"))
+		for a in 4:
+			var d := Vector2.from_angle(_t * 0.5 + a * PI * 0.5 + mx)
+			draw_line(hub, hub + d * 22.0, Color("#5a4636"), 2.0)
+			draw_colored_polygon(PackedVector2Array([hub + d * 6.0, hub + d * 21.0, hub + d * 21.0 + d.orthogonal() * 6.0, hub + d * 6.0 + d.orthogonal() * 4.0]),
+				Color(0.98, 0.95, 0.85, 0.85))
+	# The road, pad to pad, and the bonus level's path off the fourth stop.
+	var links := []
+	for k in range(1, R2_CHAIN.size()):
+		links.append([R2_CHAIN[k - 1], R2_CHAIN[k]])
+	links.append([R2_GROTTO_FROM, R2_GROTTO])
+	for l in links:
+		var a: Vector2 = R2_PADS[l[0]]
+		var b: Vector2 = R2_PADS[l[1]]
+		var n := int(a.distance_to(b) / 9.0)
+		for k in range(1, n):
+			draw_rect(Rect2((a.lerp(b, float(k) / n) - Vector2(1, 1)).round(), Vector2(3, 2)), Color(0.33, 0.2, 0.14, 0.8))
+	for i in R2_PADS:
+		var at: Vector2 = R2_PADS[i]
+		draw_set_transform(at, 0.0, Vector2(1.0, 0.45))
+		draw_circle(Vector2.ZERO, 14.0, Color("#3b2a22"))
+		draw_circle(Vector2.ZERO, 11.5, Color("#f3e3b4") if Game.LEVELS[i].get("scene", "") != "" else Color("#b89f72"))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		var mark: String = String(Game.LEVELS[i]["id"]).substr(2)
+		_text(at + Vector2(0, 3), "?" if mark == "S" else mark, 8, Color("#3b2a22"))
+	_text(Vector2(320, 24), REGION_NAMES[2], 16, PAPER)
+	_text(Vector2(320, 58), "a stand-in map, until it is painted", 8, Color("#5a4030"))
+
+
 func _draw() -> void:
-	draw_texture_rect(MAP, Rect2(0, 0, 640, 360), false)
+	if _region == 2:
+		_draw_plains()
+	else:
+		draw_texture_rect(MAP, Rect2(0, 0, 640, 360), false)
 	var cleared := 0
 	var of := 0
 	for i in Game.LEVELS.size():
+		if _region_of(i) != _region:
+			continue
 		var r: Dictionary = Game.record(i)
-		var at: Vector2 = PADS[i] * S
-		if i != GROTTO:
+		var at: Vector2 = _pad_at(i)
+		if i != _grotto():
 			of += 1
 			cleared += 1 if r["done"] else 0
 		if r["done"]:
@@ -196,13 +309,15 @@ func _draw() -> void:
 			draw_circle(Vector2.ZERO, 13.0, Color(0.04, 0.03, 0.07, 0.55))  # shut: dimmed
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	# The pad she stands on, or is going to.
-	_ring(PADS[_stop] * S, 17.0 + sin(_t * 4.0), Color("#3fe0c8"), 1.5)
+	_ring(_pad_at(_stop), 17.0 + sin(_t * 4.0), Color("#3fe0c8"), 1.5)
 	# The plates, written afresh over what is painted on them.
 	draw_rect(TOP_PLATE, TOP_INK)
 	_text(TOP_PLATE.get_center() + Vector2(0, 3), "%d/%d LEVELS COMPLETED" % [cleared, of], 8, PAPER)
 	var here: Dictionary = Game.LEVELS[_stop]
 	draw_rect(BOTTOM_PLATE, BOTTOM_INK)
 	_text(BOTTOM_PLATE.get_center() + Vector2(0, 3), ("%s · %s" % [here["id"], here["name"]]).to_upper(), 8, PAPER)
+	# The other page.
+	_text(Vector2(560, 352), "TAB: " + REGION_NAMES[2 if _region == 1 else 1], 8, Color(PAPER, 0.85))
 	# Over the bottom plate: what is found in this level, and what is missing.
 	var rec: Dictionary = Game.record(_stop)
 	var box := Rect2(264, 312, 112, 22)

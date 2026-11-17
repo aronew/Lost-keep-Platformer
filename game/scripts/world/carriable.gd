@@ -17,6 +17,10 @@ enum S { REST, HELD, FLYING, GONE }
 ## Resin it spills when it smashes (once: remembered by `flag`).
 @export var resin := 0
 @export var flag := ""
+## Seconds after it is used up before it is back where it stood (0: only
+## when she comes back from a checkpoint). For a crate a puzzle needs: a
+## missed throw is then never a dead end.
+@export var returns := 0.0
 
 const GRAVITY := 760.0
 
@@ -169,6 +173,15 @@ func _gone(_smashed: bool) -> void:
 	hit.set_deferred("monitoring", false)
 	handle.set_deferred("monitorable", false)
 	set_physics_process(false)
+	if returns > 0.0:
+		get_tree().create_timer(returns).timeout.connect(_come_back)
+
+
+func _come_back() -> void:
+	if state != S.GONE:
+		return
+	_on_respawned()
+	Fx.burst(self, global_position + Vector2(0, -10), chip_color, 10, 70.0)
 
 
 ## Back where it stood (she came back from a checkpoint).

@@ -1380,3 +1380,74 @@ func _place_rush(index: int, flag: String, seconds: float) -> Dictionary:
 	var zone := _bonus_zone("gather", Rect2i(zx, r["zy"], 40, 24), Vector2((zx + 1.5) * TILE, f * TILE), token,
 		flag, seconds, "Get all the Resin!", beads)
 	return {"zone": zone, "moves": moves}
+
+
+# --- Windmills (region 2's machine) --------------------------------------------------------------
+
+## A windmill (Windmill): the tops of its cradles travel a circle of `radius`
+## px round `centre` (px). `arms` cradles, each `cradle_w` px wide, one-way;
+## a turn takes `period` s; `turn` 1 is clockwise on screen (the top moves
+## right); arm 0 starts at `start_deg` (0 east, 90 the bottom, 180 west, 270
+## the top). `running` false: asleep until a bell wakes it.
+func _windmill(centre: Vector2, radius: float, arms := 4, period := 10.0, turn := 1, start_deg := 0.0,
+		cradle_w := 48.0, running := true, mill_name := "Windmill") -> Node2D:
+	var m := _node(Node2D.new(), mill_name, _root) as Node2D
+	m.set_script(load("res://scripts/world/windmill.gd"))
+	m.position = centre.round()
+	m.z_index = 5
+	m.set("radius", radius)
+	m.set("period", period)
+	m.set("turn", turn)
+	m.set("start_angle", start_deg)
+	m.set("running", running)
+	for i in arms:
+		var b := _node(AnimatableBody2D.new(), "Cradle%d" % i, m) as AnimatableBody2D
+		b.collision_layer = 64
+		b.collision_mask = 0
+		b.z_index = 1
+		b.set_meta("width", cradle_w)
+		var a := deg_to_rad(start_deg) + TAU * i / arms
+		b.position = (Vector2(cos(a), sin(a)) * radius - Vector2(cradle_w * 0.5, 0.0)).round()
+		var cs := _rect_shape(Vector2(cradle_w, 8), Vector2(cradle_w * 0.5, 4))
+		cs.one_way_collision = true
+		_node(cs, "Shape", b)
+		var piece := _sprite(b, TIMBER, Rect2(42, 13, cradle_w, 16), Vector2(0, -2))
+		piece.name = "Timber"
+	return m
+
+
+## The mill's tower behind its sails, in the blockout's backdrop: from
+## `foot_y` up to the sails' hub over `centre` (the cradles' centre).
+func _mill_tower(centre: Vector2, foot_y: float) -> void:
+	var hub := centre + Vector2(0, -20.0)
+	_backdrop(PackedVector2Array([Vector2(centre.x - 26, foot_y), Vector2(centre.x - 13, hub.y + 6),
+		Vector2(centre.x + 13, hub.y + 6), Vector2(centre.x + 26, foot_y)]))
+	_backdrop(PackedVector2Array([Vector2(centre.x - 17, hub.y + 8), Vector2(centre.x - 12, hub.y - 14), Vector2(centre.x, hub.y - 24),
+		Vector2(centre.x + 12, hub.y - 14), Vector2(centre.x + 17, hub.y + 8)]), BACKDROP_LEAF)
+
+
+## A millers' bell ("bell": wakes its sleeping mills) or a wind vane ("vane":
+## turns its mills the other way) at `pos` (px), struck with the sword or a
+## thrown crate (MillBell). `post_drop`: for a bell on its own post, how far
+## below it the ground is; a vane stands on a post `stem` px tall.
+func _mill_bell(pos: Vector2, mills: Array, kind := "bell", post_drop := 0.0, stem := 30.0) -> Node2D:
+	var b := _node(Node2D.new(), "Vane" if kind == "vane" else "Bell", _root) as Node2D
+	b.set_script(load("res://scripts/world/mill_bell.gd"))
+	b.position = pos.round()
+	b.z_index = 6
+	b.set("kind", kind)
+	b.set("stem", stem)
+	b.set("post_drop", post_drop)
+	var paths: Array[NodePath] = []
+	for m in mills:
+		paths.append(b.get_path_to(m))
+	b.set("mills", paths)
+	var hb := _node(Area2D.new(), "Hurtbox", b) as Area2D
+	hb.collision_layer = 4
+	hb.collision_mask = 0
+	hb.monitoring = false
+	if kind == "vane":
+		_node(_rect_shape(Vector2(34, 24), Vector2(0, -2)), "Shape", hb)
+	else:
+		_node(_rect_shape(Vector2(30, 40), Vector2(0, 2)), "Shape", hb)
+	return b
