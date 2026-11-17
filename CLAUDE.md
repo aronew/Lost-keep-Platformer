@@ -88,7 +88,7 @@ start.
 |---|---|
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
-| `design/levels/` | One spec per level, with its validation (1-1; 1-2, a blockout) |
+| `design/levels/` | One spec per level, with its validation and its open questions (1-1 dressed; 1-2 to 1-5, 1-S and 1-B blockouts) |
 | `design/research/platformer-fun.md` | **The research:** what makes 2D platformers fun (DKC 1 to 3, Super Mario), sourced, with what each finding means here and which are built |
 | `design/levels/ratings.md` | The levels' ratings board (×, △, ○, ◎) and the checklist every level is held to |
 | `design/enemies.md` | The creative lead's enemy roster: names, proposed roles, what is in the game |
