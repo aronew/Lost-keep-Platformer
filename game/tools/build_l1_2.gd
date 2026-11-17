@@ -322,17 +322,14 @@ func _dress() -> void:
 		cx += cw
 	# Under the water (F9): drowned stone and water plants on the bed, seen
 	# through the surface; lily pads on it where the water lies open.
-	var stones := ["sunk_a", "sunk_c", "sunk_b", "sunk_d"]
-	var weeds := ["weed_a", "weed_c", "weed_b"]
+	var xs := []
 	var x := 30.0
 	var k := 0
 	while x < _t(440):
-		var sd := _sanct(stones[k % stones.size()])
-		_underwater(sd["tex"], sd["rect"], Vector2(x, WATER_Y + 30.0 + float((k * 13) % 18)), k % 2 == 1)
-		var wd := _sanct(weeds[k % weeds.size()])
-		_underwater(wd["tex"], wd["rect"], Vector2(x + 84.0, WATER_Y + 34.0 + float((k * 7) % 12)), k % 2 == 0)
-		x += 170.0 + float((k * 37) % 80)
+		xs.append(x)
+		x += 190.0 + float((k * 37) % 90)
 		k += 1
+	_sanct_bed(G, xs)
 	var lilies := ["lily_a", "lily_b", "lily_c"]
 	var holder := _node(Node2D.new(), "Lilies", _root) as Node2D
 	holder.z_index = 13

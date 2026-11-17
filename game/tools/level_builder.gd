@@ -219,6 +219,26 @@ func _sanct_midground(floor_y: float, water_y: float, x_end: float) -> void:
 		k += 1
 
 
+## Drowned stone and water plants (F9) standing on the water's bed: the
+## bottom edge of the view when she stands on `floor_y`, as in the mockups,
+## behind the foreground band. (Placed partway down the water they floated
+## with nothing under them: the creative lead's "random weird stone in the
+## water".) `xs`: where each group stands (px).
+func _sanct_bed(floor_y: float, xs: Array) -> void:
+	var bed := floor_y - 58.0 + 180.0 - 6.0
+	var stones := ["sunk_a", "sunk_c", "sunk_b", "sunk_d"]
+	var weeds := ["weed_a", "weed_c", "weed_b"]
+	var k := 0
+	for x in xs:
+		var sd := _sanct(stones[k % stones.size()])
+		var sr: Rect2 = sd["rect"]
+		_underwater(sd["tex"], sr, Vector2(x, bed - sr.size.y), k % 2 == 1)
+		var wd := _sanct(weeds[k % weeds.size()])
+		var wr: Rect2 = wd["rect"]
+		_underwater(wd["tex"], wr, Vector2(x + sr.size.x + 14.0, bed - wr.size.y), k % 2 == 0)
+		k += 1
+
+
 ## A barrel from the sanctuary kit that breaks and drops Resin once.
 func _sanct_breakable(name: String, x: float, floor_y: float, chips: Color) -> Node2D:
 	var d := _sanct(name)

@@ -61,13 +61,7 @@ func _initialize() -> void:
 		_sanct_plant(behind, p[0], p[1], p[2])
 	_lunger(32.5 * TILE, G, 30.5 * TILE, 34.5 * TILE, "rat")
 	# Under the water: drowned stone and weeds, lily pads on it.
-	var k := 0
-	for sx in [60.0, 250.0, 330.0, 470.0, 560.0]:
-		var sd := _sanct(["sunk_a", "sunk_c", "sunk_b", "sunk_d"][k % 4])
-		_underwater(sd["tex"], sd["rect"], Vector2(sx, WATER_Y + 34.0 + float((k * 11) % 14)), k % 2 == 1)
-		var wd := _sanct(["weed_a", "weed_c", "weed_b"][k % 3])
-		_underwater(wd["tex"], wd["rect"], Vector2(sx + 60.0, WATER_Y + 40.0))
-		k += 1
+	_sanct_bed(G, [70.0, 250.0, 440.0, 560.0])
 	_sanct_midground(G, WATER_Y, 40.0 * TILE)
 	_level_finish()
 	quit()
