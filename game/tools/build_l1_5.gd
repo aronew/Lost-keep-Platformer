@@ -20,8 +20,14 @@ func _t(x: float) -> float:
 	return x * TILE
 
 
-func _raft(x: float, row: float, run: Vector2, speed := 64.0) -> AnimatableBody2D:
-	return _mover(Vector2(_t(x), _t(row)), 48.0, [Vector2.ZERO, run * TILE], speed, 0.6, true)
+## A raft runs back and forth on its own, two tiles short of each bank (as in
+## 1-4): she times a jump on and a jump off. A lift waits for her weight.
+func _raft(x: float, row: float, run: float, speed := 64.0) -> AnimatableBody2D:
+	return _mover(Vector2(_t(x), _t(row)), 48.0, [Vector2.ZERO, Vector2(run * TILE, 0)], speed, 1.0, false)
+
+
+func _weight_lift(x: float, row: float, rise: float) -> AnimatableBody2D:
+	return _mover(Vector2(_t(x), _t(row)), 48.0, [Vector2.ZERO, Vector2(0, -rise * TILE)], 56.0, 0.6, true)
 
 
 func _initialize() -> void:
@@ -57,12 +63,12 @@ func _initialize() -> void:
 	# The main line.
 	tour.append_array([["walk", 10], ["rise", 14, 22, 27], ["off", 22, G, 1], ["walk", 36]])
 	plan_leg(40, G, 1, [[3, 5, 1, "stone"], [4, 3, 2, "stone"], [4, 4, -2, "stone"], [4, 10, -1, "none"]])
-	tour.append_array([["walk", 97], ["rise", 100, 108, 27], ["off", 108, G, 1], ["ride", 0, 1], ["walk", 129],
+	tour.append_array([["walk", 97], ["rise", 100, 108, 27], ["off", 108, G, 1], ["board", 0, 0, 110], ["ride_end", 0, 1], ["leap", 125, 127, 131, G], ["walk", 129],
 		["floor", G, "the raft sets her on the stone"]])
 	plan_leg(131, G, 1, [[4, 6, 2, "float"], [4, 5, 2, "float"], [4, 4, -2, "stone"], [4, 10, -2, "none"]])
 	tour.append_array([["walk", 170], ["banner"], ["walk", 174], ["hop", 176, 177, 180, 29], ["ride", 1, 1], ["walk", 184],
 		["floor", 24, "the lift sets her on top of the wall"], ["jump", 189.75, 195.5, 199, 24, 190.75],
-		["ride", 2, 1], ["ride", 3, 1], ["walk", 245.5], ["floor", 28, "raft to lift: down to the stone"]])
+		["board", 2, 0, 220], ["ride_end", 2, 1], ["leap", 238, 240, 243, 24], ["ride", 3, 1], ["walk", 245.5], ["floor", 28, "raft to lift: down to the stone"]])
 	plan_leg(248, 28, 1, [[4, 3, 1, "stone"], [4, 10, -3, "none"]])
 	tour.append(["jump", 265.75, 271.5, 276, G, 266.75])
 	plan_leg(284, G, 1, [[4, 4, 1, "stone"], [4, 3, 2, "float"], [4, 3, 2, "float"], [4, 4, -2, "stone"], [4, 10, -3, "none"]])
@@ -85,17 +91,17 @@ func _initialize() -> void:
 	_lunger(_t(88), _t(G), _t(82), _t(95), "rat")
 	_cracked_wall(Rect2i(100, 28, 2, 2), "l15_crack")
 	_label("ONE CRATE: the rat, or the cracked stone?", Vector2(_t(78), _t(G) - 70))
-	_raft(110, G, Vector2(14, 0))
+	_raft(112, G, 10)
 	_label("A RAFT (1-4), then FLOATING ISLANDS", Vector2(_t(114), _t(20)))
 	_checkpoint(_t(166), _t(G), "l15_mid")
 	_label("MIDWAY BANNER", Vector2(_t(164), _t(G) - 84))
-	_raft(177, 29, Vector2(0, -5))
+	_weight_lift(177, 29, 5)
 	_label("A LIFT up the wall", Vector2(_t(172), _t(18)))
 	_thorns(_t(192), _t(195), _t(24))
 	_lunger(_t(208), _t(24), _t(200), _t(215), "rat")
 	_chest(_t(217.5), _t(24), 8, "l15_chest1")
-	_raft(220, 24, Vector2(17, 0))
-	_raft(240, 24, Vector2(0, 4))
+	_raft(222, 24, 13, 80.0)
+	_weight_lift(240, 24, -4)
 	_label("RAFT TO LIFT", Vector2(_t(224), _t(18)))
 	_thorns(_t(268), _t(271), _t(G))
 	_letter(Vector2(_t(301), _t(27) - 58), "O", "l15_letter_o")

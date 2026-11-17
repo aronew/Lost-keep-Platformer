@@ -39,7 +39,7 @@ what is missing in every level.
 | 1-1 Lantern Refuge (first called The Overgrown Ruins; files and node keep that name) | Playable, dressed in the dusk kit under daylight. Waiting for Book 4's bright-day art and the creative lead's play |
 | 1-2 The Gate Road | A **blockout**, awaiting review. No art until it is approved |
 | 1-3 The Ruin Gardens | A **blockout**, awaiting review: the vertical level, three legs up the hill; hides the secret exit |
-| 1-4 The Aqueduct | A **blockout**, awaiting review: rafts and lifts |
+| 1-4 The Aqueduct | A **blockout**, awaiting review: rafts that run on their own (timed jumps) and lifts |
 | 1-5 The Lantern Clearing | A **blockout**, awaiting review: the gauntlet |
 | 1-S The Hollow Oak | A **blockout**, awaiting review: the secret level, a harder climb. Its extra-flame reward isn't built |
 | 1-B The Keep Gate | A **blockout** of the approach and the arena. **The boss is not built** (no design, art or code): the arena is empty and the way out open |
@@ -59,6 +59,8 @@ never a lantern**; blockout first, art last.
 - **"I was surprised that there was a boost in running"; "the boost is
   cool."** Decided: Kleo's stride stays. Levels are still designed for the
   plain jump; the stride is the skilled player's shortcut.
+- **"They shouldn't wait, they should be moving back and forth ... you need
+  to time jumps properly."** Decided: rafts run on their own (1-4, 1-5).
 - **"Use the map names and follow the map."** Decided: region 1 is
   **Flooded Sanctuary** and level 1-1 is **Lantern Refuge**, as the creative
   lead's region map has them; and the secret level is reached off pad 3, so
@@ -472,11 +474,19 @@ hang less than 6 rows over a spot she jumps from on the leg below** (a full
 jump needs 82 px), and the first piece after a turn is `float2`. A fall
 lands her on the leg below: no pits.
 
-**Movers** (1-4, 1-5): a raft's top is level with the banks it runs between
-and it starts and ends against them, so she walks on and off. A lift on dry
-ground rests one row up (a hop on). All use `wait_for_rider`. A mover never
-stays at its far end: it pauses 0.6 s and goes back, so what she steps onto
-there must be against it.
+**Movers** (1-4, 1-5). **Rafts run back and forth on their own** (the
+creative lead: "they shouldn't wait, they should be moving back and forth
+... you need to time jumps properly"): `_raft(x, row, run, speed)` in those
+builders, no `wait_for_rider`, a 1 s rest at each end, level with the banks
+but **stopping two tiles short of each**, so she times a jump on and a jump
+off. Two rafts meant to meet are set half a cycle apart with `phase`
+(1-4's twist). **Lifts wait** for her weight (`_weight_lift`); one on dry
+ground rests a row up (a hop on). A mover never stays at an end, so what she
+steps or jumps onto there must be within reach while it rests. The tests'
+moves for them: `board` (a timed jump on as it arrives), `ride_end`, `leap`
+(off at once), and `ride` for a lift. **Known, small:** a hit-stop while she
+rides shifts her along the mover (under 2 px with real frame times; up to
+18 px under `--fixed-fps`, a test artifact).
 
 **Blockout first:** with `blockout = true` (the default) a level shows its
 black box (the skin off: `skin_visible = false`) on a flat pale sky, no

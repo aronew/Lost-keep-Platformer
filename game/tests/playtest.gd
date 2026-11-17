@@ -1947,6 +1947,60 @@ func _run_moves(moves: Array, file: String) -> void:
 						break
 				await _wait(20)
 				res.append(["the thrown crate breaks the cracked wall", wall.broken])
+			"board":
+				# A timed jump onto mover m[1] as it comes to rest at its end m[2]
+				# (0 its start, 1 its far end), from the edge at tile m[3].
+				var bm: Node = _find("moving_platform")[int(m[1])]
+				var bw: float = (bm.get_node("Shape") as CollisionShape2D).shape.size.x
+				var at: Vector2 = bm._origin + bm.path[0 if int(m[2]) == 0 else bm.path.size() - 1]
+				var bedge := float(m[3]) * TILE
+				var bdir := 1 if at.x + bw * 0.5 > bedge else -1
+				await _walk_tile(float(m[3]) - bdir * 1.5)
+				# Wait for it to arrive (not merely to be there: its rest may be nearly over).
+				var away := false
+				for i in 2400:
+					await _step()
+					var d: float = bm.position.distance_to(at)
+					if d > 4.0:
+						away = true
+					elif d < 1.0 and away:
+						break
+				var bkey := "move_right" if bdir > 0 else "move_left"
+				await _hold_until([bkey], func(): return bdir * (kleo.global_position.x - (bedge - bdir * 8.0)) >= 0.0, 120)
+				_press(bkey)
+				_press("jump")
+				for i in 150:
+					await _step()
+					if bdir * (kleo.global_position.x - (float(bm.global_position.x) + bw * 0.5)) > -6.0:
+						_release(bkey)
+					if kleo.is_on_floor() and i > 4:
+						break
+				_release_all()
+				await _wait(6)
+				res.append(["a timed jump onto mover %d" % int(m[1]), kleo.is_on_floor()
+					and absf(kleo.global_position.x - (float(bm.global_position.x) + bw * 0.5)) < bw * 0.5 + 3.0
+					and absf(kleo.global_position.y - float(bm.global_position.y)) < 3.0])
+			"ride_end":
+				# Stand on mover m[1] until it comes to rest at its end m[2].
+				var rm: Node = _find("moving_platform")[int(m[1])]
+				var rw: float = (rm.get_node("Shape") as CollisionShape2D).shape.size.x
+				var rat: Vector2 = rm._origin + rm.path[0 if int(m[2]) == 0 else rm.path.size() - 1]
+				for i in 2400:
+					await _step()
+					if rm.position.distance_to(rat) < 1.0:
+						break
+				# Still standing on it (her feet are 10 px wide). A hit-stop while she
+				# rides can shift her along it: under 2 px with real frame times, more
+				# under --fixed-fps, where the hit-stop's real clock outlasts the frames.
+				res.append(["mover %d carries her to its other end" % int(m[1]), kleo.is_on_floor()
+					and absf(kleo.global_position.x - (float(rm.global_position.x) + rw * 0.5)) < rw * 0.5 + 5.0])
+			"leap":
+				# Off a mover at once (it won't wait): from where she stands, over the
+				# edge at tile m[1], to the floor [m[2], m[3]] on row m[4].
+				var lx: float = kleo.global_position.x
+				var ld := 1 if float(m[2]) * TILE > lx else -1
+				res.append(["a jump off the mover to row %d at x %d" % [int(m[4]), int(m[2])],
+					await _jump_to(lx, float(m[2]) * TILE + 4.0, float(m[3]) * TILE - 5.0, int(m[4]), float(m[1]) * TILE - 8.0 * ld)])
 			"floor":
 				res.append([String(m[2]) if m.size() > 2 else "on row %d" % int(m[1]), _floor_at(int(m[1]))])
 			"not_floor":
