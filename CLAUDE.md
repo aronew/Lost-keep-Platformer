@@ -342,6 +342,15 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   level; touching one takes it (`Game.take_letter`; the HUD's letters, top
   right); all four is a burst of Resin. (They replace the cocoons: the
   creative lead found rescuing from cocoons "dumb".)
+- **Power-ups** (`power_up.gd`, `_power_up(pos, kind)`; `Game.power`,
+  `Game.set_power`): as Mario's (the creative lead's choice over permanent
+  abilities): found in a level, one held at a time (its icon by the Resin
+  count), and **a hit costs the power instead of a flame** (`Kleo.hurt`); a
+  defeat loses it; it returns where it hung on a respawn. Built: **the
+  Anima Spark** (`anima_bolt.gd`): the spell button (V, L, right click)
+  looses a teal bolt that strikes what a sword strikes. One hangs before
+  1-1's first rat. Its pickup art is a stand-in. The other kinds and what
+  each boss unlocks: `design/game-structure.md` §4.
 - **The thorn knot** (`thorn_knot.gd`, `_knot`): each level's one great
   secret (DKC2's DK coin): one of Morvath's knots, asleep, hidden with more
   cunning than anything else; touching it wakes it for good
@@ -658,11 +667,66 @@ a piece up in the atlas, `_day_sprite` / `_day_ground` place one,
 `_day_material()` is the ground (earth all the way in, `DAY_EARTH_DEEP`),
 `_day_backdrops()` the sky and forests; checkpoints, crates, thorns, bonus
 hollows and the end doorway use the kit by day. 1-1 is dressed by
-`_dress_day()`; its stall is gone (it "looks out of place with the new tile
+`_dress_day()`; its treetop crowns are whole trees standing on the hill
+(walkways on rows 20 and 21: higher, their trunks ended in the air and the
+creative lead saw "the trees floating"); its stall is gone (it "looks out of place with the new tile
 set"): the slab is an earth terrace on earth piers (`DAY_PIERS`), which the
 creative lead approved ("the slab looks good like that").
 `docs/mockups/platformer/world_map/` holds the creative lead's map mockup
 (a map screen for each region's levels).
+
+## The sanctuary kit (Book 5, delivered; first pass in 1-2)
+`art/source/sanctuary/F1..F16` holds the generator's 16 sheets unchanged;
+`tools/make_sanctuary.py` reduces them (averaged, each sheet's own colours)
+into `game/assets/environment/sanctuary/` with `sanct_pieces.json` (every
+piece's rectangle). In `level_builder.gd`, `kit = "sanctuary"` gives a level
+the stone (`_sanct_material()`: top, underside, wall, fill; the kit's corner
+pieces came back in other shapes and are not used), the cavern light and
+ruins backdrops, the water (lifted: `SANCT_WATER_LIFT`) and the foreground
+band. **1-2 is dressed in it** (`_dress()` in `build_l1_2.gd`): the lantern
+hut at the start, the doorway at the end, an arch under the first floating
+island, archways and pillars, the banner, the thorn bed, barrels, the
+cavern roof along the level's top, drowned stone, water plants and lily pads.
+**The look test** (`tools/build_look_s4.gd` → `scenes/levels/look_s4.tscn`;
+picture: `docs/levels/look/s4_mockup_over_game.png`): after "still looks
+nothing like my mock up; that ceiling looks terrible", the mockup S4 was
+rebuilt shape for shape as one screen and judged beside the mockup. What it
+taught, now in the kit's look: **the cavern roof is real rock along the top
+of the room** (the skin hangs its underside), never a pinned or parallax
+band; **the distance is far darker than the sheets came** (Sky, Far and Mid
+modulated to deep teal); the water darker; dark ruins stand in the water
+behind the play (`_sanct_midground`), lanterns glow (`_sanct_glow`), a light
+vignette. **The stone is piles, not walls** ("they look nothing like the
+natural stone in the mockups"): lit boulders at the edges and deep shadow
+inside (the fill fades in 2 tiles to `SANCT_STONE_DEEP`), masses stepped one
+block at a time, never tall boxes, rubble and ferns at their feet. **The
+foreground has a second, nearer layer of silhouette plants** (the creative
+lead's; `fg_scroll`, Lost Keep's black forest band at 1.45). Drowned stone
+stands on the bed (`_sanct_bed`), never mid-water. **A level looks like a
+mockup only if its shapes are the mockup's:** build sanctuary levels from the mockups' shapes (thick masses
+stepping into water a tile below the low ground, a rock roof), then dress.
+1-2's layout predates this and still reads as a low road of hops.
+`_sanct(name)` looks a piece up (`SANCT`), `_sanct_ground` stands one on a
+floor. **Plants are placed by hand, never by rule:** `_sanct_plant(piece,
+tile x, row)` places one only on flat ground under its whole width, and the
+old scatter pass (`_detail_kind`) is off for daylight levels (the creative
+lead: "no weird plant placements; some of them are hanging off edges and
+are in odd places"; "the mockups are the goal for the look"). Not used yet:
+the islands and pillars (F5; 1-2's are tile masses in the stone), the log
+and root (F6), the steps. The bonus hollows are still the day kit's.
+Pictures: `docs/levels/1-2/art_pass/`.
+
+## 1-2's look: the Flooded Sanctuary (Book 5)
+The creative lead: 1-2 keeps the flooded-ruins look ("the old tile set"),
+"but I think we need new tiles for it". Its four mockups are in
+`docs/mockups/platformer/flooded_sanctuary/` (S1 to S4). **Book 5**
+(`docs/art-production/platformer-sanctuary-prompt-book.html`, from
+`src/book5_body.html` and `src/book5_cards.js`; published at
+https://claude.ai/artifact/GwreeWZdoTHN9VwW37f2Ja with `platformer-attach/`
+S1 to S4 and G8) asks for that kit in 16 sheets: stone that is stone all the
+way in, a real fill, readable. 1-1 stays the Sunlit Woodland. Which look 1-3
+onward take is undecided. When the kit arrives, process it as
+`tools/make_day.py` does the day kit (from its sources, its own colours).
 
 ## Open items
 - **Level 1-1: lit as bright day, letters and two bonus areas in, awaiting

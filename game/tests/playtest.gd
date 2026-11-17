@@ -472,7 +472,7 @@ const SHOTS_L11 := [
 	["07_midway_banner_crate", 203.0, 30, 1],
 	["07b_root_bank_crates", 238.5, 27, 1],
 	["08_hill_false_wall", 226.0, 30, 1],
-	["09_canopy_route", 248.0, 18, 1],
+	["09_canopy_route", 258.0, 21, 1],
 	["10_hidden_cave", 250.0, 34, 1],
 	["11_islands", 310.5, 26, 1],
 	["12_pits_thorns", 360.0, 30, 1],
@@ -1204,6 +1204,23 @@ func _systems() -> void:
 	await _frames(30)
 	check.call("touching a letter takes it", Game.letters_found() == 1, "%d" % Game.letters_found())
 
+	# A power-up: the Anima Spark. She holds it, shoots with it, and a hit
+	# costs the power instead of a flame.
+	await _walk_to(128.0 * TILE)
+	await _frames(10)
+	check.call("touching a power-up gives her its power", Game.power == "spark", Game.power)
+	var pots := _find("breakable").size()
+	_tap_f("spell")
+	await _frames(50)
+	await _shot("13_spark")
+	check.call("the spell button looses a bolt that breaks a pot", _find("breakable").filter(func(b): return not b._broken).size() < pots)
+	await _frames(70)
+	var flames := Game.health
+	kleo.hurt(1)
+	await _frames(20)
+	check.call("a hit costs the power, not a flame", Game.power == "" and Game.health == flames, "power '%s', health %d" % [Game.power, Game.health])
+	await _frames(80)
+
 	# The level's end.
 	_place(136.0, 20)
 	await _frames(10)
@@ -1390,12 +1407,12 @@ func _secrets_l1_1() -> void:
 	await _wait(10)
 	res.append(["onto the crate (2 up)", await _jump_to(3858, 3886, 3910, 22)])
 	res.append(["onto the stack of two (2 up)", await _jump_to(3900, 3924, 3948, 20)])
-	res.append(["up into the first treetop (4 up from the stack)", await _hop_up(18, 0)])
-	res.append(["treetop 2 (4 across, 1 up)", await _jump_to(3968, 4084, 4204, 17, 4008)])
-	res.append(["treetop 3 (4 across, 2 down)", await _jump_to(4150, 4276, 4364, 19, 4200)])
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 4330.0, 100)
+	res.append(["a hop from the stack onto the first treetop (1 across)", await _jump_to(3940, 3968, 4064, 20)])
+	res.append(["treetop 2 (4 across, 1 down)", await _jump_to(4000, 4128, 4240, 21, 4040)])
+	res.append(["treetop 3 (4 across, 1 up)", await _jump_to(4180, 4304, 4400, 20, 4220)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 4356.0, 100)
 	res.append(["letter E (on the third treetop)", _letter_taken("E")])
-	res.append(["treetop 4 (4 across, 2 up)", await _jump_to(4300, 4436, 4500, 17, 4360)])
+	res.append(["treetop 4 (4 across, 1 down)", await _jump_to(4340, 4464, 4540, 21, 4380)])
 	var course: BonusZone = _zone("course")
 	await _hold_until(["move_right"], func(): return course.running(), 200)
 	res.append(["the hollow at the treetops' end takes her to bonus 2", course.running()])
@@ -1414,12 +1431,12 @@ func _secrets_l1_1() -> void:
 		if Game.bonus == null and kleo.state == Kleo.State.NORMAL:
 			break
 	await _wait(20)
-	res.append(["back out on the last treetop", absf(kleo.global_position.x - 280.5 * TILE) < 3.0 and _floor_at(17)])
-	res.append(["down off the last treetop onto the hill (the hollow, won, lets her by)", await _step_off("move_right", 4552.0, 27)])
+	res.append(["back out on the last treetop", absf(kleo.global_position.x - 282.5 * TILE) < 3.0 and _floor_at(21)])
+	res.append(["down off the last treetop onto the hill (the hollow, won, lets her by)", await _step_off("move_right", 4592.0, 27)])
 	# The treetops can't be reached from the hill without the crates.
 	_place(262.0, 27)
 	await _wait(10)
-	var hop_ok := await _hop_up(19, 0)
+	var hop_ok := await _hop_up(21, 0)
 	res.append(["from the hill alone, the treetops are out of reach", not hop_ok and _floor_at(27)])
 	# Letter O, over the pit before the step: the main line's jump takes it.
 	_place(376.5, 30)

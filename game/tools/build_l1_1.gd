@@ -98,7 +98,13 @@ const MASSES := [
 ## The canopy route: [x0, x1, row, tree, flip] of each treetop (8 rows over
 ## the hill at its lowest, so only the crates reach it): each walkway is the
 ## flat top of one of Book 3's three trees (W7), centred on its crown.
-const TREETOPS := [[244, 251, 18, 1, false], [255, 263, 17, 0, false], [267, 273, 19, 2, false], [277, 284, 17, 1, true]]
+## By day each crown (Book 4's D9) is a whole tree standing on the hill: its
+## trunk's foot is 108 px under its walking line, so the walkways are rows 20
+## and 21 (7 and 6 over the hill: still out of a jump's reach, and the
+## creative lead saw the old, higher crowns "floating above the ground").
+## The first stands a tile east of the crate stack (level with its top): a
+## hop she must choose, so walking over the stack still drops to the hill.
+const TREETOPS := [[248, 254, 20, 1, false], [258, 265, 21, 0, false], [269, 275, 20, 2, false], [279, 286, 21, 1, true]]
 ## The stall's piers, from its painting (art x, width; the painting's left
 ## edge stands at the slab's left end, x 352).
 const STALL_PIERS := [[9, 31], [123, 32], [243, 33]]
@@ -186,6 +192,8 @@ func _teach() -> void:
 func _test() -> void:
 	_label("TEST", Vector2(_t(96), _t(16)))
 	_beads([Vector2(_t(101), _t(27) - 12), Vector2(_t(104), _t(27) - 12), Vector2(_t(107), _t(24) - 12)], "l11_t")
+	# The first power-up, on the terrace before the first rat: the Anima Spark.
+	_power_up(Vector2(_t(103), _t(27) - 16), "spark")
 	_lunger(_t(122), _t(24), _t(108), _t(130), "rat")
 	_label("RAT\n(notices, winds up, lunges)", Vector2(_t(112), _t(18)))
 	# The fallen trunk over the ravine (one-way): Book 3's W5 in the art pass.
@@ -267,7 +275,7 @@ func _twist() -> void:
 		"l11_token2", 10.0, "Reach the token!")
 	_beads([Vector2(_t(503.5), _t(29) - 22), Vector2(_t(510), _t(27) - 26), Vector2(_t(517), _t(27) - 22), Vector2(_t(524), _t(27) - 26),
 		Vector2(_t(530.5), _t(27) - 22)], "l11_course")
-	_bonus_door(_t(283.5), _t(17), course, Vector2(_t(280.5), _t(17)), -1, "root-hollow")
+	_bonus_door(_t(285.5), _t(21), course, Vector2(_t(282.5), _t(21)), -1, "root-hollow")
 	_label("CANOPY ROUTE (secret, over the treetops; letter E)", Vector2(_t(252), _t(11)))
 	_label("BONUS 2 ENTRANCE", Vector2(_t(281), _t(11)))
 	# The hill: a second rat.
@@ -451,16 +459,14 @@ func _dress_day() -> void:
 		vine.z_index = 18  # over the false wall's cover: the tell must show
 	# TWIST. A signpost by the crate; a great tree (D8) by the checkpoint.
 	_day_ground(behind, "blank-signpost", _t(192), G)
-	var gt := _day_ground(behind, "great-tree-1", _t(214), G + 2.0)
+	var gt := _day_ground(behind, "great-tree-1", _t(214), G + 12.0)  # its root tips under the grass
 	gt.z_index = -1
-	# The treetop route: each walkway a crown (D9), standing over a great tree
-	# rooted on the hill behind it, so the crowns grow from real trunks.
+	# The treetop route: each walkway a crown (D9), a whole tree whose trunk
+	# stands on the hill.
 	var k := 0
 	for c in TREETOPS:
 		var tiles: int = c[1] - c[0]
 		var cx := _t((c[0] + c[1]) * 0.5)
-		var trunk := _day_ground(behind, "great-tree-2" if k % 2 == 0 else "great-tree-1", cx, _t(27) + 2.0, k % 2 == 1)
-		trunk.z_index = -2
 		var piece := _crown_for(tiles)
 		var d := _day(piece)
 		var r: Rect2 = d["rect"]

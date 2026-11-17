@@ -268,6 +268,10 @@ func _normal(delta: float) -> void:
 		_jumping = false
 	_gravity(delta)
 
+	# The Anima Spark (a power-up): the spell button looses a bolt.
+	_spark_cd = maxf(_spark_cd - delta, 0.0)
+	if Game.power == "spark" and Input.is_action_just_pressed("spell") and _lock <= 0.0 and held == null and _spark_cd <= 0.0:
+		_cast_spark()
 	# With something held, attack throws it (down + attack sets it down).
 	if held and _attack_buffer > 0.0 and _lock <= 0.0:
 		_attack_buffer = 0.0
@@ -352,7 +356,7 @@ func _choose_animation() -> void:
 		else:
 			_play("carry_air")
 		return
-	var busy := sprite.is_playing() and a in ["land", "land_hard", "run_stop", "run_start", "turn", "idle_yawn", "jump", "interact", "rescue", "carry_throw", "carry_set"]
+	var busy := sprite.is_playing() and a in ["land", "land_hard", "run_stop", "run_start", "turn", "idle_yawn", "jump", "interact", "rescue", "carry_throw", "carry_set", "spark"]
 	if is_on_floor():
 		var moving := absf(velocity.x) > 12.0 or _input_x != 0.0
 		if a == "land_hard" and busy:
@@ -624,7 +628,11 @@ func hurt(push_dir: int, heavy := false, damage := 1) -> void:
 		push_dir = -facing
 	_end_attack()
 	_drop_held()
-	if Game.damage(damage) <= 0:
+	if Game.power != "":
+		# A power-up takes the blow: it is lost, and no flame with it.
+		Game.set_power("")
+		Fx.burst(self, global_position + Vector2(0, -14), Color(0.4, 0.95, 0.85), 16, 130.0)
+	elif Game.damage(damage) <= 0:
 		_defeat(push_dir)
 		return
 	state = State.HURT
@@ -774,6 +782,7 @@ func hazard(kind: String) -> void:
 ## Her last flame is gone: she falls, and comes back at the checkpoint.
 func _defeat(push_dir: int) -> void:
 	state = State.DOWN
+	Game.set_power("")
 	_drop_held()
 	velocity = Vector2(push_dir * 90.0, -150.0)
 	_play("death", true)
@@ -797,6 +806,20 @@ func is_down() -> bool:
 
 
 # --- Carrying -------------------------------------------------------------------------
+
+## Loose a bolt of Anima level from her hand, the way she faces.
+const SPARK_COOLDOWN := 0.35
+var _spark_cd := 0.0
+
+func _cast_spark() -> void:
+	_spark_cd = SPARK_COOLDOWN
+	_lock = 0.12
+	_play("spark", true)
+	sprite.frame = 5
+	var bolt := AnimaBolt.make(global_position + Vector2(facing * 12, -14), facing)
+	get_parent().add_child(bolt)
+	Fx.burst(self, global_position + Vector2(facing * 12, -14), Color(0.4, 0.95, 0.85), 5, 60.0)
+
 
 ## Lift something up overhead (a Carriable calls this when she uses it).
 func pick_up(thing: Node) -> void:
