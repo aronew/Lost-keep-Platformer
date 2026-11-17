@@ -2,7 +2,9 @@ extends Node
 ## Global services, autoloaded as `Game`: the input map, hit-stop, screen fades
 ## and the debug keys used while building rooms.
 ##
-## Debug keys:
+## Esc, P or Start pauses a level (resume, or back to the map).
+##
+## Debug keys (debug builds only: an exported game ignores them):
 ##   F1  black-box view (hide the terrain skin and the art: just the collision)
 ##   F2  debug overlay (Kleo's state, animation, speed, FPS)
 ##   F3  slow motion (quarter speed) for judging animation
@@ -23,6 +25,7 @@ const KEYS := {
 	"attack": [KEY_X, KEY_J],
 	"spell": [KEY_V, KEY_L],
 	"interact": [KEY_E, KEY_C],
+	"pause": [KEY_ESCAPE, KEY_P],
 }
 const PADS := {
 	"move_left": [JOY_BUTTON_DPAD_LEFT],
@@ -33,6 +36,7 @@ const PADS := {
 	"attack": [JOY_BUTTON_X],
 	"spell": [JOY_BUTTON_B],
 	"interact": [JOY_BUTTON_Y],
+	"pause": [JOY_BUTTON_START],
 }
 const MOUSE := {
 	"attack": [MOUSE_BUTTON_LEFT],
@@ -183,6 +187,16 @@ func _add_axis(action: String, axis: JoyAxis, value: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _paused:
+		_pause_input(event)
+		return
+	if event.is_action_pressed("pause"):
+		if _can_pause():
+			_set_paused(true)
+			get_viewport().set_input_as_handled()
+		return
+	if not OS.is_debug_build():
+		return  # the keys below are for building and testing
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
 	match event.physical_keycode:
@@ -213,13 +227,113 @@ func _unhandled_input(event: InputEvent) -> void:
 			_hitstop_end_us = 0
 			Engine.time_scale = _base_time_scale()
 			get_tree().reload_current_scene()
-		KEY_ESCAPE:
-			# Out of a level, back to the map (what was found stays found).
-			if level and is_instance_valid(level) and level.get("is_level") and not room_host.is_valid() and not _changing:
-				go_to(MAP_SCENE, "")
 		KEY_H:
 			for k in get_tree().get_nodes_in_group("player"):
 				k.hurt(-k.facing, true)
+
+
+# --- Pause ---------------------------------------------------------------------
+
+var _paused := false
+var _pause_layer: CanvasLayer
+var _pause_rows: Array[Label] = []
+var _pause_options: Array[String] = []
+var _pause_at := 0
+## "Back to the map" asks once more before it leaves.
+var _leave_armed := false
+var _resumed_frame := -10
+
+
+func is_paused() -> bool:
+	return _paused
+
+
+## True for the tick or two after the pause menu closes: the press that
+## closed it must not also be a jump or a swing (Kleo asks).
+func just_resumed() -> bool:
+	return Engine.get_physics_frames() <= _resumed_frame + 1
+
+
+## A level can be paused while she is in it and nothing is changing.
+func _can_pause() -> bool:
+	return level != null and is_instance_valid(level) and not _changing and not respawning \
+		and get_tree().current_scene != null and not get_tree().paused
+
+
+func _setup_pause() -> void:
+	_pause_layer = CanvasLayer.new()
+	_pause_layer.layer = 95
+	_pause_layer.visible = false
+	add_child(_pause_layer)
+	var dim := ColorRect.new()
+	dim.color = Color(0.043, 0.031, 0.071, 0.62)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pause_layer.add_child(dim)
+	var title := _hud_label(16)
+	title.text = "Paused"
+	title.position = Vector2(0, 118)
+	title.size = Vector2(640, 24)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_pause_layer.add_child(title)
+	for i in 2:
+		var row := _hud_label(10)
+		row.position = Vector2(0, 156 + i * 18)
+		row.size = Vector2(640, 16)
+		row.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_pause_layer.add_child(row)
+		_pause_rows.append(row)
+
+
+func _set_paused(on: bool) -> void:
+	_paused = on
+	get_tree().paused = on
+	_pause_layer.visible = on
+	if on:
+		_pause_options = ["Resume"]
+		if level.get("is_level") and not room_host.is_valid():
+			_pause_options.append("Back to the map")
+		_pause_at = 0
+		_leave_armed = false
+		_show_pause()
+	else:
+		_resumed_frame = Engine.get_physics_frames()
+
+
+func _show_pause() -> void:
+	for i in _pause_rows.size():
+		var row := _pause_rows[i]
+		row.visible = i < _pause_options.size()
+		if not row.visible:
+			continue
+		var text := _pause_options[i]
+		if text == "Back to the map" and _leave_armed:
+			text = "Leave the level? Press again"
+		row.text = ("> %s <" % text) if i == _pause_at else text
+		row.modulate.a = 1.0 if i == _pause_at else 0.55
+
+
+func _pause_input(event: InputEvent) -> void:
+	if event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel"):
+		_set_paused(false)
+	elif event.is_action_pressed("move_up") or event.is_action_pressed("move_down"):
+		var step := 1 if event.is_action_pressed("move_down") else -1
+		_pause_at = posmod(_pause_at + step, _pause_options.size())
+		_leave_armed = false
+		_show_pause()
+	elif event.is_action_pressed("jump") or event.is_action_pressed("interact") or event.is_action_pressed("ui_accept"):
+		if _pause_options[_pause_at] == "Resume":
+			_set_paused(false)
+		elif not _leave_armed:
+			_leave_armed = true
+			_show_pause()
+		else:
+			# Out of the level, back to the map (what was found stays found).
+			_set_paused(false)
+			go_to(MAP_SCENE, "")
+	else:
+		return
+	get_viewport().set_input_as_handled()
 
 
 # --- Hit-stop ------------------------------------------------------------------
@@ -337,6 +451,7 @@ func _setup_screen_layers() -> void:
 	_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_banner.modulate.a = 0.0
 	hud_layer.add_child(_banner)
+	_setup_pause()
 
 
 func _hud_label(size: int) -> Label:
@@ -565,6 +680,7 @@ func respawn(kleo: Node, refill: bool) -> void:
 		_show_health()
 		health_changed.emit(health, max_health)
 	kleo.call("place", checkpoint, checkpoint_facing)
+	Sfx.play("respawn")
 	var cam := get_viewport().get_camera_2d()
 	if cam and cam.has_method("snap_to_target"):
 		cam.snap_to_target()

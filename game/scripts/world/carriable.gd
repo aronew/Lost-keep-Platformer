@@ -133,6 +133,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _smash() -> void:
+	Sfx.play("smash")
 	var r := art.region_rect
 	var grid := Vector2i(3 if r.size.x >= 26.0 else 2, 3 if r.size.y >= 26.0 else 2)
 	var pw := floorf(r.size.x / grid.x)

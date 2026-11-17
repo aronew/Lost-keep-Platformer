@@ -29,6 +29,7 @@ func take_hit(hit: Dictionary) -> bool:
 		# The sword rings off it: a spark, a jolt, nothing gives.
 		Fx.burst(self, hit.get("pos", global_position), Color(0.85, 0.82, 0.9), 5, 70.0)
 		art.position.x = int(hit.get("dir", 1))
+		Sfx.play("ring_off")
 		create_tween().tween_property(art, "position:x", 0.0, 0.08)
 		return true
 	if flag != "":
@@ -71,6 +72,7 @@ func _open(animate: bool) -> void:
 	Fx.burst(self, global_position + box.get_center(), Color(0.6, 0.55, 0.66), 24, 140.0)
 	Fx.dust(self, global_position + Vector2(box.get_center().x, box.end.y), Fx.HARD_LANDING, 1)
 	Game.shake(0.35)
+	Sfx.play("smash_stone")
 	var tw := create_tween()
 	tw.tween_property(art, "modulate:a", 0.0, 0.18)
 	tw.tween_callback(func() -> void: art.visible = false)

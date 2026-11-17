@@ -61,6 +61,8 @@ const HANG := Vector2(6.0, 50.0)
 
 @export_group("Combat")
 @export var attack_buffer_time := 0.22
+## How long nothing can hurt her once she has her feet back after a blow.
+@export var safe_after_hit := 0.6
 
 @export_group("Carry")
 ## While she carries something overhead she runs and jumps a little less.
@@ -88,7 +90,13 @@ const ATTACKS := {
 	"attack_down": {"hits": [[1, 2]], "box": Rect2(-10, -8, 20, 30), "lunge": {},
 		"chain": -1, "cancel": 3, "stop": 0.04, "shake": 0.08, "power": 1},
 }
+## From this frame of the knockback (flight 0-3, slide 4-7, get-up 8-11) she
+## can cut it short by moving or jumping.
+const KNOCK_GET_UP := 6
 const COMBO := ["attack_1", "attack_2", "attack_3", "attack_4"]
+## The sound of each swing (Sfx).
+const SWING_CUE := {"attack_1": "swing_1", "attack_2": "swing_2", "attack_3": "swing_3", "attack_4": "swing_spin",
+	"attack_up": "swing_up", "attack_air": "swing_air", "attack_down": "swing_air"}
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var hitbox: Area2D = $Hitbox
@@ -158,9 +166,9 @@ func _physics_process(delta: float) -> void:
 		if _drop <= 0.0:
 			set_collision_mask_value(7, true)
 	_invuln = max(_invuln - delta, 0.0)
-	if Input.is_action_just_pressed("jump"):
+	if _pressed("jump"):
 		_jump_buffer = jump_buffer_time
-	if Input.is_action_just_pressed("attack"):
+	if _pressed("attack"):
 		_attack_buffer = attack_buffer_time
 		if state == State.ATTACK and sprite.frame >= 1:
 			_queued = true  # mashing through a long wind-up still chains
@@ -188,6 +196,11 @@ func _physics_process(delta: float) -> void:
 	sprite.flip_h = facing < 0
 
 
+## A button pressed this tick (but not the press that closed the pause menu).
+func _pressed(action: String) -> bool:
+	return Input.is_action_just_pressed(action) and not Game.just_resumed()
+
+
 func _gravity(delta: float, scale := 1.0) -> void:
 	var g := gravity_down if velocity.y > 0.0 else gravity_up
 	if _jump_held and absf(velocity.y) < apex_speed and state == State.NORMAL:
@@ -209,6 +222,7 @@ func _stride(delta: float, on_floor: bool) -> void:
 		if sprite.animation == "run":
 			sprite.speed_scale = 1.25
 		Fx.dust(self, global_position, Fx.SKID, facing)
+		Sfx.play("stride")
 
 
 func _end_stride() -> void:
@@ -260,6 +274,7 @@ func _normal(delta: float) -> void:
 		_turning = false
 		_play("jump", true)
 		Fx.dust(self, global_position, Fx.JUMP, facing)
+		Sfx.play("jump")
 	# Letting go early cuts the rise, once.
 	if _jumping and not _jump_held and velocity.y < -100.0:
 		velocity.y *= jump_cut
@@ -289,7 +304,7 @@ func _normal(delta: float) -> void:
 		return
 
 	# Interact.
-	if on_floor and _lock <= 0.0 and (Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("move_up")):
+	if on_floor and _lock <= 0.0 and (_pressed("interact") or _pressed("move_up")):
 		if _try_interact():
 			return
 
@@ -313,9 +328,11 @@ func _after_move() -> void:
 			velocity.x = 0.0
 			Game.shake(0.28)
 			Fx.dust(self, global_position, Fx.HARD_LANDING, facing)
+			Sfx.play("land_hard")
 		else:
 			_play("land", true)
 			Fx.dust(self, global_position, Fx.LANDING, facing)
+			Sfx.play("land")
 	if on_floor:
 		_air_top = global_position.y
 		_safe_timer -= get_physics_process_delta_time()
@@ -407,6 +424,7 @@ func _start_attack(name: String, from_frame := 0) -> void:
 	_play(name, true)
 	sprite.frame = from_frame
 	_on_frame()
+	Sfx.play(SWING_CUE.get(name, "swing_1"))
 	if name == "attack_up":
 		Fx.arc(self, global_position + Vector2(facing * 2, -30), Fx.ARC_UP, facing)
 	elif name == "attack_air":
@@ -441,6 +459,7 @@ func _attacking(delta: float) -> void:
 		_was_on_floor = true
 		_end_attack()
 		_play("land", true)
+		Sfx.play("land")
 		return
 	_was_on_floor = is_on_floor()
 	_check_hits(data, frame)
@@ -490,8 +509,10 @@ func _on_frame() -> void:
 				Fx.arc(self, global_position + Vector2(facing * 4, -22), Fx.ARC_SPIN, facing)
 			7:
 				Fx.arc(self, global_position + Vector2(facing * 14, -10), Fx.ARC_SLAM, facing)
+				Sfx.play("swing_3")
 			12:
 				Game.shake(data["shake"])
+				Sfx.play("land_hard")
 				Fx.dust(self, global_position + Vector2(facing * 14, 0), Fx.HARD_LANDING, facing)
 				Fx.dust(self, global_position + Vector2(facing * 14, 0), Fx.BASH, facing)
 	elif _attack == "attack_3" and frame == 6:
@@ -525,7 +546,10 @@ func _check_hits(data: Dictionary, frame: int) -> void:
 			Game.hitstop(data["stop"] * weight)
 			Game.shake(data["shake"] * 0.6 * weight)
 			Fx.spark(self, hit["pos"])
+			if int(data["power"]) >= 3:
+				Sfx.play("finisher")
 			if _attack == "attack_down":
+				Sfx.play("pogo")
 				velocity.y = -280.0  # pogo
 				_end_attack()
 				_play("jump", true)
@@ -596,17 +620,19 @@ func _grab(corner: Vector2, dir: int) -> void:
 	global_position = corner + Vector2(-dir * HANG.x, HANG.y)
 	_toward_time = 0.0
 	_play("ledge_grab", true)
+	Sfx.play("ledge_grab")
 
 
 func _hanging(delta: float) -> void:
 	velocity = Vector2.ZERO
 	var toward := _input_x * _ledge_dir > 0.0
 	_toward_time = _toward_time + delta if toward else 0.0
-	if _jump_buffer > 0.0 or Input.is_action_just_pressed("move_up") or _toward_time > 0.16:
+	if _jump_buffer > 0.0 or _pressed("move_up") or _toward_time > 0.16:
 		_jump_buffer = 0.0
 		state = State.LEDGE_CLIMB
 		_play("ledge_climb", true)
-	elif Input.is_action_just_pressed("move_down") or _input_x * _ledge_dir < 0.0:
+		Sfx.play("ledge_climb")
+	elif _pressed("move_down") or _input_x * _ledge_dir < 0.0:
 		state = State.NORMAL
 		global_position.x -= _ledge_dir * 3.0
 		_air_top = global_position.y
@@ -630,6 +656,7 @@ func hurt(push_dir: int, heavy := false, damage := 1) -> void:
 	state = State.HURT
 	facing = -push_dir
 	_invuln = 0.9
+	Sfx.play("hurt")
 	_kb_flew = false
 	if heavy:
 		velocity = Vector2(push_dir * 120.0, -170.0)
@@ -661,7 +688,21 @@ func _hurting(delta: float) -> void:
 	elif knock and _kb_flew and f < 4:
 		sprite.frame = 4  # touch down: into the slide
 		Fx.dust(self, global_position, Fx.LANDING, facing)
+		Sfx.play("land")
 	_was_on_floor = is_on_floor()
+	# Once she has slid a moment she need not lie there: moving or jumping gets
+	# her up at once (the whole get-up held her for 0.8 s, nearly as long as
+	# she was safe).
+	if knock and _kb_flew and is_on_floor() and sprite.frame >= KNOCK_GET_UP and (_input_x != 0.0 or _jump_buffer > 0.0):
+		_recover()
+
+
+## She has her feet again after a blow. However long she was down, she is
+## safe for a moment more: time to get clear of what hit her.
+func _recover() -> void:
+	state = State.NORMAL
+	_invuln = maxf(_invuln, safe_after_hit)
+	_play("idle")
 
 
 func _try_interact() -> bool:
@@ -753,6 +794,7 @@ func hazard(kind: String) -> void:
 		"thorns":
 			velocity = Vector2.ZERO
 			_play("hurt", true)
+			Sfx.play("hurt")
 			Game.hitstop(0.06)
 			Game.shake(0.25)
 			Fx.burst(self, global_position + Vector2(0, -12), Color(0.85, 0.75, 0.6), 10, 90.0)
@@ -777,6 +819,7 @@ func _defeat(push_dir: int) -> void:
 	_drop_held()
 	velocity = Vector2(push_dir * 90.0, -150.0)
 	_play("death", true)
+	Sfx.play("death")
 	Game.hitstop(0.1)
 	Game.shake(0.45)
 	var t := 0.0
@@ -818,6 +861,7 @@ func _throw(set_down: bool) -> void:
 	else:
 		var v := Vector2(throw_velocity.x * facing + velocity.x * 0.35, throw_velocity.y)
 		thing.call("throw", v)
+		Sfx.play("throw")
 		Fx.dust(self, global_position, Fx.RUN, facing)
 
 
@@ -881,8 +925,7 @@ func _on_animation_finished() -> void:
 			_play("idle")
 		"knockback", "hurt":
 			if state == State.HURT:
-				state = State.NORMAL
-				_play("idle")
+				_recover()
 		"idle_yawn":
 			_play("idle")
 		_:
@@ -895,11 +938,13 @@ func _frame_fx() -> void:
 	var f := sprite.frame
 	if a == "run" and (f == 1 or f == 7):
 		Fx.dust(self, global_position + Vector2(-facing * 6, 0), Fx.RUN, facing)
+		Sfx.play("step")
 	elif a == "ledge_climb" and f == 2:
 		# The view moves up with her: from now on she is on top of the ledge.
 		global_position = _ledge_corner + Vector2(_ledge_dir * 9.0, 0.0)
 	elif a == "ledge_climb" and f == 9:
 		Fx.dust(self, global_position, Fx.LANDING, facing)
+		Sfx.play("land", -4.0)
 
 
 func debug_text() -> String:

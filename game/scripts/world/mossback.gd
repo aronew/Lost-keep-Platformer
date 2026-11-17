@@ -84,6 +84,7 @@ func take_hit(hit: Dictionary) -> bool:
 		var tw := create_tween()
 		tw.tween_method(func(v: float) -> void: mat.set_shader_parameter("flash", v), 1.0, 0.0, 0.14)
 	Fx.burst(self, hit.get("pos", global_position + Vector2(0, -10)), Color(0.5, 0.62, 0.24), 7, 100.0)
+	Sfx.play("hit_flesh_heavy" if hits >= hits_to_kill else "hit_flesh")
 	if hits >= hits_to_kill:
 		_die(from)
 		return true

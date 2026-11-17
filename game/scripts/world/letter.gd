@@ -47,6 +47,7 @@ func _on_body_entered(body: Node) -> void:
 	_taken = true
 	set_deferred("monitoring", false)
 	Game.take_letter(letter, flag)
+	Sfx.play("letters_all" if Game.letters_found() == 4 else "letter")
 	Fx.burst(self, global_position, Color(1.0, 0.86, 0.5), 14, 90.0)
 	Game.hitstop(0.03)
 	var tw := create_tween()

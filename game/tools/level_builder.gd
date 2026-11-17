@@ -83,6 +83,7 @@ func _level_finish() -> void:
 	if blockout:
 		_edge_shades()
 	elif daylight:
+		floor_mid = false
 		_daylight()
 		_level_foreground()
 	else:

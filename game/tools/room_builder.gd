@@ -121,6 +121,10 @@ var mood_murk := Color(0.36, 0.46, 0.52)
 ## Whether the CH detail pass lays black root arches nearest the camera (an
 ## interior leaves them out: in a small room they cover the floor).
 var detail_near := true
+## Whether the detail pass stands dark plants in front of the floors (the
+## dusk rooms' mid step). A daylight level leaves them out: dark clumps on a
+## bright floor read as holes or hazards, and they hid Kleo's feet.
+var floor_mid := true
 
 
 func _use_crypt_y_stone() -> void:
@@ -578,7 +582,7 @@ func _room_detail(surface: bool) -> void:
 								Vector2(x * TILE + (2 if side < 0 else 6), (y + 1 + depth) * TILE - 2))
 							ivy.name = "CornerIvy"
 				# In front of the floor: the mid step, by chance.
-				if _cellhash(c, 6) < 90:
+				if floor_mid and _cellhash(c, 6) < 90:
 					var reg: Rect2 = mid_pieces[_cellhash(c, 7) % mid_pieces.size()]
 					var m := _sprite(mid_node, flora, reg, Vector2(x * TILE - reg.size.x * 0.25, floor_y - reg.size.y * 1.25 + 7))
 					m.name = "FloorMid"

@@ -33,6 +33,7 @@ func take_hit(hit: Dictionary) -> bool:
 		Game.flags[flag] = true
 	hurtbox.set_deferred("monitorable", false)
 	var from := int(hit.get("dir", 1))
+	Sfx.play("hit_metal")
 	# The lid: it jolts up (opening), then is thrown back (open).
 	art.frame = 1
 	art.position.y -= 2.0
