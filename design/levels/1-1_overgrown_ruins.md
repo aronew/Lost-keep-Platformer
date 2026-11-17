@@ -1,4 +1,8 @@
-# 1-1 The Overgrown Ruins (bright day; letters and bonus areas in)
+# 1-1 Lantern Refuge (bright day; letters and bonus areas in)
+
+First called The Overgrown Ruins; renamed after the creative lead's region
+map (2026-11). This file, the builder, the scene and the level's node keep
+the old name.
 
 Builder: `game/tools/build_l1_1.gd` → `game/scenes/levels/l1_1_overgrown_ruins.tscn`.
 Pictures: `docs/levels/1-1/blockout/` (the approved blockout: the poster and

@@ -36,12 +36,16 @@ what is missing in every level.
 **State of each piece.**
 | Piece | State |
 |---|---|
-| 1-1 The Overgrown Ruins | Playable, dressed in the dusk kit under daylight. Waiting for Book 4's bright-day art and the creative lead's play |
-| 1-2 The Gate Road | A **blockout**, awaiting review. No art until it is approved |
-| 1-3 to 1-5, 1-S, 1-B | Not started (stops on the map, dim) |
+| 1-1 Lantern Refuge (first called The Overgrown Ruins; files and node keep that name) | Playable, dressed in the Sunlit Woodland day kit (Book 4, delivered; see "The day kit" below) |
+| 1-2 The Gate Road | First art pass in the Flooded Sanctuary kit (Book 5; see "The sanctuary kit" below). Its layout predates the mockups' shapes |
+| 1-3 The Ruin Gardens | A **blockout**, awaiting review: the vertical level, three legs up the hill; hides the secret exit |
+| 1-4 The Aqueduct | A **blockout**, awaiting review: rafts and lifts that all run on their own (timed jumps and steps) |
+| 1-5 The Lantern Clearing | A **blockout**, awaiting review: the gauntlet |
+| 1-S The Hollow Oak | A **blockout**, awaiting review: the secret level, a harder climb. Its extra-flame reward isn't built |
+| 1-B The Keep Gate | A **blockout** of the approach and the arena. **The boss is not built** (no design, art or code): the arena is empty and the way out open |
 | World map, save file | Built, on the creative lead's painted region map ("Flooded Sanctuary") |
 | Kleo's stride | Built; untuned by play |
-| Stand-in sprites | Letters, token, thorn knot, banner (`tools/make_standins.py`) |
+| Stand-in sprites | Thorn knot, the blockout banner, the power-up pickup (`tools/make_standins.py`); letters, token and HUD icons come from the day kit |
 
 **What the creative lead has decided in review** (binding; details in
 "Lessons" below): bright and readable; hardly any platforms; letters, not
@@ -55,17 +59,27 @@ never a lantern**; blockout first, art last.
 - **"I was surprised that there was a boost in running"; "the boost is
   cool."** Decided: Kleo's stride stays. Levels are still designed for the
   plain jump; the stride is the skilled player's shortcut.
-The knots' hiding places and the map's look have not been commented on.
+- **"They shouldn't wait, they should be moving back and forth ... you need
+  to time jumps properly"; "make the lifts move on their own too."**
+  Decided: rafts and lifts all run on their own (1-4, 1-5).
+- **"Use the map names and follow the map."** Decided: region 1 is
+  **Flooded Sanctuary** and level 1-1 is **Lantern Refuge**, as the creative
+  lead's region map has them; and the secret level is reached off pad 3, so
+  region 1's hidden exit goes in 1-3.
+The knots' hiding places have not been commented on.
 
 **What to do next, in order.**
-1. Take the creative lead's review of the 1-2 blockout and of this
-   session's additions (the questions are at the end of
-   `design/levels/1-2_gate_road.md`).
-2. Give 1-2's twist the chain treatment its long pool got
-   (`design/levels/ratings.md` says why).
-3. When Book 4's sheets arrive: process, place, judge in the game (1-1).
-4. 1-2's art pass once its layout is approved; then 1-3, blockout first.
-5. Convert 1-1's two bonus areas to Resin rushes if the creative lead wants.
+1. Take the creative lead's review of the six blockouts (1-2 to 1-5, 1-S,
+   1-B): each spec in `design/levels/` ends with its open questions, and
+   `design/levels/ratings.md` says what would raise each. **None has been
+   played by a person:** the scripted tests prove the jumps, not the fun.
+2. The boss: the Keep's fallen warden needs a design from the creative lead
+   (attacks, how he is hurt, phases) and art before 1-B is more than a room.
+3. Decide which look 1-3 onward take (day kit or sanctuary kit), then art
+   passes a level at a time as each layout is approved.
+5. Small things owed: 1-2's twist wants the chain treatment its long pool
+   got; 1-1's two bonus areas are still the old kinds; the secret level's
+   extra flame isn't built.
 
 **Before anything runs:** install Godot 4.7.2 and import (see "Open items").
 In a cloud session, the `lost-keep-platformer` environment does both at
@@ -77,7 +91,7 @@ start.
 |---|---|
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
 | `design/rooms/` | Specs of the three Lost Keep surface rooms that came over (IB-01, IB-03, IB-04), with their validation |
-| `design/levels/` | One spec per level, with its validation (1-1; 1-2, a blockout) |
+| `design/levels/` | One spec per level, with its validation and its open questions (1-1 dressed; 1-2 to 1-5, 1-S and 1-B blockouts) |
 | `design/research/platformer-fun.md` | **The research:** what makes 2D platformers fun (DKC 1 to 3, Super Mario), sourced, with what each finding means here and which are built |
 | `design/levels/ratings.md` | The levels' ratings board (×, △, ○, ◎) and the checklist every level is held to |
 | `design/enemies.md` | The creative lead's enemy roster: names, proposed roles, what is in the game |
@@ -240,7 +254,10 @@ game/                     the Godot project
   tools/                  room_builder.gd (shared base), surface_builder.gd,
                           level_builder.gd (the systems and the blockout look),
                           build_l1_1.gd (level 1-1), build_l1_2.gd (level 1-2's
-                          blockout), build_systems.gd (the
+                          blockout), build_l1_3.gd, build_l1_4.gd,
+                          build_l1_5.gd, build_l1_s.gd, build_l1_b.gd (the
+                          other blockouts, planned from pieces),
+                          build_systems.gd (the
                           systems arena), build_test_room.gd (IB-01),
                           build_ib03.gd, build_ib04.gd
   tests/                  playtest.gd/.tscn (scripted play + captures), framelog,
@@ -368,10 +385,19 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   level; touching one takes it (`Game.take_letter`; the HUD's letters, top
   right); all four is a burst of Resin. (They replace the cocoons: the
   creative lead found rescuing from cocoons "dumb".)
+- **Power-ups** (`power_up.gd`, `_power_up(pos, kind)`; `Game.power`,
+  `Game.set_power`): as Mario's (the creative lead's choice over permanent
+  abilities): found in a level, one held at a time (its icon by the Resin
+  count), and **a hit costs the power instead of a flame** (`Kleo.hurt`); a
+  defeat loses it; it returns where it hung on a respawn. Built: **the
+  Anima Spark** (`anima_bolt.gd`): the spell button (V, L, right click)
+  looses a teal bolt that strikes what a sword strikes. One hangs before
+  1-1's first rat. Its pickup art is a stand-in. The other kinds and what
+  each boss unlocks: `design/game-structure.md` §4.
 - **The thorn knot** (`thorn_knot.gd`, `_knot`): each level's one great
   secret (DKC2's DK coin): one of Morvath's knots, asleep, hidden with more
   cunning than anything else; touching it wakes it for good
-  (`Game.take_knot`; the HUD's icon, top right). 1-1: behind bonus 1's
+  (`Game.take_knot`; the HUD's icon, top right). (1-3 to 1-S: their specs.) 1-1: behind bonus 1's
   hollow, which lets her by only once the bonus is won. 1-2: on an island
   back west of the rampart's tower, the one time she must turn back.
 - **Kleo's stride** (`kleo.gd`: `stride_after`, `stride_speed`): a second of
@@ -394,13 +420,14 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   in the script, in painting px): left and right on the main path, down from
   pad 3 to the grotto; jump enters; F4 opens every built stop for a review.
   A stop opens when the one it follows is done (`after` in `Game.LEVELS`,
-  else the one before). The plate under the title counts the stops cleared;
+  else the one before); the grotto also `needs` the flag `l13_secret_exit`,
+  set by leaving 1-3 through its secret exit (`_level_end(..., secret_flag)`). The plate under the title counts the stops cleared;
   the bottom plate names her stop; over it is that level's record: letters,
-  tokens, knot, found or missing. **The painting has a Kleo at pad 1 and two
-  texts painted in** ("0/6 levels completed", "1 · Lantern Refuge"): the two
-  plates are covered and rewritten in the script, but the painted Kleo
-  can't be, so there are two Kleos when she stands anywhere else. A clean
-  plate from the creative lead (no Kleo, empty plates) fixes it. `Game.keeper()`
+  tokens, knot, found or missing. **The painting has two texts painted in**
+  ("0/6 levels completed", "1 · Lantern Refuge"): the script covers those
+  two plates and rewrites them. (Its first version also had a Kleo painted
+  at pad 1; the creative lead sent a second without her, which is the one
+  in use.) `Game.keeper()`
   names the flags that are saved (`user://save.json`): each level's done
   mark, letters, tokens and knot, plus the Resin. Everything else a level
   remembers is wiped by `Game.enter_level`. Esc leaves a level for the map.
@@ -459,6 +486,51 @@ leave the skin's edges on the default material.)
   and reduced by `process_art.py`'s method. The kit's own "native" exports
   were rebuilt and snapped to 40 colours by a script: not used (the process
   Lost Keep's review rejected).
+
+**A level planned from pieces** (1-3 onward; `level_builder.gd`):
+`plan_leg(edge, row, dir, pieces, kind)` takes a list of pieces, each
+`[gap, width, rise]` (tiles): the next thing she stands on. It makes the
+collision (before `_level_begin`) **and** the moves of the scripted tour
+from the same list, so the two can't disagree: no gap is a step beside her
+(3 up at most), a gap is a hop (4 across and 2 up at most in region 1).
+Kinds: `solid` (ground, the gap a sunken bed), `stone` (an island in water),
+`float` / `float2` (a floating island 3 or 2 thick), `none` (ground already
+there). `_place_arcs` hangs beads over every hop. `plan_rush` /
+`_place_rush` do the same for a Resin rush bonus area (pillars or blocks).
+The builder fills `tour`, `extras` (the secrets' moves) and `shots`; they
+are saved on the scene as metadata, and `playtest.gd`'s `_run_moves` plays
+them (`rise`, `hop`, `off`, `walk`, `jump`, `ride` a mover, `place`,
+`into_zone`, `zone_clear`, `token`, `letter`, `knot`, `chest`, `interact`,
+`held`, `cracked`, `floor`, `banner`, `end`). A new level built this way
+needs no test code of its own: `room=<id> mode=tour` and `mode=secrets`
+just work once it is in `ROOMS`.
+
+**A vertical level** (1-3, 1-S) climbs in legs that zigzag; **no leg may
+hang less than 6 rows over a spot she jumps from on the leg below** (a full
+jump needs 82 px), and the first piece after a turn is `float2`. A fall
+lands her on the leg below: no pits.
+
+**Movers** (1-4, 1-5). **Rafts run back and forth on their own** (the
+creative lead: "they shouldn't wait, they should be moving back and forth
+... you need to time jumps properly"): `_raft(x, row, run, speed)` in those
+builders, no `wait_for_rider`, a 1 s rest at each end, level with the banks
+but **stopping two tiles short of each**, so she times a jump on and a jump
+off. **Lifts run on their own too** (the creative lead: "make the lifts
+move on their own too"): `_run_lift(x, row, rise, speed, phase, rest)`,
+resting beside the floor at each end (step on, step off); one on dry ground
+rests a row up (a hop on). **Movers that hand her on keep one time:** give
+them the same run time and rest, and set them apart with `phase` (1-4's two
+rafts and the lift past them; 1-5's high raft and its lift). They stay in
+step because `moving_platform.gd` counts every run and rest in whole ticks
+of game time (`_leg_ticks`, `rest_ticks`); count game time, never raw
+physics ticks, or a hit-stop throws the rider off. A mover never stays at an
+end, so what she steps or jumps onto there must be within reach while it
+rests. Nothing in the levels waits for her now (`wait_for_rider` is still
+there, and the systems arena uses it). The tests' moves: `board` (a timed
+jump on as it arrives), `step_on` (a timed walk on), `await_mover`,
+`ride_end`, `leap` (off at once). **Known, small:** a hit-stop while she
+rides shifts her along the mover (under 2 px with real frame times; up to
+18 px under `--fixed-fps`, a test artifact).
 
 **Blockout first:** with `blockout = true` (the default) a level shows its
 black box (the skin off: `skin_visible = false`) on a flat pale sky, no
@@ -548,8 +620,12 @@ head).
 ## Branches
 Work happens on feature branches (Claude's: `claude/...`); the creative lead
 merges finished work into `main`, which holds the current game. The current
-working branch is `claude/region-1-levels` (from `main`, 2026-11; the first
-branch, `claude/platformer-game-setup-oatrq2`, is merged and finished).
+working branches are `claude/region-1-levels` (the region's levels, the map,
+the movers) and `claude/platformer-game-setup-oatrq2` (the art kits and
+power-ups); two sessions worked on them at once. **Before starting, merge
+`origin/main` into your branch**, so the two don't drift into conflicts the
+creative lead can't merge (they did once, in `level_builder.gd`'s
+`_level_end`).
 
 ## How to test (use a virtual display in the cloud)
 
@@ -560,8 +636,9 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 
 - The shell (sounds, pause, getting up after a blow):
   `res://tests/checks.tscn` in place of the playtest scene (no arguments).
-- Levels: `l1_1` and `l1_2` (`mode=tour`: the main line; `mode=secrets`:
-  every secret, letter, bonus area and chest; `shots`; `map`) and `sys`, the systems arena
+- Levels: `l1_1`, `l1_2`, `l1_3`, `l1_4`, `l1_5`, `l1_s`, `l1_b`
+  (`mode=tour`: the main line; `mode=secrets`: every secret, letter, bonus
+  area and chest (not `l1_b`: it has none); `shots`; `map`) and `sys`, the systems arena
   (`mode=systems`; run it with `--max-fps 60` too). Rooms: `ib01`
   (default), `ib03`, `ib04`. Output: `game/tests/out/<room>/<mode>/`.
 - **Pictures for a blockout review:** `mode=shots` (one in-game shot per
@@ -687,17 +764,72 @@ a piece up in the atlas, `_day_sprite` / `_day_ground` place one,
 `_day_material()` is the ground (earth all the way in, `DAY_EARTH_DEEP`),
 `_day_backdrops()` the sky and forests; checkpoints, crates, thorns, bonus
 hollows and the end doorway use the kit by day. 1-1 is dressed by
-`_dress_day()`; its stall is gone (it "looks out of place with the new tile
+`_dress_day()`; its treetop crowns are whole trees standing on the hill
+(walkways on rows 20 and 21: higher, their trunks ended in the air and the
+creative lead saw "the trees floating"); its stall is gone (it "looks out of place with the new tile
 set"): the slab is an earth terrace on earth piers (`DAY_PIERS`), which the
 creative lead approved ("the slab looks good like that").
 `docs/mockups/platformer/world_map/` holds the creative lead's map mockup
 (a map screen for each region's levels).
 
+## The sanctuary kit (Book 5, delivered; first pass in 1-2)
+`art/source/sanctuary/F1..F16` holds the generator's 16 sheets unchanged;
+`tools/make_sanctuary.py` reduces them (averaged, each sheet's own colours)
+into `game/assets/environment/sanctuary/` with `sanct_pieces.json` (every
+piece's rectangle). In `level_builder.gd`, `kit = "sanctuary"` gives a level
+the stone (`_sanct_material()`: top, underside, wall, fill; the kit's corner
+pieces came back in other shapes and are not used), the cavern light and
+ruins backdrops, the water (lifted: `SANCT_WATER_LIFT`) and the foreground
+band. **1-2 is dressed in it** (`_dress()` in `build_l1_2.gd`): the lantern
+hut at the start, the doorway at the end, an arch under the first floating
+island, archways and pillars, the banner, the thorn bed, barrels, the
+cavern roof along the level's top, drowned stone, water plants and lily pads.
+**The look test** (`tools/build_look_s4.gd` → `scenes/levels/look_s4.tscn`;
+picture: `docs/levels/look/s4_mockup_over_game.png`): after "still looks
+nothing like my mock up; that ceiling looks terrible", the mockup S4 was
+rebuilt shape for shape as one screen and judged beside the mockup. What it
+taught, now in the kit's look: **the cavern roof is real rock along the top
+of the room** (the skin hangs its underside), never a pinned or parallax
+band; **the distance is far darker than the sheets came** (Sky, Far and Mid
+modulated to deep teal); the water darker; dark ruins stand in the water
+behind the play (`_sanct_midground`), lanterns glow (`_sanct_glow`), a light
+vignette. **The stone is piles, not walls** ("they look nothing like the
+natural stone in the mockups"): lit boulders at the edges and deep shadow
+inside (the fill fades in 2 tiles to `SANCT_STONE_DEEP`), masses stepped one
+block at a time, never tall boxes, rubble and ferns at their feet. **The
+foreground has a second, nearer layer of silhouette plants** (the creative
+lead's; `fg_scroll`, Lost Keep's black forest band at 1.45). Drowned stone
+stands on the bed (`_sanct_bed`), never mid-water. **A level looks like a
+mockup only if its shapes are the mockup's:** build sanctuary levels from the mockups' shapes (thick masses
+stepping into water a tile below the low ground, a rock roof), then dress.
+1-2's layout predates this and still reads as a low road of hops.
+`_sanct(name)` looks a piece up (`SANCT`), `_sanct_ground` stands one on a
+floor. **Plants are placed by hand, never by rule:** `_sanct_plant(piece,
+tile x, row)` places one only on flat ground under its whole width, and the
+old scatter pass (`_detail_kind`) is off for daylight levels (the creative
+lead: "no weird plant placements; some of them are hanging off edges and
+are in odd places"; "the mockups are the goal for the look"). Not used yet:
+the islands and pillars (F5; 1-2's are tile masses in the stone), the log
+and root (F6), the steps. The bonus hollows are still the day kit's.
+Pictures: `docs/levels/1-2/art_pass/`.
+
+## 1-2's look: the Flooded Sanctuary (Book 5)
+The creative lead: 1-2 keeps the flooded-ruins look ("the old tile set"),
+"but I think we need new tiles for it". Its four mockups are in
+`docs/mockups/platformer/flooded_sanctuary/` (S1 to S4). **Book 5**
+(`docs/art-production/platformer-sanctuary-prompt-book.html`, from
+`src/book5_body.html` and `src/book5_cards.js`; published at
+https://claude.ai/artifact/GwreeWZdoTHN9VwW37f2Ja with `platformer-attach/`
+S1 to S4 and G8) asks for that kit in 16 sheets: stone that is stone all the
+way in, a real fill, readable. 1-1 stays the Sunlit Woodland. Which look 1-3
+onward take is undecided. When the kit arrives, process it as
+`tools/make_day.py` does the day kit (from its sources, its own colours).
+
 ## Open items
 - **From the audit (2026-11), done:** sound effects, the heavy-blow fix, the
-  pause menu, debug keys out of exported builds, and the dusk kit's dark
-  floor plants out of daylight levels (`floor_mid` in `room_builder.gd`:
-  they read as holes or hazards and hid Kleo's feet).
+  pause menu, debug keys out of exported builds. (The dusk kit's dark
+  floor plants, which read as holes and hid Kleo's feet, are gone by day:
+  main turned the whole detail pass off in daylight levels.)
 - **From the audit, open:** the creatures are one drawing squashed and
   leaned in code (they need frames from the creative lead); no music or
   ambience; the sound cues need the creative lead's ear; the audio's rights
@@ -715,6 +847,9 @@ creative lead approved ("the slab looks good like that").
   kit under daylight; **Book 4** (`platformer-region1-day-prompt-book.html`)
   asks for the bright-day kit after the six `bright_day/` mockups. As its
   sheets arrive: process them, place them, judge in the game.
+- **Levels 1-3, 1-4, 1-5, 1-S and 1-B: blockouts, awaiting the creative
+  lead's review** (their specs in `design/levels/`, pictures in
+  `docs/levels/<level>/blockout/`). F4 on the map opens them all at once.
 - **Level 1-2, The Gate Road: a blockout, awaiting the creative lead's
   review** (`design/levels/1-2_gate_road.md`, pictures in
   `docs/levels/1-2/blockout/`): hopping over water, stone islands then the
@@ -727,13 +862,10 @@ creative lead approved ("the slab looks good like that").
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax
   layers, so judge the look in `mode=shots`.
-- **The region map, awaiting the creative lead's word:** a clean plate
-  without the painted Kleo; the region's name (the map says "Flooded
-  Sanctuary", the design docs "The Ironbark Wilds") and level 1's (the map
-  says "Lantern Refuge", the docs "The Overgrown Ruins"): the game shows the
-  docs' level names for now; the map's dusk look against region 1's
-  bright-day look; and that the map draws the secret's path from pad 3 (the
-  docs hide its exit in 1-4 or 1-5).
+- **Asked, not yet answered:** the map is dusk (dark teal and purple) while
+  region 1's levels are bright day by the creative lead's earlier decision.
+  "Follow the map" was taken to mean its names and its paths, **not** a
+  change of the levels' look: don't darken the levels on it.
 - **Awaiting the creative lead's word:** the thorn knots' hiding places and
   the banner stand-in. What waking every knot does is undecided.
 - 1-1's two bonus areas are still the old kinds (12 beads; a course), not

@@ -1,0 +1,160 @@
+<div class="controls" role="region" aria-label="Prompt options">
+  <div class="inner">
+    <span class="title">Flooded Sanctuary Prompt Book</span>
+    <label class="field" for="include-rules"><input type="checkbox" id="include-rules" checked> Copy shared rules with each prompt</label>
+    <span class="progress" id="progress">0 done</span>
+  </div>
+</div>
+
+<div class="page">
+  <aside class="rail" aria-label="Contents">
+    <nav>
+      <span class="group">Start</span>
+      <a href="#needs">What changes</a>
+      <a href="#workflow">How to use this book</a>
+      <a href="#build">How a level is assembled</a>
+      <a href="#pack">Images to attach</a>
+      <span class="group">Prompts</span>
+      <a href="#terrain">The stone</a>
+      <a href="#pieces">Islands, pillars, log, ceiling</a>
+      <a href="#water">The water</a>
+      <a href="#things">Hut, doorway, flora, thorns</a>
+      <a href="#backdrop">Far ruins, light, foreground</a>
+      <span class="group">Finish</span>
+      <a href="#checks">Check every result</a>
+      <a href="#fixes">If the image falls short</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <span class="eyebrow">Lost Keep: Platformer · art production · Book 5</span>
+      <h1>The Flooded Sanctuary</h1>
+      <p class="lede">Level 1-2's look, after your four mockups: mossy purple stone ruins in a teal-lit cavern forest, lantern huts, red mushrooms, deep water under everything. A fresh tileset for it, made the way the Sunlit Woodland kit was, and avoiding what went wrong with the first purple kit: black insides, a striped fill, and a level too dark to read.</p>
+      <div class="meta"><span id="count">0 images</span><span>Base 640 × 360, ×3 to 1080p</span><span>1 tile = 16 px in game</span><span>Masters at ×8 (×4 for backdrops)</span><span>Godot 4.7.2</span></div>
+    </header>
+
+    <section id="needs">
+      <span class="eyebrow">Start</span>
+      <h2>What 1-2 needs</h2>
+      <p>1-2, The Gate Road, is hopping over water: stone islands, then bigger masses above. It keeps the flooded-ruins look; the old purple kit that 1-1 used is retired. Everything below is new art for it.</p>
+      <div class="shots">
+        <figure class="shot"><img src="platformer-attach/S1-three-tier-ruins.jpg" alt="Mockup: three tiers of mossy purple stone ledges on arches, lantern huts, mushrooms, water below" width="1400" height="788"></figure>
+        <figure class="shot"><img src="platformer-attach/S4-log-and-pillars.jpg" alt="Mockup: a fallen log between stone masses, a tall pillar, sunken blocks under deep water" width="1400" height="585"></figure>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Piece</th><th>In the game today</th><th>Status</th></tr></thead>
+        <tbody id="audit"></tbody>
+      </table></div>
+      <p class="note">One request for the export step: keep each sheet's own colours. The last kit's export snapped every pixel to fixed colour ramps, which turned tree trunks red and leaves blue; I had to redo it from the source images.</p>
+    </section>
+
+    <section id="workflow">
+      <span class="eyebrow">Start</span>
+      <h2>How to use this book</h2>
+      <div class="pilot">
+        <strong>Start with the pilot: F1, F3, F5 and F13.</strong>
+        <p>F1 and F3 are the stone everywhere, F5 the islands 1-2 is built on, F13 the distance behind it. Make the rest once those read well in the game.</p>
+      </div>
+      <ol class="steps">
+        <li><div><strong>Attach the images each card lists.</strong> They are in <code>docs/art-production/platformer-attach/</code>: S1 to S4 are your mockups. S1 goes with every card.</div></li>
+        <li><div><strong>Press Copy and paste the prompt into your image model.</strong> The copy includes the shared rules unless you untick the box at the top.</div></li>
+        <li><div><strong>Check the result</strong> against <a href="#checks">the checklist</a>. If it falls short, use a fix from <a href="#fixes">If the image falls short</a>.</div></li>
+        <li><div><strong>Save it under the card's file name and hand it to me exactly as the generator made it,</strong> with the source images included as last time.</div></li>
+        <li><div><strong>Tick it done.</strong> Ticks are saved in this browser only.</div></li>
+      </ol>
+    </section>
+
+    <section id="build">
+      <span class="eyebrow">Start</span>
+      <h2>How a level is assembled</h2>
+      <div class="cols">
+        <div class="kv"><h3>Collision first, then skin</h3><ul class="checks">
+          <li>The level is blocked out as solid masses with flat floors, approved before any art.</li>
+          <li>The stone's art is painted along the edges of those masses (F1, F2) and filled with stone inside (F3). No black inside a mass.</li>
+          <li>Pieces she stands on have a flat walking line at the height the card gives.</li>
+        </ul></div>
+        <div class="kv"><h3>Readable in a moody place</h3><ul class="checks">
+          <li>The mood comes from the teal distance and the water, not from darkness on the play.</li>
+          <li>What hurts looks like it hurts; what she stands on is clearly lit on top.</li>
+        </ul></div>
+        <div class="kv"><h3>Parallax and light</h3><ul class="checks">
+          <li>Cavern light 0.05 · far ruins 0.15 · mid ruins 0.35 · playfield 1.0 · one foreground band.</li>
+          <li>Lanterns are lights in the engine: paint the flame and glass, never the halo.</li>
+        </ul></div>
+      </div>
+      <div class="swatches" id="swatches"></div>
+    </section>
+
+    <section id="pack">
+      <span class="eyebrow">Start</span>
+      <h2>Images to attach</h2>
+      <p>All in <code>docs/art-production/platformer-attach/</code>.</p>
+      <div class="refs pack" id="pack-list"></div>
+    </section>
+
+    <section id="terrain" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>The stone</h2>
+      <p>The mossy purple stone of every ledge, its edges, its inside, and the ruins standing on it.</p>
+      <div class="cards" id="cards-terrain"></div>
+    </section>
+    <section id="pieces" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Islands, pillars, the log and the ceiling</h2>
+      <p>What she hops across the flood on, and the cavern roof above.</p>
+      <div class="cards" id="cards-pieces"></div>
+    </section>
+    <section id="water" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>The water</h2>
+      <p>The flood itself, and what lies in it.</p>
+      <div class="cards" id="cards-water"></div>
+    </section>
+    <section id="things" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Hut, doorway, flora and thorns</h2>
+      <p>The level's start and end, the plants that dress it, and the things that act.</p>
+      <div class="cards" id="cards-things"></div>
+    </section>
+    <section id="backdrop" class="group-section">
+      <span class="eyebrow">Prompts</span>
+      <h2>Far ruins, light and foreground</h2>
+      <p>The teal distance behind the play and the one dark band in front of it.</p>
+      <div class="cards" id="cards-backdrop"></div>
+    </section>
+
+    <section id="checks">
+      <span class="eyebrow">Finish</span>
+      <h2>Check every result</h2>
+      <div class="cols">
+        <div class="kv"><h3>Every image</h3><ul class="checks">
+          <li>Put it next to S1. It looks like the same artist made both.</li>
+          <li>It is real pixel art: hard square pixels on one even grid, no blur, no soft gradients.</li>
+          <li>No text, labels, grid lines or watermarks ; transparent where the card says so.</li>
+          <li>Clear: no black masses; every ledge reads at a glance.</li>
+        </ul></div>
+        <div class="kv"><h3>Ground and pieces</h3><ul class="checks">
+          <li>Every walking line is dead straight, at exactly the height the card gives.</li>
+          <li>Widths and openings match the card's numbers: lay a ruler on them.</li>
+          <li>Undersides break up with clods, roots and stones, never a straight edge.</li>
+        </ul></div>
+        <div class="kv"><h3>Things</h3><ul class="checks">
+          <li>The thorns read as danger at a glance, at game size.</li>
+          
+        </ul></div>
+        <div class="kv"><h3>Backdrops</h3><ul class="checks">
+          <li>The left and right edges join.</li>
+          <li>Each is paler and hazier than the layer in front of it.</li>
+          <li>Nothing in it looks like a ledge she could stand on.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <section id="fixes">
+      <span class="eyebrow">Finish</span>
+      <h2>If the image falls short</h2>
+      <div class="cards" id="fix-list"></div>
+    </section>
+  </main>
+</div>
