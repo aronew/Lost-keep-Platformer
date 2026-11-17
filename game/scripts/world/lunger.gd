@@ -202,7 +202,7 @@ func _stalk(delta: float) -> void:
 	_lost = 0.0
 	var dx := _kleo.global_position.x - global_position.x
 	dir = 1 if dx > 0.0 else -1
-	if absf(dx) <= lunge_range and _cool <= 0.0 and is_on_floor():
+	if absf(dx) <= lunge_range and _cool <= 0.0 and is_on_floor() and _may_wind_up():
 		Fx.dust(self, global_position + Vector2(-dir * 12, 0), Fx.SKID, dir)
 		_go(S.WINDUP)
 		return
@@ -211,6 +211,22 @@ func _stalk(delta: float) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, dir * stalk_speed, 400.0 * delta)
 	_pose(F_WALK + int(_clock * 10.0) % 4)
+
+
+## One strike at a time (design/rulebook.md T8): in a pair, only one may be
+## winding up or striking; the other waits until `TURN_GAP` s after the
+## first has landed. Two tells at once can't be read.
+const TURN_GAP := 0.4
+const TURN_RANGE := 240.0
+
+func _may_wind_up() -> bool:
+	for e in get_tree().get_nodes_in_group("enemy"):
+		var o := e as Lunger
+		if o == null or o == self or absf(o.global_position.x - global_position.x) > TURN_RANGE:
+			continue
+		if o.state == S.WINDUP or o.state == S.LUNGE or (o.state == S.LAND and o._t < TURN_GAP):
+			return false
+	return true
 
 
 func _lunge() -> void:
