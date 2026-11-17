@@ -7,6 +7,9 @@ extends Area2D
 
 signal finished
 @export_file("*.tscn") var next_scene := ""
+## A secret exit: a name in Game.flags set when she leaves through it (it
+## opens the region's secret level on the map).
+@export var secret_flag := ""
 
 var done := false
 
@@ -22,6 +25,8 @@ func _on_body_entered(body: Node) -> void:
 	if done or not (body is Kleo) or body.is_down():
 		return
 	done = true
+	if secret_flag != "":
+		Game.flags[secret_flag] = true  # found, whatever happens next
 	var kleo := body as Kleo
 	kleo.held = null
 	kleo.freeze()

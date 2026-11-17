@@ -24,6 +24,13 @@ it stands against those rules. It sits on top of
 **six regular levels, one bonus level, and the boss as its last level**:
 eight stops, 56 in all. It was five, one and one.
 
+**Changed since, on `main`** (the creative lead, `design/game-structure.md`
+§4): **a boss's reward is a power-up, as Mario's, not a permanent
+ability.** A power-up is found inside a level, she holds one at a time, a
+hit costs the power instead of a flame, and **no level ever needs one**.
+Where this rulebook says "ability" it now means the region's new power-up
+on those terms; the rules below are amended to match.
+
 ---
 
 ## 0. What the game is, in four pillars
@@ -132,8 +139,10 @@ The question was how secrets, currency and upgrades feed power forward
 of power exist at all.
 
 - **E1. Three kinds of power, and only three.**
-  1. **Abilities**: fixed by the story. Every player has the same ones at
-     the same point. They widen what she can do, never how hard she hits.
+  1. **Power-ups** [decided]: a boss unlocks a new kind, which is then
+     found inside levels. One at a time, lost to a hit (which it absorbs)
+     or a defeat. Every player meets the same ones at the same point. They
+     widen what she can do for a while; no level needs one.
   2. **Flames** (health): the only thing secrets and Resin can raise, and
      slowly, under a ceiling (E3, E4).
   3. **The player's own skill and knowledge.**
@@ -161,6 +170,8 @@ of power exist at all.
 
   The gap between the most and the least a player can have never passes
   about two to one, so no boss has to be built for two different games.
+  A power-up held is one more hit on top of these (it is lost instead of a
+  flame), so a boss fight places one on its approach for everyone.
 - **E5. Damage scales, health barely does.** Regions 1 to 4: everything
   costs one flame. From region 5, attacks with a long tell (0.7 s or more)
   cost two. A full lantern stays worth having without making early
@@ -326,7 +337,7 @@ Measured from `kleo.gd` and her frames (24 frames a second unless marked):
   three swings and the start of the finisher. Fodder takes one or two.
   Elites take two combos **and** a trick (a shell to break, a guard to
   open); health alone is never the difficulty.
-- **C9. Each ability is both a weapon and a move.** The Ward's bash-dash
+- **C9. Each power-up is both a weapon and a move.** The Ward's bash-dash
   crosses three tiles and breaks hay; Barkgrip is a wall jump and a
   plunging strike; Emberwick burns bramble and creatures alike. An
   ability that is only a key is a Metroidvania's, and not ours.
@@ -591,9 +602,9 @@ on missing it, thinks "I should have seen that".
 - **B7. A fight is two to four minutes, and the floor can win it.** It
   can be beaten on three flames (E4). One amber sap falls at each phase
   change, only for a player on their last flame.
-- **B8. The ability is handed over in the arena and used to leave it.**
-  The way out is a thirty-second playground for the new move with no way
-  to fail. It is the next region's first lesson.
+- **B8. The new power-up is handed over in the arena and used to leave
+  it.** The way out is a thirty-second playground for it with no way to
+  fail (and a way out without it). It is the next region's first lesson.
 - **B9. Then the Refuge.** The captives walk in; one of them opens a
   stall; two Kindreds who would not share a fire now do. The reward for
   a boss is a changed place, not a number.
@@ -619,7 +630,9 @@ on missing it, thinks "I should have seen that".
 The slots can trade places where a region's story wants it (region 1's
 climb and its machine are levels 3 and 4), but **the hardness curve
 (3, 5, 4, 6, 7, 8) and the two rules "level 1 teaches the ability" and
-"level 6 ends at the door" do not move.**
+"level 6 ends at the door" do not move.** (Level 1 now brings in the
+region's new power-up: found early, shown where failing is free, never
+needed.)
 
 How the six came from the five in `game-structure.md`: the old 1 to 4
 keep their jobs; **the remix is the new level 5**; the gauntlet moves to 6.

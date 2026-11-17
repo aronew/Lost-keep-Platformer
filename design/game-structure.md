@@ -73,7 +73,7 @@ through level 6's gate at the skull. Both are the creative lead's to say.
 
 | # | Region | Biome and look | Teaches | Boss | Reward |
 |---|---|---|---|---|---|
-| 1 | **The Ironbark Wilds** | Bright day: a sunlit forest of great trees, orange earth banks with grey ruin stone, floating islands, clear ponds (`docs/mockups/platformer/bright_day/`) | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
+| 1 | **Flooded Sanctuary** (first called the Ironbark Wilds) | Bright day: a sunlit forest of great trees, orange earth banks with grey ruin stone, floating islands, clear ponds (`docs/mockups/platformer/bright_day/`) | Run, jump, ledge catch, the combo, water and pits, chests, false walls, crates to carry and stack, rafts and lifts | **The Keep's fallen warden** | **Ironbark Ward** |
 | 2 | **The Hearth-Plains** | Golden fields at late afternoon, silk orchards, windmills, Rootling villages, hay barns, butterflies | The Ward (parry, bash-dash), bounce silk, windmill sails, hay carts | **The Silk Mother** | **Barkgrip** |
 | 3 | **The Dusk-Drifter Wastes** | Ash dunes and glass flats under a violet dusk, slate canyons, nomad caravans, bone-white ruins, ember vents (orange and gold, never red) | Barkgrip (wall cling, wall jump) in canyons; sinking ash, ember geysers, wind | **The Cinder Warden** | **Emberwick** |
 | 4 | **Thornveil** (Fen-Stalker) | A lush swamp of giant roots and stilt huts, glowing fungi, fireflies; the first crimson Blight veins | Emberwick (burn bramble and silk, light braziers); rising and sinking water, sinking lily pads | **The Thornveil Reaper** | **Wing-Cloak** |
@@ -131,6 +131,31 @@ Kleo starts with Lost Keep's base kit: **run, jump, ledge catch, the 4-hit
 sword combo** (swipe left, swipe right, overhead, a spinning leap into a
 slashing slam; she steps forward with every hit), and her **Lantern** (it
 lights dark corners and pulses near hidden letters and bonus entrances).
+
+**Changed (the creative lead, 2026-11): power-ups, as Mario's, not
+permanent abilities.** "A platformer side scroller [with] the fun fighting
+you'd get from an action adventure", puzzle sections, and "like in Mario
+where you get power-ups, a shooter, a star ... but in this game you get
+magic, ward". The rules:
+- A power-up is **found inside a level**, she **holds one at a time**, and
+  **a hit costs the power instead of a flame** (it is an extra hit). Taking
+  another replaces it. A defeat loses it. It returns where it hung when she
+  is sent back to a checkpoint.
+- **The sword is the constant**; a power-up adds to it.
+- **Beating a boss unlocks a new kind**, which then turns up in levels (and
+  in earlier levels on a replay). Levels never need a power to finish; a
+  power opens shortcuts, secrets and easier fights.
+
+| Power-up | Unlocked | What it does |
+|---|---|---|
+| **Anima Spark** (built) | From the start | The spell button looses a teal bolt, level, about 11 tiles: strikes what a sword strikes |
+| **Ironbark Ward** | Region 1's boss | Proposed: a shield that turns shots back and lets her bash through bark-plate |
+| **Emberwick** | Region 2's boss | Proposed: a burning blade: burns bramble and webs, lights braziers (puzzles) |
+| **Morvath's Star** | Region 3's boss | Proposed: a short rush, unhurt, felling what she touches |
+| **Wing-Cloak** | Region 4's boss | Proposed: hold jump to glide (Mario's cape) |
+
+The table below is the earlier plan (a permanent ability after each boss),
+kept as the source of these powers.
 
 | After | Ability | What it does in a platformer |
 |---|---|---|
@@ -298,9 +323,10 @@ Each level hides:
   to go left). What the knots do when all are awake is undecided
   (**Proposed:** Morvath's test at the Foundry gate is gentler, or they open
   a last secret).
-- **In X-4 or X-5, a hidden exit** to the region's bonus level. **Proposed**
-  (`design/rulebook.md` S9): the bonus level has two doors, 8 of the
-  region's 12 tokens, or the hidden exit, which opens it at once.
+- **In X-4 or X-5, a hidden exit** to the region's bonus level (region 1's
+  is in 1-3: the creative lead's map draws the secret's path from pad 3).
+  **Proposed** (`design/rulebook.md` S9): the bonus level has two doors, 8
+  of the region's 12 tokens, or the hidden exit, which opens it at once.
 
 Tells, always: motes drifting into a false wall, moss on its stones, a Resin
 bead trail leading off the path, a faint Anima glow at a bonus entrance.
@@ -384,18 +410,27 @@ and beauty.
   Prism**, a last level and the ending. The Lost Keep itself, "the last place
   taken back", is retaken in the epilogue.
 
-## 8. Region 1 in detail: the Ironbark Wilds
+## 8. Region 1 in detail: Flooded Sanctuary
+
+**Named by the creative lead's region map** (2026-11: "use the map names and
+follow the map"): the region is **Flooded Sanctuary** (it was the Ironbark
+Wilds in earlier drafts, and Book 3's kit keeps that name), and level 1-1 is
+**Lantern Refuge** (it was The Overgrown Ruins; its files and its node keep
+the old name so saves and tools still work). The map names no other level:
+1-2 to 1-B keep the names below until it does. **The map is followed where
+it and these docs differ:** the secret level is reached off pad 3, so
+**region 1's hidden exit is in 1-3**, not 1-4 or 1-5.
 
 The first region teaches the whole base kit in a teal forest of overgrown
 purple ruins, under a dusk sky with three moons.
 
 | Stop | Name | The idea | Where it comes from |
 |---|---|---|---|
-| 1-1 | **The Overgrown Ruins** | Run, jump, ledge catch, the combo, a water pit, chests, a false wall | **The mockup:** purple stone ruins in a teal forest, a timber stall on stone arches, a water pit crossed by a mushroom island, a chest on a high ledge, an arched doorway out, a far aqueduct, the black plant band along the bottom. Built new, on IB-03's kit |
+| 1-1 | **Lantern Refuge** | Run, jump, ledge catch, the combo, a water pit, chests, a false wall | **The mockup:** purple stone ruins in a teal forest, a timber stall on stone arches, a water pit crossed by a mushroom island, a chest on a high ledge, an arched doorway out, a far aqueduct, the black plant band along the bottom. Built new, on IB-03's kit |
 | 1-2 | **The Gate Road** | Hopping over water: small islands, then the big floating islands above | Lost Keep's IB-04 (its pool with six islands and the high path), made longer and horizontal |
-| 1-3 | **The Ruin Gardens** | The first vertical level: terraces, flights and floating islands climbing the hill to the cliff's arch | Lost Keep's IB-03 (already a climb), made 2 screens wide and 4 high |
+| 1-3 | **The Ruin Gardens** | **Hides the secret exit** (the map's path to the grotto leaves from pad 3). The first vertical level: terraces, flights and floating islands climbing the hill to the cliff's arch | Lost Keep's IB-03 (already a climb), made 2 screens wide and 4 high |
 | 1-4 | **The Aqueduct** | Things that really move: a raft on the aqueduct's channel and a counterweighted timber lift, first over ground, then over the gorge | New; the aqueduct of the mockup's backdrop, walked on |
-| 1-5 | **The Lantern Clearing** | The gauntlet: everything, the fighting enemy in numbers, at dusk turning to night; hides the secret exit | Lost Keep's IB-01 (the guard post), the way to the Keep |
+| 1-5 | **The Lantern Clearing** | The gauntlet: everything, the fighting enemy in numbers, at dusk turning to night (the secret exit moved to 1-3, after the map) | Lost Keep's IB-01 (the guard post), the way to the Keep |
 | 1-S | **The Hollow Oak** | A secret level inside the Great Ironbark | New |
 | 1-B | **The Keep Gate** | The fallen warden in the Keep's outer courtyard, under open sky | New |
 
@@ -449,6 +484,11 @@ creative lead's review. 2-2 Millers' Row is built as a blockout.
   kit, water and foreground: `design/levels/1-1_overgrown_ruins.md`.
 - **Level 1-2**: a blockout, awaiting review:
   `design/levels/1-2_gate_road.md`.
+- **Levels 1-3, 1-4, 1-5, 1-S and 1-B**: blockouts, awaiting review
+  (`design/levels/`): the climb, rafts and lifts, the gauntlet, the secret
+  climb, and the boss's approach and arena. **The boss itself is not
+  designed or built**, nor the secret level's extra flame. The secret exit
+  is in 1-3 and opens 1-S on the map.
 - **Level 2-2, Millers' Row**: a blockout, awaiting review:
   `design/levels/2-2_millers_row.md`. With it: windmills and their cradles,
   bells and wind vanes, a crate that comes back, a pair that takes turns.

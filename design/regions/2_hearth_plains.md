@@ -7,6 +7,17 @@ great platformer". **Everything here is proposed** except what
 `design/game-structure.md` already fixed (the biome, the ability, the boss,
 the reward). One stop is built: **2-2 Millers' Row**, as a blockout.
 
+> **Changed on `main` while this was planned** (the creative lead,
+> `design/game-structure.md` §4): bosses unlock **power-ups, as Mario's**,
+> not permanent abilities. So in this plan **the Ward is a power-up**:
+> found in 2-1 and later levels, held one at a time, lost to a hit, and
+> **never needed**. Everything below that uses it is an optional answer:
+> a hay wall it bashes hides Resin or a short cut, never the only way; the
+> shaman's orb can be dodged as well as parried back; the golem can be
+> gone round. 2-2 Millers' Row does not use it at all. **Which power-up
+> the Silk Mother unlocks is open:** `game-structure.md`'s regions table
+> says Barkgrip, its power-up table says Emberwick.
+
 ## The region in one paragraph
 
 Golden fields at late afternoon, silk orchards, windmills, Rootling
@@ -201,3 +212,6 @@ and the region's seventh knot at the end.
 4. **The reaper** brings a Carapax into region 2, three regions before the
    Foundry. A good early shock, or too soon?
 5. **The roster's roles** for region 2 (hood, thief, shaman, golem).
+6. **The Silk Mother's power-up:** Barkgrip (the regions table) or
+   Emberwick (the power-up table)? Emberwick burning silk would make her
+   fight its first lesson.

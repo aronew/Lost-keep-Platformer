@@ -58,6 +58,8 @@ func _initialize() -> void:
 	_mover(Vector2(92 * TILE, FLOOR), 48.0, [Vector2(0, 0), Vector2(160, 0)], 50.0, 0.5, true)
 	_water("Pool", Vector2(112 * TILE, FLOOR + 6), Vector2(4 * TILE, 4 * TILE - 6), Vector2(20, 20))
 	_letter(Vector2(122 * TILE, FLOOR - 14), "K", "sys_letter_k")
+	_power_up(Vector2(127 * TILE, FLOOR - 14), "spark")
+	_day_breakable("clay-pot", 132 * TILE, FLOOR, CLAY)
 	_level_end(140 * TILE, FLOOR, 48, 72)
 	_label("thorns", Vector2(8 * TILE, FLOOR - 40))
 	_label("pit", Vector2(30 * TILE, FLOOR - 40))

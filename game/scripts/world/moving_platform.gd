@@ -20,7 +20,9 @@ extends AnimatableBody2D
 var _leg := 0       # moving from path[_leg] to path[_leg + _step]
 var _step := 1
 var _t := 0.0       # 0..1 along the current leg
-var _hold := 0.0
+var _hold_ticks := 0
+var _ticks := 0     # ticks of game time into the current leg
+var _clock := 0.0   # game time not yet counted, in ticks
 var _origin := Vector2.ZERO
 var _waiting := false
 var _ridden_off := 0.0
@@ -32,9 +34,8 @@ func _ready() -> void:
 	_origin = position
 	_waiting = wait_for_rider
 	if phase > 0.0:
-		var steps := int(phase * 60.0)
-		for i in steps:
-			_advance(1.0 / 60.0)
+		for i in int(phase * 60.0):
+			_tick()
 		position = _origin + _at()
 
 
@@ -50,29 +51,58 @@ func _at() -> Vector2:
 	return path[_leg].lerp(path[_leg + _step], e)
 
 
-func _advance(delta: float) -> void:
-	if path.size() < 2:
-		return
-	if _hold > 0.0:
-		_hold -= delta
-		return
-	var length := maxf(_leg_length(), 1.0)
+## Each leg and each rest lasts a whole number of physics ticks, so two
+## movers set to the same times stay in step for good (a raft that hands her
+## to a lift; two rafts that meet): time kept in seconds drifted a tick apart.
+func _leg_ticks() -> int:
 	# Eased travel takes a little longer than the straight run: keep the top
 	# speed near `speed`.
-	_t += delta * speed / (length * 1.4)
-	if _t >= 1.0:
+	return maxi(1, roundi(maxf(_leg_length(), 1.0) * 1.4 / speed * Engine.physics_ticks_per_second))
+
+
+func rest_ticks() -> int:
+	return roundi(pause * Engine.physics_ticks_per_second)
+
+
+## True while it rests at an end with at least `left` seconds of its rest to come.
+func resting(left := 0.0) -> bool:
+	return _hold_ticks > 0 and _hold_ticks >= roundi(left * Engine.physics_ticks_per_second)
+
+
+## Game time passed, in whole ticks. Every mover is given the same deltas, so
+## every mover counts the same ticks. (Counting the engine's physics ticks
+## themselves is wrong: in a hit-stop each one is a sliver of game time, and a
+## raft that moved a full step on each threw its rider off.)
+func _advance(delta: float) -> void:
+	_clock += delta * Engine.physics_ticks_per_second
+	while _clock >= 1.0 - 0.0001:
+		_clock -= 1.0
+		_tick()
+
+
+func _tick() -> void:
+	if path.size() < 2:
+		return
+	if _hold_ticks > 0:
+		_hold_ticks -= 1
+		return
+	_ticks += 1
+	var n := _leg_ticks()
+	_t = float(_ticks) / n
+	if _ticks >= n:
+		_ticks = 0
 		_t = 0.0
 		_leg += _step
 		if _leg + _step < 0 or _leg + _step >= path.size():
 			_step = -_step
-		_hold = pause
+		_hold_ticks = rest_ticks()
 
 
 func _physics_process(delta: float) -> void:
 	if _waiting:
 		if _has_rider():
 			_waiting = false
-			_hold = 0.15
+			_hold_ticks = 9
 		else:
 			return
 	elif wait_for_rider:
