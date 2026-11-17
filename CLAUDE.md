@@ -669,13 +669,19 @@ band. **1-2 is dressed in it** (`_dress()` in `build_l1_2.gd`): the lantern
 hut at the start, the doorway at the end, an arch under the first floating
 island, archways and pillars, the banner, the thorn bed, barrels, the
 cavern roof along the level's top, drowned stone, water plants and lily pads.
-**The middle distance** (`_sanct_midground`, after the creative lead's
-"still doesn't look like my mockup"): the cavern roof (F7) as a layer
-hanging along the top of the view with solid stone above it, dark ruin
-arches and pillars standing in the water just behind the play (scroll 0.8),
-lantern glows at the hut and doorway (`_sanct_glow`), a light vignette, and
-the far layers toned down. What still differs from the mockups is the
-layout: they are dense, stacked scenes; 1-2 is a long low road of hops.
+**The look test** (`tools/build_look_s4.gd` → `scenes/levels/look_s4.tscn`;
+picture: `docs/levels/look/s4_mockup_over_game.png`): after "still looks
+nothing like my mock up; that ceiling looks terrible", the mockup S4 was
+rebuilt shape for shape as one screen and judged beside the mockup. What it
+taught, now in the kit's look: **the cavern roof is real rock along the top
+of the room** (the skin hangs its underside), never a pinned or parallax
+band; **the distance is far darker than the sheets came** (Sky, Far and Mid
+modulated to deep teal); the water darker; dark ruins stand in the water
+behind the play (`_sanct_midground`), lanterns glow (`_sanct_glow`), a light
+vignette. **A level looks like a mockup only if its shapes are the
+mockup's:** build sanctuary levels from the mockups' shapes (thick masses
+stepping into water a tile below the low ground, a rock roof), then dress.
+1-2's layout predates this and still reads as a low road of hops.
 `_sanct(name)` looks a piece up (`SANCT`), `_sanct_ground` stands one on a
 floor. **Plants are placed by hand, never by rule:** `_sanct_plant(piece,
 tile x, row)` places one only on flat ground under its whole width, and the

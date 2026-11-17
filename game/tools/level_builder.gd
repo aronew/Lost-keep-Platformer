@@ -123,7 +123,7 @@ var kit := "day"
 const ENV_SANCT := "res://assets/environment/sanctuary/"
 ## The stone deep inside a sanctuary mass.
 const SANCT_STONE_DEEP := Color("#2c2140")
-const SANCT_WATER_LIFT := Color(1.7, 2.1, 2.5)
+const SANCT_WATER_LIFT := Color(1.15, 1.5, 2.0)
 ## The sanctuary kit's pieces by name: [sheet, index in sanct_pieces.json].
 const SANCT := {
 	"arch": ["F4-ruins", 0], "archway": ["F4-ruins", 1], "pillar": ["F4-ruins", 2],
@@ -192,32 +192,11 @@ func _sanct_glow(pos: Vector2, size := 96.0, alpha := 0.34) -> void:
 
 
 ## The sanctuary's middle distance, between the play and the misty ruins, as
-## in the mockups: the cavern's roof (F7) hanging along the top of the view,
-## and dark ruin arches and pillars (F4) standing in the water just behind
+## in the mockups: dark ruin arches and pillars (F4) standing in the water just behind
 ## the ledges. Parallax layers behind the playfield; `floor_y` is the main
 ## walking line.
 func _sanct_midground(floor_y: float, water_y: float, x_end: float) -> void:
 	var view_top := floor_y - 58.0 - 180.0
-	# The roof: its top on the view's top edge when she stands on the main line.
-	var roof := _node(Parallax2D.new(), "CavernRoof", _root) as Parallax2D
-	roof.scroll_scale = Vector2(0.78, 0.6)
-	roof.z_index = -6
-	var cd := _sanct("ceiling")
-	var cr: Rect2 = cd["rect"]
-	roof.repeat_size = Vector2(cr.size.x, 0)
-	roof.repeat_times = 4
-	var rs := _sprite(roof, cd["tex"], cr, Vector2(0, roundf(0.6 * view_top) - 6.0))
-	rs.name = "Roof"
-	rs.modulate = Color(0.62, 0.66, 0.84)
-	# Solid stone above it, so it is a ceiling from every height (from the
-	# high path it slid down the view with open sky over it).
-	var tex: Texture2D = load(cd["tex"])
-	var top_col: Color = tex.get_image().get_pixel(int(cr.position.x) + 8, int(cr.position.y) + 2)
-	var slab := _node(ColorRect.new(), "RoofStone", roof) as ColorRect
-	slab.color = Color(top_col.r * 0.62, top_col.g * 0.66, top_col.b * 0.84)
-	slab.size = Vector2(cr.size.x, 420)
-	slab.position = Vector2(0, rs.position.y - 418.0)
-	slab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# The ruins: arches and pillars at 0.8, feet in the water, darker and
 	# bluer than the play so they sit behind it.
 	var ruins := _node(Parallax2D.new(), "NearRuins", _root) as Parallax2D
@@ -350,17 +329,18 @@ func _day_backdrops() -> void:
 		var tex: Texture2D = load(layer[1])
 		art.texture = tex
 		art.modulate = Color.WHITE
-		if kit == "sanctuary" and layer[0] != "Sky":
-			# The mockups' distance is darker and hazier than the sheets came:
-			# pulled down so it sits behind the play instead of competing.
-			art.modulate = Color(0.7, 0.8, 0.86) if layer[0] == "Mid" else Color(0.84, 0.9, 0.94)
+		if kit == "sanctuary":
+			# The mockups' distance is far darker and calmer than the sheets
+			# came (measured against S4): deep teal, the ruins dim shapes in
+			# it. Pulled down so the play stands out in front of it.
+			art.modulate = {"Sky": Color(0.36, 0.52, 0.62), "Far": Color(0.42, 0.56, 0.66), "Mid": Color(0.4, 0.54, 0.64)}[layer[0]]
 		art.position.y = roundf(p.scroll_scale.y * top)
 		p.repeat_size = Vector2(tex.get_width(), 0)
 		var base := p.get_node_or_null("Base") as ColorRect
 		if base:
 			base.position = Vector2(0, art.position.y + tex.get_height() - 1)
 			base.size = Vector2(tex.get_width(), 420)
-			base.color = tex.get_image().get_pixel(4, tex.get_height() - 1)
+			base.color = tex.get_image().get_pixel(4, tex.get_height() - 1) * art.modulate
 	for n in ["FogFar", "FogMid"]:
 		var f := _root.get_node_or_null(n)
 		if f:
