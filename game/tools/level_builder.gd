@@ -484,12 +484,19 @@ func _level_foreground() -> void:
 	if daylight:
 		# Book 4's D19: one leafy band.
 		if kit == "sanctuary":
+			# Two layers (the creative lead). The lit one, a little nearer than
+			# the play: real plants in their own colours, standing tall enough
+			# to show over the layer in front. Then, nearest the camera, plants
+			# in silhouette, lower and sliding faster, as along the mockups'
+			# bottom edge.
+			fg_scroll = Vector2(1.12, 1.04)
+			fg_raise = 20.0
 			_fg_bands("sanct", Color(0, 0, 0, 0), ENV_SANCT, true, 0.0, "ForegroundLeaves", view_bottom, main_floor)
-			# One more layer, nearest the camera (the creative lead): plants in
-			# silhouette, sliding a little faster, as along the mockups' bottom.
 			fg_scroll = Vector2(1.45, 1.12)
+			fg_raise = -22.0
 			_fg_bands("forest", Color(0, 0, 0, 0), ENV, false, 130.0, "ForegroundSilhouette", view_bottom, main_floor)
 			fg_scroll = Vector2.ZERO
+			fg_raise = 0.0
 			return
 		_fg_bands("day", Color(0, 0, 0, 0), ENV_DAY, true, 0.0, "ForegroundLeaves", view_bottom, main_floor)
 		return
