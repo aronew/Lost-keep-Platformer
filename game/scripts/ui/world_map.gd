@@ -15,9 +15,9 @@ extends Node2D
 ## comes back. Jump, interact or attack enters. F4 opens every built stop (for
 ## reviewing a level before the ones in front of it are finished).
 ##
-## The painting has a Kleo, "0/6 levels completed" and "1 · Lantern Refuge"
-## painted into it. The two plates are covered here and written afresh; the
-## painted Kleo at pad 1 can't be, so she stays there (see CLAUDE.md).
+## The painting has "0/6 levels completed" and "1 · Lantern Refuge" painted
+## into it: the two plates are covered here and written afresh. (Its first
+## version also had a Kleo painted at pad 1; the creative lead took her out.)
 
 const MAP := preload("res://assets/ui/region1_map.png")
 ## The painting is 1672 px wide; the game shows it at 640.

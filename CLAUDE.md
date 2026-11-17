@@ -370,11 +370,11 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   A stop opens when the one it follows is done (`after` in `Game.LEVELS`,
   else the one before). The plate under the title counts the stops cleared;
   the bottom plate names her stop; over it is that level's record: letters,
-  tokens, knot, found or missing. **The painting has a Kleo at pad 1 and two
-  texts painted in** ("0/6 levels completed", "1 · Lantern Refuge"): the two
-  plates are covered and rewritten in the script, but the painted Kleo
-  can't be, so there are two Kleos when she stands anywhere else. A clean
-  plate from the creative lead (no Kleo, empty plates) fixes it. `Game.keeper()`
+  tokens, knot, found or missing. **The painting has two texts painted in**
+  ("0/6 levels completed", "1 · Lantern Refuge"): the script covers those
+  two plates and rewrites them. (Its first version also had a Kleo painted
+  at pad 1; the creative lead sent a second without her, which is the one
+  in use.) `Game.keeper()`
   names the flags that are saved (`user://save.json`): each level's done
   mark, letters, tokens and knot, plus the Resin. Everything else a level
   remembers is wiped by `Game.enter_level`. Esc leaves a level for the map.
@@ -665,8 +665,7 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax
   layers, so judge the look in `mode=shots`.
-- **The region map, awaiting the creative lead's word:** a clean plate
-  without the painted Kleo; the region's name (the map says "Flooded
+- **The region map, awaiting the creative lead's word:** the region's name (the map says "Flooded
   Sanctuary", the design docs "The Ironbark Wilds") and level 1's (the map
   says "Lantern Refuge", the docs "The Overgrown Ruins"): the game shows the
   docs' level names for now; the map's dusk look against region 1's
