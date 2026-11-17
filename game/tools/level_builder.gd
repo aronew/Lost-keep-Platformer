@@ -77,6 +77,13 @@ func _level_begin(node_name: String, title: String) -> Dictionary:
 
 
 func _level_finish() -> void:
+	# The walked lines, for the scripted tests (tests/playtest.gd reads them).
+	if not tour.is_empty():
+		_root.set_meta("tour", tour)
+	if not extras.is_empty():
+		_root.set_meta("secrets", extras)
+	if not shots.is_empty():
+		_root.set_meta("shots", shots)
 	if blockout:
 		_edge_shades()
 	elif daylight:
@@ -443,10 +450,11 @@ func _thorns(x0: float, x1: float, floor_y: float, height := 16.0) -> Area2D:
 
 
 ## The level's end: a doorway `w` x `h` px whose floor is `floor_y`, left edge `x`.
-func _level_end(x: float, floor_y: float, w: float, h: float, next_scene := "") -> Area2D:
-	var e := _node(Area2D.new(), "LevelEnd", _root) as Area2D
+func _level_end(x: float, floor_y: float, w: float, h: float, next_scene := "", secret_flag := "") -> Area2D:
+	var e := _node(Area2D.new(), "LevelEnd" if secret_flag == "" else "SecretExit", _root) as Area2D
 	e.set_script(load("res://scripts/world/level_end.gd"))
 	e.set("next_scene", next_scene)
+	e.set("secret_flag", secret_flag)
 	e.position = Vector2(x, floor_y)
 	_node(_rect_shape(Vector2(w * 0.5, h), Vector2(w * 0.5, -h * 0.5)), "Shape", e)
 	if blockout:
@@ -459,7 +467,7 @@ func _level_end(x: float, floor_y: float, w: float, h: float, next_scene := "") 
 		inner.append_array(arch)
 		inner.append(Vector2(w, 0))
 		_shape(_blockout_node, _offset(inner, e.position), Color(0.95, 0.69, 0.29, 0.55), "EndArch")
-		_label("LEVEL END", e.position + Vector2(-6, -h - 14))
+		_label("LEVEL END" if secret_flag == "" else "SECRET EXIT", e.position + Vector2(-6, -h - 14))
 	else:
 		# The arched doorway with its lantern (the mockup's way out).
 		var behind := _root.get_node("Behind")
@@ -882,3 +890,162 @@ func _bonus_door(x: float, floor_y: float, zone: Node2D, return_pos: Vector2, fa
 	motes.z_index = 5
 	_label("BONUS ENTRANCE", Vector2(x - 30, floor_y - 44))
 	return d
+
+
+# --- A level planned from pieces -----------------------------------------------------------------
+#
+# A run of the level is a list of pieces, each [gap, width, rise] (tiles; a
+# 4th entry overrides the leg's kind): the next thing she stands on, `gap`
+# tiles past the edge she is on, `width` wide, `rise` rows up (negative: down).
+# plan_leg() turns the list into collision (before _level_begin) and, at the
+# same time, into the moves of the scripted tour, so the two can't disagree:
+# a piece with no gap is a step beside her (a rise of 3 at most), a piece
+# over a gap is a hop (a gap of 4 and a rise of 2 at most in region 1).
+#
+# Kinds: "solid" (ground: rock down to the room's bottom, with the gap filled
+# three rows down, a sunken bed), "stone" (a mass down to the bottom, the gap
+# left open: an island in water), "float" (a floating island 3 thick),
+# "float2" (2 thick, where what is under it needs the room), "none" (no new
+# collision: the piece is ground already there).
+
+## The main line's moves and the secrets' moves, saved on the scene.
+var tour: Array = []
+var extras: Array = []
+## Pictures for a review: [name, tile x, row, facing(, bonus area)].
+var shots: Array = []
+var _arcs: Array = []
+var _rushes: Array = []
+
+
+## Plan a run of pieces from the edge at tile `edge` on `row`, going `dir`
+## (1 right, -1 left). Returns [edge, row] at its end: the far edge of the
+## last piece. `route`: the list its moves join (the tour unless given).
+func plan_leg(edge: int, row: int, dir: int, pieces: Array, kind := "solid", route = null) -> Array:
+	var moves: Array = tour if route == null else route
+	var bottom := room.end.y
+	for p in pieces:
+		var gap: int = p[0]
+		var width: int = p[1]
+		var new_row: int = row - int(p[2])
+		var k: String = p[3] if p.size() > 3 else kind
+		var near := edge + dir * gap
+		var x0 := near if dir > 0 else near - width
+		match k:
+			"solid":
+				rock.append([x0, new_row, width, bottom - new_row, 0])
+				if gap > 0:
+					var gx := edge if dir > 0 else edge - gap
+					var bed := maxi(row, new_row) + 3
+					rock.append([gx, bed, gap, bottom - bed, 0])
+			"stone":
+				masses.append([x0, new_row, width, bottom - new_row, 0])
+			"float":
+				masses.append([x0, new_row, width, 3, 0])
+			"float2":
+				masses.append([x0, new_row, width, 2, 0])
+		assert(gap <= 5 and (gap == 0 or absi(row - new_row) <= 4), "a piece out of her reach")
+		if gap > 0:
+			moves.append(["hop", edge, x0, x0 + width, new_row])
+			_arcs.append([Vector2(edge - dir * 0.5, row), Vector2(near + dir * 0.5, new_row)])
+		elif new_row < row:
+			moves.append(["rise", edge, edge + dir * width, new_row])
+		elif new_row > row:
+			moves.append(["off", edge, new_row, dir])
+		edge = near + dir * width
+		row = new_row
+	return [edge, row]
+
+
+## Beads in an arc over every hop planned so far (after _level_begin).
+func _place_arcs(flag: String, count := 2) -> void:
+	for i in _arcs.size():
+		var a: Vector2 = _arcs[i][0] * TILE
+		var b: Vector2 = _arcs[i][1] * TILE
+		_bead_arc(a, b, 30.0, count, "%s%d" % [flag, i])
+	_arcs.clear()
+
+
+## Three beads along a real jump's arc, from a take-off just short of the
+## edge at `edge` (tiles) on `row`, going right: she takes them in the air.
+func _arc_beads(edge: float, row: float) -> Array:
+	var t0 := Vector2(edge * TILE - 8.0, row * TILE)
+	return [t0 + Vector2(24, -52), t0 + Vector2(47, -66), t0 + Vector2(70, -54)]
+
+
+## Plan a Resin rush (a bonus area) in the zone whose top left tile is
+## (zx, zy), 40 by 24, beside the level: its floor is 14 rows down.
+## "pillars": a start ledge, then `items` [gap, width, rise] as pillars over a
+## drop. "blocks": a floor, then `items` [gap, width, height] as blocks on it.
+## Returns its index, for _place_rush (after _level_begin).
+func plan_rush(zx: int, zy: int, kind: String, items: Array) -> int:
+	var f := zy + 14
+	var bottom := room.end.y
+	var tops := []
+	if kind == "pillars":
+		rock.append([zx, f, 6, bottom - f, 0])
+		var edge := zx + 6
+		var row := f
+		for it in items:
+			var x: int = edge + int(it[0])
+			row -= int(it[2])
+			rock.append([x, row, it[1], bottom - row, 0])
+			tops.append([x, row, it[1]])
+			edge = x + int(it[1])
+	else:
+		rock.append([zx, f, 40, bottom - f, 0])
+		var x := zx + 4
+		for it in items:
+			x += int(it[0])
+			rock.append([x, f - int(it[2]), it[1], it[2], 0])
+			tops.append([x, f - int(it[2]), it[1]])
+			x += int(it[1])
+	rock.append([zx + 40, 0, 4, bottom, 0])
+	_rushes.append({"zx": zx, "zy": zy, "kind": kind, "tops": tops, "floor": f})
+	return _rushes.size() - 1
+
+
+## Build a planned Resin rush: its beads along the jumps, its token over the
+## last piece. Returns {"zone": the BonusZone, "moves": the scripted run}.
+func _place_rush(index: int, flag: String, seconds: float) -> Dictionary:
+	var r: Dictionary = _rushes[index]
+	var f: int = r["floor"]
+	var tops: Array = r["tops"]
+	var zx: int = r["zx"]
+	var beads: Array = []
+	var moves: Array = []
+	var last: Array = tops[tops.size() - 1]
+	var token := Vector2((last[0] + last[2] * 0.5) * TILE, last[1] * TILE - 40.0)
+	if r["kind"] == "pillars":
+		beads.append(Vector2((zx + 4.5) * TILE, f * TILE - 10.0))
+		var edge: int = zx + 6
+		var row := f
+		for i in tops.size():
+			var t: Array = tops[i]
+			beads.append_array(_arc_beads(edge, row))
+			if i < tops.size() - 1:
+				beads.append(Vector2((t[0] + t[2] * 0.5) * TILE, t[1] * TILE - 12.0))
+			moves.append(["hop", edge, t[0], t[0] + t[2], t[1]])
+			edge = t[0] + t[2]
+			row = t[1]
+	else:
+		beads.append(Vector2((zx + 4.0) * TILE, f * TILE - 10.0))
+		for i in tops.size():
+			var t: Array = tops[i]
+			beads.append(Vector2((t[0] + t[2] * 0.5) * TILE, t[1] * TILE - 12.0))
+			beads.append(Vector2((t[0] + t[2] - 0.8) * TILE, t[1] * TILE - 12.0))
+			if i == 0:
+				moves.append(["rise", t[0], t[0] + t[2], t[1]])
+			else:
+				var p: Array = tops[i - 1]
+				beads.append_array(_arc_beads(p[0] + p[2], p[1]))
+				moves.append(["walk", p[0] + p[2] - 0.7])
+				moves.append(["hop", p[0] + p[2], t[0], t[0] + t[2], t[1]])
+		moves.append(["walk", last[0] + last[2] - 0.7])
+	moves.append(["zone_clear", flag])
+	moves.append(["walk", last[0] + last[2] * 0.5 + 0.2])
+	moves.append(["hopup", last[1]])
+	moves.append(["token", flag])
+	moves.append(["zone_out"])
+	var zone := _bonus_zone("gather", Rect2i(zx, r["zy"], 40, 24), Vector2((zx + 1.5) * TILE, f * TILE), token,
+		flag, seconds, "Get all the Resin!", beads)
+	return {"zone": zone, "moves": moves}

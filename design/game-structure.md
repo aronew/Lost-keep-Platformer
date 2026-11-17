@@ -438,6 +438,11 @@ stays the working title.
   kit, water and foreground: `design/levels/1-1_overgrown_ruins.md`.
 - **Level 1-2**: a blockout, awaiting review:
   `design/levels/1-2_gate_road.md`.
+- **Levels 1-3, 1-4, 1-5, 1-S and 1-B**: blockouts, awaiting review
+  (`design/levels/`): the climb, rafts and lifts, the gauntlet, the secret
+  climb, and the boss's approach and arena. **The boss itself is not
+  designed or built**, nor the secret level's extra flame. The secret exit
+  is in 1-3 and opens 1-S on the map.
 - **From the research** (`design/research/platformer-fun.md`): the world map
   with each level's record, the save file, Morvath's thorn knot (one a
   level), Kleo's stride, the chain inside a beat and risky Resin (1-2's

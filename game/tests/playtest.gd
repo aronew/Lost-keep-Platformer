@@ -29,6 +29,11 @@ const ROOMS := {
 	"sys": "res://scenes/levels/systems_arena.tscn",
 	"l1_1": "res://scenes/levels/l1_1_overgrown_ruins.tscn",
 	"l1_2": "res://scenes/levels/l1_2_gate_road.tscn",
+	"l1_3": "res://scenes/levels/l1_3_ruin_gardens.tscn",
+	"l1_4": "res://scenes/levels/l1_4_aqueduct.tscn",
+	"l1_5": "res://scenes/levels/l1_5_lantern_clearing.tscn",
+	"l1_s": "res://scenes/levels/l1_s_hollow_oak.tscn",
+	"l1_b": "res://scenes/levels/l1_b_keep_gate.tscn",
 }
 const TILE := 16.0
 
@@ -82,6 +87,19 @@ func _ready() -> void:
 				await _tour_l1_1()
 			"secrets":
 				await _secrets_l1_1()
+			"shots":
+				await _shots()
+			"map":
+				await _map()
+		get_tree().quit()
+		return
+	if room.has_meta("tour"):
+		# A level planned from pieces: its walked lines are saved on the scene.
+		match mode:
+			"tour":
+				await _run_moves(room.get_meta("tour"), "tour")
+			"secrets":
+				await _run_moves(room.get_meta("secrets", []), "secrets")
 			"shots":
 				await _shots()
 			"map":
@@ -218,6 +236,11 @@ func _shots() -> void:
 		places = SHOTS_L12
 		_calm_enemies()
 		# The bonus areas' Resin, lit as it is while a bonus runs.
+		for z in _find("bonus_zone"):
+			z._show_beads(true)
+	if room.has_meta("shots"):
+		places = room.get_meta("shots")
+		_calm_enemies()
 		for z in _find("bonus_zone"):
 			z._show_beads(true)
 	if room_id == "sys":
@@ -837,7 +860,12 @@ func _map() -> void:
 		xs.append(x)
 		x += 640.0
 	xs.append(size.x - 320.0)
-	var ys := [180.0, size.y - 180.0]
+	var ys := []
+	var y := 180.0
+	while y < size.y - 180.0:
+		ys.append(y)
+		y += 360.0
+	ys.append(size.y - 180.0)
 	var lines := []
 	for view in ["art", "box"]:
 		get_tree().call_group("box_view", "set_box_view", view == "box")
@@ -1836,3 +1864,134 @@ func _map_test() -> void:
 	Game.save_enabled = false
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(Game.save_path))
 	_results(res, [], "map")
+
+
+# --- Levels planned from pieces: their walked lines, read from the scene --------------------------
+
+func _zone_by_flag(flag: String) -> BonusZone:
+	for z in _find("bonus_zone"):
+		if z.token.flag == flag:
+			return z
+	return null
+
+
+## Walk to tile x (either way), then stand.
+func _walk_tile(x: float, limit := 1500) -> void:
+	var px := x * TILE
+	if kleo.global_position.x < px:
+		await _hold_until(["move_right"], func(): return kleo.global_position.x >= px, limit)
+	else:
+		await _hold_until(["move_left"], func(): return kleo.global_position.x <= px, limit)
+	await _wait(6)
+
+
+## Play a list of moves (level_builder.gd's plan_leg and the level's own) and
+## report each: PASS or FAIL.
+func _run_moves(moves: Array, file: String) -> void:
+	_calm_enemies()
+	var res := []
+	_start_tour()
+	await _wait(20)
+	for m in moves:
+		var op: String = m[0]
+		match op:
+			"rise":
+				res.append(["a step up to row %d at x %d" % [m[3], m[1]], await _rise(m[1], m[2], m[3])])
+			"hop":
+				res.append(["a hop from x %d to row %d" % [m[1], m[4]], await _hop(m[1], m[2], m[3], m[4])])
+			"jump":
+				# A jump over something on the floor: from, the landing, its row, the take-off (tiles).
+				res.append(["a jump over what lies at x %d" % int(m[2]), await _jump_to(float(m[1]) * TILE, float(m[2]) * TILE, float(m[3]) * TILE, int(m[4]), float(m[5]) * TILE)])
+			"off":
+				var key := "move_right" if int(m[3]) > 0 else "move_left"
+				res.append(["a step down to row %d at x %d" % [m[2], m[1]], await _step_off(key, float(m[1]) * TILE + 8.0 * int(m[3]), m[2])])
+			"walk":
+				await _walk_tile(float(m[1]))
+			"place":
+				_place(float(m[1]), float(m[2]), int(m[3]) if m.size() > 3 else 1)
+				await _wait(10)
+			"wait":
+				await _wait(int(m[1]))
+			"hopup":
+				await _hop_up(int(m[1]), int(m[2]) if m.size() > 2 else 0)
+			"attack":
+				_tap("attack")
+				await _wait(40)
+			"ride":
+				# Onto mover m[1] (walking m[2]: 1 right, -1 left), stand, and ride to its far end.
+				var mover: Node = _find("moving_platform")[int(m[1])]
+				var w: float = (mover.get_node("Shape") as CollisionShape2D).shape.size.x
+				# (Already standing on it, she stays where she is.)
+				var off_centre: float = kleo.global_position.x - (float(mover.global_position.x) + w * 0.5)
+				if absf(off_centre) > w * 0.5 - 6.0 or absf(kleo.global_position.y - mover.global_position.y) > 6.0:
+					var key2 := "move_right" if int(m[2]) > 0 else "move_left"
+					await _hold_until([key2], func(): return absf(kleo.global_position.x - (mover.global_position.x + w * 0.5)) < 5.0, 400)
+				var far: Vector2 = mover._origin + mover.path[mover.path.size() - 1]
+				for i in 1500:
+					await _step()
+					if mover.position.distance_to(far) < 1.0:
+						break
+				await _wait(12)
+				res.append(["mover %d carries her to its far end" % int(m[1]), kleo.is_on_floor() and mover.position.distance_to(far) < 2.0
+					and absf(kleo.global_position.x - (mover.global_position.x + w * 0.5)) < w * 0.5 + 2.0])
+			"interact":
+				_tap("interact")
+				await _wait(20)
+			"held":
+				res.append(["she lifts the crate overhead", kleo.held != null])
+			"cracked":
+				var wall: Node = _find("cracked_wall")[int(m[1])]
+				for i in 90:
+					await _step()
+					if wall.broken:
+						break
+				await _wait(20)
+				res.append(["the thrown crate breaks the cracked wall", wall.broken])
+			"floor":
+				res.append([String(m[2]) if m.size() > 2 else "on row %d" % int(m[1]), _floor_at(int(m[1]))])
+			"not_floor":
+				res.append([String(m[2]), not _floor_at(int(m[1]))])
+			"letter":
+				res.append(["letter %s%s" % [m[1], (" (" + String(m[2]) + ")") if m.size() > 2 else ""], _letter_taken(m[1])])
+			"knot":
+				var k := room.get_node("ThornKnot")
+				if not k.is_awake():
+					await _wait(20)
+				res.append(["Morvath's knot wakes (the great secret)", k.is_awake()])
+			"knot_asleep":
+				res.append([String(m[1]), not room.get_node("ThornKnot").is_awake()])
+			"chest":
+				_tap("attack")
+				await _wait(40)
+				res.append(["chest %d opens" % (int(m[1]) + 1), _find("chest")[int(m[1])].opened])
+			"resin":
+				res.append(["%s (Resin %d)" % [m[2], Game.currency], Game.currency >= int(m[1])])
+			"into_zone":
+				var z := _zone_by_flag(m[1])
+				var key3 := "move_right" if int(m[2]) > 0 else "move_left"
+				await _hold_until([key3], func(): return z.running(), 300)
+				res.append(["the glowing hollow takes her to the bonus (%s)" % m[1], z.running()])
+				await _wait(10)
+			"zone_clear":
+				var z2 := _zone_by_flag(m[1])
+				res.append(["all %d Resin gathered in time (%d left, %.1f s to spare)" % [z2.beads.get_child_count(), z2.remaining(), maxf(z2._left, 0.0)], z2.remaining() == 0])
+				_bead_report(z2)
+			"token":
+				await _wait(6)
+				res.append(["the bonus token (%s)" % m[1], Game.flags.has(m[1])])
+			"zone_out":
+				await _bonus_over()
+				res.append(["back out beside the hollow", Game.bonus == null and kleo.is_on_floor()])
+			"banner":
+				res.append(["the midway banner flies (the level's one checkpoint)", _find("checkpoint").size() == 1 and _find("checkpoint")[0].lit])
+			"flag":
+				res.append([String(m[2]), Game.flags.has(m[1])])
+			"end":
+				# Walk m[1] (1 right, -1 left) into the level's end (or node m[2]).
+				var end: Node = room.get_node(m[2]) if m.size() > 2 else _find("level_end")[0]
+				var key4 := "move_right" if int(m[1]) > 0 else "move_left"
+				await _hold_until([key4], func(): return end.done, 400)
+				await _wait(10)
+				res.append(["through the %s: the level ends" % ("secret exit" if m.size() > 2 else "way out"), end.done])
+	_results(res, ["flames left %d; Resin %d; letters %d of 4; tokens %d of %d" % [Game.health, Game.currency,
+		Game.letters_found(), Game.tokens_found(), Game.level_tokens.size()]], file)
