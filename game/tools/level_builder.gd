@@ -176,6 +176,70 @@ func _sanct_plant(parent: Node, name: String, tx: float, row: int, flip := false
 	_sanct_ground(parent, name, x, row * TILE, flip)
 
 
+## A warm lantern glow in the air at `pos` (the mockups' huts and doorways):
+## a soft dithered disc, never a ring.
+func _sanct_glow(pos: Vector2, size := 96.0, alpha := 0.34) -> void:
+	var halo := _node(ColorRect.new(), "LanternGlow", _root) as ColorRect
+	halo.size = Vector2(size, size)
+	halo.position = (pos - halo.size * 0.5).round()
+	halo.z_index = 7
+	halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var m := ShaderMaterial.new()
+	m.shader = load("res://shaders/glow.gdshader")
+	m.set_shader_parameter("tint", Color(0.98, 0.66, 0.26, alpha))
+	m.set_shader_parameter("falloff", 2.0)
+	halo.material = m
+
+
+## The sanctuary's middle distance, between the play and the misty ruins, as
+## in the mockups: the cavern's roof (F7) hanging along the top of the view,
+## and dark ruin arches and pillars (F4) standing in the water just behind
+## the ledges. Parallax layers behind the playfield; `floor_y` is the main
+## walking line.
+func _sanct_midground(floor_y: float, water_y: float, x_end: float) -> void:
+	var view_top := floor_y - 58.0 - 180.0
+	# The roof: its top on the view's top edge when she stands on the main line.
+	var roof := _node(Parallax2D.new(), "CavernRoof", _root) as Parallax2D
+	roof.scroll_scale = Vector2(0.78, 0.6)
+	roof.z_index = -6
+	var cd := _sanct("ceiling")
+	var cr: Rect2 = cd["rect"]
+	roof.repeat_size = Vector2(cr.size.x, 0)
+	roof.repeat_times = 4
+	var rs := _sprite(roof, cd["tex"], cr, Vector2(0, roundf(0.6 * view_top) - 6.0))
+	rs.name = "Roof"
+	rs.modulate = Color(0.62, 0.66, 0.84)
+	# Solid stone above it, so it is a ceiling from every height (from the
+	# high path it slid down the view with open sky over it).
+	var tex: Texture2D = load(cd["tex"])
+	var top_col: Color = tex.get_image().get_pixel(int(cr.position.x) + 8, int(cr.position.y) + 2)
+	var slab := _node(ColorRect.new(), "RoofStone", roof) as ColorRect
+	slab.color = Color(top_col.r * 0.62, top_col.g * 0.66, top_col.b * 0.84)
+	slab.size = Vector2(cr.size.x, 420)
+	slab.position = Vector2(0, rs.position.y - 418.0)
+	slab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The ruins: arches and pillars at 0.8, feet in the water, darker and
+	# bluer than the play so they sit behind it.
+	var ruins := _node(Parallax2D.new(), "NearRuins", _root) as Parallax2D
+	ruins.scroll_scale = Vector2(0.8, 0.8)
+	ruins.z_index = -5
+	var names := ["arch", "pillar", "archway", "arch", "pillar"]
+	var x := 60.0
+	var k := 0
+	# A child at y shows at y + view_top * (1 - 0.8): stand them so their
+	# feet are just under the water line on the main view.
+	var foot := water_y + 6.0 - view_top * 0.2
+	while x < x_end * 0.8 + 400.0:
+		var d := _sanct(names[k % names.size()])
+		var r: Rect2 = d["rect"]
+		var s := _sprite(ruins, d["tex"], r, Vector2(x, foot - r.size.y * 1.0).round())
+		s.name = "Ruin"
+		s.flip_h = k % 3 == 1
+		s.modulate = Color(0.42, 0.52, 0.72)
+		x += r.size.x + 70.0 + float((k * 53) % 90)
+		k += 1
+
+
 ## A barrel from the sanctuary kit that breaks and drops Resin once.
 func _sanct_breakable(name: String, x: float, floor_y: float, chips: Color) -> Node2D:
 	var d := _sanct(name)
@@ -286,6 +350,10 @@ func _day_backdrops() -> void:
 		var tex: Texture2D = load(layer[1])
 		art.texture = tex
 		art.modulate = Color.WHITE
+		if kit == "sanctuary" and layer[0] != "Sky":
+			# The mockups' distance is darker and hazier than the sheets came:
+			# pulled down so it sits behind the play instead of competing.
+			art.modulate = Color(0.7, 0.8, 0.86) if layer[0] == "Mid" else Color(0.84, 0.9, 0.94)
 		art.position.y = roundf(p.scroll_scale.y * top)
 		p.repeat_size = Vector2(tex.get_width(), 0)
 		var base := p.get_node_or_null("Base") as ColorRect
@@ -301,7 +369,10 @@ func _day_backdrops() -> void:
 
 
 func _daylight() -> void:
-	vignette = false
+	# The sanctuary keeps a light vignette (its mockups' darker corners); the
+	# woodland has none.
+	vignette = kit == "sanctuary"
+	vignette_strength = 0.34
 	var mod := _node(CanvasModulate.new(), "Daylight", _root) as CanvasModulate
 	mod.color = Color(1.0, 1.0, 1.0)
 	for skin_name in ["TerrainSkin", "FakeSkin"]:

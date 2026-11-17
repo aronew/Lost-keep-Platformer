@@ -669,6 +669,13 @@ band. **1-2 is dressed in it** (`_dress()` in `build_l1_2.gd`): the lantern
 hut at the start, the doorway at the end, an arch under the first floating
 island, archways and pillars, the banner, the thorn bed, barrels, the
 cavern roof along the level's top, drowned stone, water plants and lily pads.
+**The middle distance** (`_sanct_midground`, after the creative lead's
+"still doesn't look like my mockup"): the cavern roof (F7) as a layer
+hanging along the top of the view with solid stone above it, dark ruin
+arches and pillars standing in the water just behind the play (scroll 0.8),
+lantern glows at the hut and doorway (`_sanct_glow`), a light vignette, and
+the far layers toned down. What still differs from the mockups is the
+layout: they are dense, stacked scenes; 1-2 is a long low road of hops.
 `_sanct(name)` looks a piece up (`SANCT`), `_sanct_ground` stands one on a
 floor. **Plants are placed by hand, never by rule:** `_sanct_plant(piece,
 tile x, row)` places one only on flat ground under its whole width, and the

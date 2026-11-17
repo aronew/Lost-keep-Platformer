@@ -39,6 +39,8 @@ var spawn := Vector2.ZERO
 var room_path := ""
 ## The screen vignette (off for blockouts: its steps show on a flat sky).
 var vignette := true
+## The vignette's strength (below 0: the shader's own).
+var vignette_strength := -1.0
 
 var _root: Node2D
 var _earth: Resource
@@ -667,6 +669,8 @@ func _finish() -> void:
 	var vm := ShaderMaterial.new()
 	vm.shader = load("res://shaders/vignette.gdshader")
 	vig.material = vm
+	if vignette_strength >= 0.0:
+		vm.set_shader_parameter("strength", vignette_strength)
 	vig.visible = vignette
 
 	_save_scene(_root, room_path)

@@ -302,6 +302,10 @@ func _dress() -> void:
 	# (F4): an arch holding the first floating island up, as the mockups'
 	# ledges stand on arches; an archway on the rampart's top; pillars.
 	_sanct_ground(behind, "hut", _t(3.5), G)
+	_sanct_glow(Vector2(_t(3.5) + 22.0, G - 44.0))
+	_sanct_glow(Vector2(_t(428) + 12.0 - 44.0, _t(24) - 44.0), 80.0)
+	_sanct_glow(Vector2(_t(428) + 12.0 + 44.0, _t(24) - 44.0), 80.0)
+	_sanct_midground(G, WATER_Y, _t(440))
 	_sanct_ground(behind, "arch", _t(104), G)
 	_sanct_ground(behind, "archway", _t(129), _t(21))
 	_sanct_ground(behind, "archway", _t(327.5), G, true)
