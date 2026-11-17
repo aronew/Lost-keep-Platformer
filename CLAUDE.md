@@ -39,9 +39,9 @@ what is missing in every level.
 | 1-1 The Overgrown Ruins | Playable, dressed in the dusk kit under daylight. Waiting for Book 4's bright-day art and the creative lead's play |
 | 1-2 The Gate Road | A **blockout**, awaiting review. No art until it is approved |
 | 1-3 to 1-5, 1-S, 1-B | Not started (stops on the map, dim) |
-| World map, save file | Built; the map's look is a stand-in |
+| World map, save file | Built, on the creative lead's painted region map ("Flooded Sanctuary") |
 | Kleo's stride | Built; untuned by play |
-| Stand-in sprites | Letters, token, thorn knot, banner, the map (`tools/make_standins.py`) |
+| Stand-in sprites | Letters, token, thorn knot, banner (`tools/make_standins.py`) |
 
 **What the creative lead has decided in review** (binding; details in
 "Lessons" below): bright and readable; hardly any platforms; letters, not
@@ -359,15 +359,27 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   level is marked done and saved, and she is back on the world map
   (`Game.finish_level`).
 - **The world map and the save** (`scripts/ui/world_map.gd`, `Game.LEVELS`):
-  the game opens on the map: region 1's seven stops along a road, Kleo
-  walking between them (left, right; jump enters; F4 opens every built stop
-  for a review). A stop opens when the one before is done. Under each stop
-  is its record: letters, tokens, knot, found or missing. `Game.keeper()`
+  the game opens on **the creative lead's painted region map**
+  (`art/source/maps/region1_flooded_sanctuary.png`, reduced to 640 x 360 by
+  `tools/make_region_map.py` → `assets/ui/region1_map.png`). Its numbered
+  pads are the stops: 1 to 5 are 1-1 to 1-5, 6 (the skull gate) is the boss
+  1-B, "?" (the grotto) is the secret level 1-S, off the path from pad 3.
+  Kleo travels pad to pad along the painting's dotted paths (`PADS`, `PATHS`
+  in the script, in painting px): left and right on the main path, down from
+  pad 3 to the grotto; jump enters; F4 opens every built stop for a review.
+  A stop opens when the one it follows is done (`after` in `Game.LEVELS`,
+  else the one before). The plate under the title counts the stops cleared;
+  the bottom plate names her stop; over it is that level's record: letters,
+  tokens, knot, found or missing. **The painting has a Kleo at pad 1 and two
+  texts painted in** ("0/6 levels completed", "1 · Lantern Refuge"): the two
+  plates are covered and rewritten in the script, but the painted Kleo
+  can't be, so there are two Kleos when she stands anywhere else. A clean
+  plate from the creative lead (no Kleo, empty plates) fixes it. `Game.keeper()`
   names the flags that are saved (`user://save.json`): each level's done
   mark, letters, tokens and knot, plus the Resin. Everything else a level
   remembers is wiped by `Game.enter_level`. Esc leaves a level for the map.
   **A new level needs an entry in `Game.LEVELS`.** `room=map mode=map` tests
-  it. The map's look is a stand-in.
+  it.
 - **The art for the systems** comes from the creative lead's Book 3 kit
   (`tools/make_wilds.py`): the chest (3 frames), the HUD lanterns, the Resin
   drop (6 turning frames), the cracked wall and its rubble, the brambles,
@@ -653,7 +665,14 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
   (SF9's leaves and trunks keep their greens); a level lowers the sky to
   y -50 so the moons sit whole; the full-level map leaves out the parallax
   layers, so judge the look in `mode=shots`.
-- **Awaiting the creative lead's word:** the thorn knots' hiding places, the world map's stand-in look and the banner
-  stand-in. What waking every knot does is undecided.
+- **The region map, awaiting the creative lead's word:** a clean plate
+  without the painted Kleo; the region's name (the map says "Flooded
+  Sanctuary", the design docs "The Ironbark Wilds") and level 1's (the map
+  says "Lantern Refuge", the docs "The Overgrown Ruins"): the game shows the
+  docs' level names for now; the map's dusk look against region 1's
+  bright-day look; and that the map draws the secret's path from pad 3 (the
+  docs hide its exit in 1-4 or 1-5).
+- **Awaiting the creative lead's word:** the thorn knots' hiding places and
+  the banner stand-in. What waking every knot does is undecided.
 - 1-1's two bonus areas are still the old kinds (12 beads; a course), not
   Resin rushes.
