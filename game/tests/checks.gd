@@ -36,7 +36,7 @@ func _ready() -> void:
 
 	# --- The sounds
 	var missing := []
-	for cue in Sfx.CUES:
+	for cue in Sfx.CUES.keys() + Sfx.VOICE.keys():
 		if (Sfx._takes.get(cue, []) as Array).is_empty():
 			missing.append(cue)
 	_check(missing.is_empty(), "every sound cue has a file", ", ".join(missing))
@@ -46,6 +46,16 @@ func _ready() -> void:
 		if p.playing:
 			sounding = true
 	_check(sounding, "a cue plays")
+	var shouts := 0
+	for i in 40:
+		Sfx._last_time.erase("shout")
+		Sfx._voice.stop()
+		Sfx.voice("shout")
+		if Sfx._voice.playing:
+			shouts += 1
+	_check(shouts > 8 and shouts < 32, "a light swing shouts only some of the time", "%d of 40" % shouts)
+	Sfx.voice("shout_heavy")
+	_check(Sfx._voice.playing and Sfx._voice.stream.resource_path.contains("vo_swing_heavy"), "a heavy swing always shouts, cutting off the last")
 
 	# --- The pause menu
 	_press("pause")

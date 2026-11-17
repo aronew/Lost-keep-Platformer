@@ -425,6 +425,7 @@ func _start_attack(name: String, from_frame := 0) -> void:
 	sprite.frame = from_frame
 	_on_frame()
 	Sfx.play(SWING_CUE.get(name, "swing_1"))
+	Sfx.voice("shout_heavy" if name in ["attack_3", "attack_4"] else "shout")
 	if name == "attack_up":
 		Fx.arc(self, global_position + Vector2(facing * 2, -30), Fx.ARC_UP, facing)
 	elif name == "attack_air":
@@ -632,6 +633,7 @@ func _hanging(delta: float) -> void:
 		state = State.LEDGE_CLIMB
 		_play("ledge_climb", true)
 		Sfx.play("ledge_climb")
+		Sfx.voice("shout_climb")
 	elif _pressed("move_down") or _input_x * _ledge_dir < 0.0:
 		state = State.NORMAL
 		global_position.x -= _ledge_dir * 3.0
@@ -862,6 +864,7 @@ func _throw(set_down: bool) -> void:
 		var v := Vector2(throw_velocity.x * facing + velocity.x * 0.35, throw_velocity.y)
 		thing.call("throw", v)
 		Sfx.play("throw")
+		Sfx.voice("shout_throw")
 		Fx.dust(self, global_position, Fx.RUN, facing)
 
 

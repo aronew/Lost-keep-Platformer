@@ -7,12 +7,20 @@ extends Node
 ## thing this game has. They are stand-ins chosen by name, not by ear: judge
 ## them in the game and change the table. There is no music or ambience yet.
 ##
+## Kleo's voice (`shout`, `shout_heavy`, `shout_climb`, `shout_throw`): the
+## wordless shouts from the same set (a "hut" as she swings; `vo_*` files in
+## `assets/audio/voice`), played by `Sfx.voice`. Like her, it has one throat:
+## a new shout cuts off the last, and the light ones come only some of the
+## time, so a combo never chatters.
+##
 ## A cue has several takes (`jump_01.ogg`, `jump_02.ogg`, ...): one is picked
 ## at random, never the same twice running, with a little pitch drift, so a
 ## repeated sound (footsteps, swings) never machine-guns.
 
 const DIR := "res://assets/audio/sfx/"
+const VOICE_DIR := "res://assets/audio/voice/"
 const BUS := "SFX"
+const VOICE_BUS := "Voice"
 const VOICES := 12
 
 ## cue -> [file stem, volume (dB), pitch drift (+/-), shortest gap between two (s)]
@@ -63,10 +71,20 @@ const CUES := {
 	"knot": ["unravel_cast", -4.0, 0.0, 0.5],
 }
 
+## Kleo's voice: cue -> [file stem, volume (dB), pitch drift, shortest gap (s),
+## chance it sounds at all]. Measured pitch of the takes: about 300 to 470 Hz.
+const VOICE := {
+	"shout": ["vo_swing_rise", -4.0, 0.04, 0.04, 0.5],
+	"shout_heavy": ["vo_swing_heavy", -3.0, 0.03, 0.04, 1.0],
+	"shout_climb": ["vo_ledge_pull", -6.0, 0.04, 0.3, 0.5],
+	"shout_throw": ["vo_dodge", -5.0, 0.04, 0.1, 0.5],
+}
+
 var _takes := {}      # cue -> Array[AudioStream]
 var _last_take := {}  # cue -> index of the take played last
 var _last_time := {}  # cue -> when it last played (ms)
 var _players: Array[AudioStreamPlayer] = []
+var _voice: AudioStreamPlayer
 var _next := 0
 ## Resin taken in a run climbs in pitch, bead after bead.
 var _resin_run := 0
@@ -78,16 +96,22 @@ func _ready() -> void:
 	if AudioServer.get_bus_index(BUS) < 0:
 		AudioServer.add_bus()
 		AudioServer.set_bus_name(AudioServer.bus_count - 1, BUS)
+	if AudioServer.get_bus_index(VOICE_BUS) < 0:
+		AudioServer.add_bus()
+		AudioServer.set_bus_name(AudioServer.bus_count - 1, VOICE_BUS)
+	_voice = AudioStreamPlayer.new()
+	_voice.bus = VOICE_BUS
+	add_child(_voice)
 	for i in VOICES:
 		var p := AudioStreamPlayer.new()
 		p.bus = BUS
 		add_child(p)
 		_players.append(p)
-	for cue in CUES:
-		var stem: String = CUES[cue][0]
+	for cue in CUES.keys() + VOICE.keys():
+		var stem: String = CUES[cue][0] if CUES.has(cue) else VOICE[cue][0]
 		var takes: Array = []
 		for n in range(1, 9):
-			var path := "%s%s_%02d.ogg" % [DIR, stem, n]
+			var path := "%s%s_%02d.ogg" % [DIR if CUES.has(cue) else VOICE_DIR, stem, n]
 			if not ResourceLoader.exists(path):
 				break
 			takes.append(load(path))
@@ -113,6 +137,26 @@ func play(cue: String, volume := 0.0, pitch := 1.0) -> void:
 	p.volume_db = float(spec[1]) + volume
 	p.pitch_scale = maxf(pitch + randf_range(-float(spec[2]), float(spec[2])), 0.1)
 	p.play()
+
+
+## A shout from Kleo (VOICE). It cuts off the one before.
+func voice(cue: String) -> void:
+	var takes: Array = _takes.get(cue, [])
+	if takes.is_empty():
+		return
+	var spec: Array = VOICE[cue]
+	var now := Time.get_ticks_msec()
+	if now - int(_last_time.get(cue, -100000)) < int(float(spec[3]) * 1000.0) or randf() >= float(spec[4]):
+		return
+	_last_time[cue] = now
+	var i := randi() % takes.size()
+	if takes.size() > 1 and i == int(_last_take.get(cue, -1)):
+		i = (i + 1) % takes.size()
+	_last_take[cue] = i
+	_voice.stream = takes[i]
+	_voice.volume_db = float(spec[1])
+	_voice.pitch_scale = 1.0 + randf_range(-float(spec[2]), float(spec[2]))
+	_voice.play()
 
 
 ## A bead of Resin: each one soon after the last sounds a step higher.

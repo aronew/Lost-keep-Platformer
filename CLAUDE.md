@@ -311,8 +311,13 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   sounds: random takes, never the same twice running, a little pitch drift;
   Resin climbs in pitch bead after bead. **The cues were chosen by name, not
   by ear** (a cloud session can't listen): judge them in the game and change
-  the table. Not there yet: music, ambience, water, UI sounds. The voice
-  clips are another character's and are not used.
+  the table. Not there yet: music, ambience, water, UI sounds.
+  **Kleo's voice** (`Sfx.voice`, the `VOICE` table): the set's wordless
+  shouts, which the creative lead says are not gender-specific (measured
+  pitch about 300 to 470 Hz). A "hut" on about half her light swings,
+  always on the third and the finisher, sometimes on a ledge climb and a
+  throw; one throat, so a new shout cuts off the last. `vo_resonant` (a
+  spell's shout) waits for her spells.
 - **Pause** (`game.gd`): Esc, P or Start pauses a level: Resume, or Back to
   the map, which asks once more. (Esc used to leave the level at once.) The
   press that closes the menu is not also a jump (`Game.just_resumed`).
