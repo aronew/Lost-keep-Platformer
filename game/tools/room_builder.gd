@@ -284,6 +284,8 @@ const FG_DEPTHS := [
 ## A band nearer the camera than the rest slides faster: set before a call
 ## to `_fg_bands` (zero: the depth's own).
 var fg_scroll := Vector2.ZERO
+## Lifts a band (px; negative sinks it): set before a call to `_fg_bands`.
+var fg_raise := 0.0
 const FG_FOG := []
 ## Which bands to draw: the bottom only (the top band is now the ceilings' own trim).
 const FG_PARTS := ["bottom"]
@@ -361,7 +363,7 @@ func _fg_bands(kind: String, fog_tint: Color, dir := ENV, own_colour := false, s
 				# camera is at its lowest; the top band's head on the top edge when
 				# it is at its highest.
 				if part == "bottom":
-					y = view_h + sc.y * (bot_px - view_h) - tex.get_height() + float(d[2]) + _fg_sink(bot_px, lowest, tex.get_height())
+					y = view_h + sc.y * (bot_px - view_h) - tex.get_height() + float(d[2]) + _fg_sink(bot_px, lowest, tex.get_height()) - fg_raise
 				else:
 					y = sc.y * top_px - float(d[2]) - _fg_lift(top_px, highest, tex.get_height())
 				sp.position = Vector2(x, y).round()
