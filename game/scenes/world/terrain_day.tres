@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="TerrainMaterial" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/environment/day/terrain/day_corner_top.png" id="1_fq8rc"]
+[ext_resource type="Texture2D" path="res://assets/environment/day/terrain/day_corner_under.png" id="2_fl4es"]
+[ext_resource type="Texture2D" path="res://assets/environment/day/terrain/day_fill.png" id="3_y83hw"]
+[ext_resource type="Texture2D" path="res://assets/environment/day/terrain/day_inner_top.png" id="4_sea7j"]
+[ext_resource type="Texture2D" path="res://assets/environment/day/terrain/day_inner_under.png" id="5_0fjta"]
+[ext_resource type="Script" path="res://scripts/world/terrain_material.gd" id="6_s57xv"]
+[ext_resource type="Texture2D" path="res://assets/environment/day/terrain/day_top.png" id="7_vcyik"]
+[ext_resource type="Texture2D" path="res://assets/environment/day/terrain/day_under.png" id="8_k8mh0"]
+[ext_resource type="Texture2D" path="res://assets/environment/day/terrain/day_wall.png" id="9_tqxhn"]
+
+[resource]
+script = ExtResource("6_s57xv")
+fill = ExtResource("3_y83hw")
+fade_tiles = 10.0
+top_band = ExtResource("7_vcyik")
+top_line = 8
+top_lit = 40
+under_band = ExtResource("8_k8mh0")
+under_line = 24
+wall_band = ExtResource("9_tqxhn")
+wall_face = 40
+corner_top = ExtResource("1_fq8rc")
+corner_top_anchor = Vector2(32, 32)
+corner_under = ExtResource("2_fl4es")
+corner_under_anchor = Vector2(32, 32)
+inner_under = ExtResource("5_0fjta")
+inner_under_anchor = Vector2(32, 32)
+inner_top = ExtResource("4_sea7j")
+inner_top_anchor = Vector2(32, 32)
+outline_color = Color(0, 0, 0, 0)

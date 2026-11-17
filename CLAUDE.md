@@ -634,6 +634,24 @@ xvfb-run -a godot --path . --fixed-fps 60 --audio-driver Dummy res://tests/playt
 - **Bonus areas are Resin rushes** (the creative lead): a ton of Resin along
   the jumps; all of it wins the token.
 
+## The day kit (the Sunlit Woodland kit, Book 4, delivered)
+`art/source/day/` holds it unchanged; `tools/make_day.py` runs the kit's own
+`export_kit.py` on its `sources/` with averaged downscales and each sheet's
+own colours (the kit's export dropped pixels and snapped every colour to
+fixed ramps: red trunks, blue leaves), and checks the result against the
+kit's `atlas.json`. Output: `game/assets/environment/day/` (the native
+sheets, `terrain/day_*`, `fg_day_bottom_a/b`, `day_atlas.json`) and the
+letters, token and HUD icon strips. In `level_builder.gd`: `_day(name)` looks
+a piece up in the atlas, `_day_sprite` / `_day_ground` place one,
+`_day_material()` is the ground (earth all the way in, `DAY_EARTH_DEEP`),
+`_day_backdrops()` the sky and forests; checkpoints, crates, thorns, bonus
+hollows and the end doorway use the kit by day. 1-1 is dressed by
+`_dress_day()`; its stall is gone (it "looks out of place with the new tile
+set"): the slab is an earth terrace on earth piers (`DAY_PIERS`), which the
+creative lead approved ("the slab looks good like that").
+`docs/mockups/platformer/world_map/` holds the creative lead's map mockup
+(a map screen for each region's levels).
+
 ## Open items
 - **Level 1-1: lit as bright day, letters and two bonus areas in, awaiting
   the creative lead's play** (`design/levels/1-1_overgrown_ruins.md`,

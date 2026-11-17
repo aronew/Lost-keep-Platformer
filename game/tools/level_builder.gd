@@ -44,6 +44,9 @@ func _level_begin(node_name: String, title: String) -> Dictionary:
 	_root.set("level_name", title)
 	if blockout:
 		_blockout_sky()
+	elif daylight:
+		_build_backdrops()
+		_day_backdrops()
 	else:
 		_build_backdrops()
 		# Book 3's B2: the Triad sky with smaller moons (opaque, 256 tall; its
@@ -63,9 +66,9 @@ func _level_begin(node_name: String, title: String) -> Dictionary:
 		_root.move_child(aq, _root.get_node("Mid").get_index())
 	_back_walls()
 	if not blockout:
-		# The levels' ground is the creative lead's ruin stone (Book 3's W1, W2),
-		# not Lost Keep's earth: material 0 for every mass in a level.
-		_earth = _ruin_material()
+		# The levels' ground: by day the creative lead's earth and stone (Book
+		# 4's D1 to D3); at dusk Book 3's ruin stone. Material 0 for every mass.
+		_earth = _day_material() if daylight else _ruin_material()
 	var t := _terrain(tileset)
 	if blockout:
 		# The skin off: the black collision tiles show (as in box view).
@@ -82,8 +85,6 @@ func _level_finish() -> void:
 	elif daylight:
 		_daylight()
 		_level_foreground()
-		_tint_surface_kit(_root)
-		_edge_shades()
 	else:
 		_build_atmosphere()
 		_level_foreground()
@@ -99,72 +100,124 @@ func _level_finish() -> void:
 ## Until the bright-day kit (Book 4) arrives, the dusk kit is shown in it.
 var daylight := true
 
-const DAY_SKY_TOP := Color("#3d8ccc")
-const DAY_SKY_LOW := Color("#b4e2ee")
-const DAY_FAR := Color(1.55, 1.85, 1.75)
-const DAY_AQUEDUCT := Color(1.25, 1.35, 1.32)
-const DAY_MID := Color(1.45, 1.75, 1.45)
-const DAY_HAZE := Color("#d6eef2")
-## The masses' insides by day: a deep plum stone instead of the void.
-const DAY_DEPTH := Color("#3a2c44")
-## The water's paint, lifted from dusk to day.
-const DAY_WATER := Color(1.25, 1.55, 1.8)
+## The creative lead's Sunlit Woodland kit (Book 4; tools/make_day.py): the
+## native sheets and the kit's atlas (every piece's rectangle and anchors).
+const ENV_DAY := "res://assets/environment/day/"
+const DAY_T := ENV_DAY + "terrain/"
+## The earth deep inside a mass: the fill darkens toward it over DAY_FADE tiles.
+const DAY_EARTH_DEEP := Color("#6E4232")
+const DAY_FADE := 10.0
 ## The sky-light rim on creatures and thorns (hit_flash.gdshader).
 const DAY_RIM := 0.55
 const DAY_RIM_SIDE := 0.25
 ## How much of a lantern's light is left in daylight.
 const DAY_LAMP := 0.3
 
+var _day_atlas := {}
 
-## A daytime sky: a gradient, deep blue overhead to pale at the horizon (a
-## stand-in until Book 4's painted sky). The Sky layer holds its height on
-## screen, so the gradient spans the view.
-func _day_sky() -> void:
-	var sky := _root.get_node("Sky") as Parallax2D
-	var art := sky.get_node("Art") as Sprite2D
-	var g := Gradient.new()
-	g.set_color(0, DAY_SKY_TOP)
-	g.set_color(1, DAY_SKY_LOW)
-	g.add_point(0.55, DAY_SKY_TOP.lerp(DAY_SKY_LOW, 0.62))
-	var gt := GradientTexture2D.new()
-	gt.gradient = g
-	gt.width = 768
-	gt.height = 300
-	gt.fill_from = Vector2(0, 0)
-	gt.fill_to = Vector2(0, 1)
-	art.texture = gt
-	art.position.y = -40.0
-	art.modulate = Color.WHITE
-	var base := sky.get_node("Base") as ColorRect
-	base.position = Vector2(0, 259)
-	base.color = DAY_SKY_LOW
+
+## A piece of the day kit by its atlas name: {"tex": path, "rect": Rect2, and
+## the atlas's own fields (walking_y, baseline_y, junction ...) in sheet px}.
+func _day(name: String) -> Dictionary:
+	if _day_atlas.is_empty():
+		var j = JSON.parse_string(FileAccess.get_file_as_string(ENV_DAY + "day_atlas.json"))
+		for sh in j["sheets"]:
+			for p in sh["pieces"]:
+				var r: Array = p["rect_native"]
+				var d: Dictionary = p.duplicate()
+				d["tex"] = ENV_DAY + sh["name"] + ".png"
+				d["rect"] = Rect2(r[0], r[1], r[2], r[3])
+				_day_atlas[p["name"]] = d
+	return _day_atlas[name]
+
+
+## A pot or barrel from the day kit (D15) that breaks and drops Resin once.
+func _day_breakable(name: String, x: float, floor_y: float, chips: Color) -> Node2D:
+	var d := _day(name)
+	return _breakable(d["tex"], d["rect"], x, floor_y, chips)
+
+
+## A day kit piece with its top-left at `pos`.
+func _day_sprite(parent: Node, name: String, pos: Vector2, flip := false) -> Sprite2D:
+	var d := _day(name)
+	var s := _sprite(parent, d["tex"], d["rect"], pos.round())
+	s.name = name.capitalize().replace(" ", "")
+	s.flip_h = flip
+	return s
+
+
+## A day kit piece standing on `floor_y` (its atlas baseline, else its
+## bottom), centred on `x`.
+func _day_ground(parent: Node, name: String, x: float, floor_y: float, flip := false) -> Sprite2D:
+	var d := _day(name)
+	var r: Rect2 = d["rect"]
+	var foot: float = (float(d["baseline_y"]) - r.position.y) if d.has("baseline_y") else r.size.y
+	return _day_sprite(parent, name, Vector2(x - r.size.x * 0.5, floor_y - foot), flip)
+
+
+## The ground by day (Book 4's D1 to D3): the earth bands with grey stone set
+## in them, the stone-faced wall, the four corners (their junctions at 32, 32),
+## and the earth all the way in (never black).
+func _day_material() -> Resource:
+	var m: Resource = load("res://scripts/world/terrain_material.gd").new()
+	m.fill = load(DAY_T + "day_fill.png")
+	m.fade_tiles = DAY_FADE
+	m.top_band = load(DAY_T + "day_top.png")
+	m.top_line = 8        # walking_y 16 in the sheet, the band cut from y 8
+	m.top_lit = 40
+	m.under_band = load(DAY_T + "day_under.png")
+	m.under_line = 24     # every column is solid earth down to here
+	m.wall_band = load(DAY_T + "day_wall.png")
+	m.wall_face = 40
+	m.corner_top = load(DAY_T + "day_corner_top.png")
+	m.corner_top_anchor = Vector2(32, 32)
+	m.corner_under = load(DAY_T + "day_corner_under.png")
+	m.corner_under_anchor = Vector2(32, 32)
+	m.inner_top = load(DAY_T + "day_inner_top.png")
+	m.inner_top_anchor = Vector2(32, 32)
+	m.inner_under = load(DAY_T + "day_inner_under.png")
+	m.inner_under_anchor = Vector2(32, 32)
+	m.lip_color = Color(0, 0, 0, 0)
+	m.outline_color = Color(0, 0, 0, 0)
+	ResourceSaver.save(m, "res://scenes/world/terrain_day.tres")
+	return load("res://scenes/world/terrain_day.tres")
+
+
+## The backdrops by day (Book 4's D16 to D18): the sky, the far forest and the
+## mid forest, each the height of the view, placed so they fill it when Kleo
+## stands on `main_floor` (a layer's child at y shows at y - scroll.y x the
+## view's top), each with its bottom colour run on below it. The fog banks and
+## the dusk aqueduct go.
+func _day_backdrops() -> void:
+	var top := (main_floor - 58.0 - 180.0) if main_floor >= 0.0 else 0.0
+	for layer in [["Sky", "17-daytime-sky.png"], ["Far", "18-far-forest.png"], ["Mid", "19-mid-forest.png"]]:
+		var p := _root.get_node(layer[0]) as Parallax2D
+		var art := p.get_node("Art") as Sprite2D
+		var tex: Texture2D = load(ENV_DAY + layer[1])
+		art.texture = tex
+		art.modulate = Color.WHITE
+		art.position.y = roundf(p.scroll_scale.y * top)
+		p.repeat_size = Vector2(tex.get_width(), 0)
+		var base := p.get_node_or_null("Base") as ColorRect
+		if base:
+			base.position = Vector2(0, art.position.y + tex.get_height() - 1)
+			base.size = Vector2(tex.get_width(), 420)
+			base.color = tex.get_image().get_pixel(4, tex.get_height() - 1)
+	for n in ["FogFar", "FogMid"]:
+		var f := _root.get_node_or_null(n)
+		if f:
+			_root.remove_child(f)
+			f.free()
 
 
 func _daylight() -> void:
 	vignette = false
 	var mod := _node(CanvasModulate.new(), "Daylight", _root) as CanvasModulate
 	mod.color = Color(1.0, 1.0, 1.0)
-	_day_sky()
 	for skin_name in ["TerrainSkin", "FakeSkin"]:
 		for sk in _root.find_children(skin_name + "*", "", true, false):
 			if "void_color" in sk:
-				sk.set("void_color", DAY_DEPTH)
-	for wn in _root.find_children("*", "ColorRect", true, false):
-		var wm := (wn as ColorRect).material as ShaderMaterial
-		if wm and wm.shader and wm.shader.resource_path.ends_with("water.gdshader"):
-			wm.set_shader_parameter("paint_tint", DAY_WATER)
-	for layer in [["Far", DAY_FAR], ["Aqueduct", DAY_AQUEDUCT], ["Mid", DAY_MID]]:
-		var p := _root.get_node_or_null(layer[0]) as Parallax2D
-		if p:
-			p.modulate = layer[1]
-	for fog_name in ["FogFar", "FogMid"]:
-		var f := _root.get_node_or_null(fog_name)
-		if f:
-			for r in f.get_children():
-				if r is ColorRect and r.material:
-					var fm := (r.material as ShaderMaterial).duplicate() as ShaderMaterial
-					fm.set_shader_parameter("tint", DAY_HAZE)
-					r.material = fm
+				sk.set("void_color", DAY_EARTH_DEEP)
 	var w := float(room.size.x * TILE)
 	var h := float(room.size.y * TILE)
 	# Sun falling through the canopy, warm and faint.
@@ -212,16 +265,11 @@ func _daylight() -> void:
 ## stay faintly visible as they darken, as in the mockups (RUIN_FADE tiles).
 const RUIN := "res://assets/environment/wilds/terrain/"
 const RUIN_FADE := 6.0
-## By day the stone settles into the masses' deep colour (DAY_DEPTH) a few
-## tiles in: the stopgap fill (a 16 px course of W1, moss and all) repeats
-## too plainly to show deep (the creative lead: "all these repetitive tiles
-## on the wall look really weird"). Book 4's D3 is a real fill.
-const RUIN_FADE_DAY := 5.0
 
 func _ruin_material() -> Resource:
 	var m: Resource = load("res://scripts/world/terrain_material.gd").new()
 	m.fill = load(RUIN + "ruin_fill.png")
-	m.fade_tiles = RUIN_FADE_DAY if daylight else RUIN_FADE
+	m.fade_tiles = RUIN_FADE
 	m.top_band = load(RUIN + "ruin_top.png")
 	m.top_line = 15
 	m.top_lit = 64
@@ -258,6 +306,10 @@ func _level_foreground() -> void:
 		# The camera holds her feet 58 px below the view's centre
 		# (camera_rig.gd's vertical_offset); the view is 360 tall.
 		view_bottom = main_floor - 58.0 + 180.0
+	if daylight:
+		# Book 4's D19: one leafy band.
+		_fg_bands("day", Color(0, 0, 0, 0), ENV_DAY, true, 0.0, "ForegroundLeaves", view_bottom, main_floor)
+		return
 	_fg_bands("ferns", Color(0, 0, 0, 0), ENV_WILDS, true, 0.0, "ForegroundFerns", view_bottom, main_floor)
 	_fg_bands("stones", Color(0, 0, 0, 0), ENV_WILDS, true, 180.0, "ForegroundStones", view_bottom, main_floor)
 
@@ -419,6 +471,26 @@ func _thorns(x0: float, x1: float, floor_y: float, height := 16.0) -> Area2D:
 	if blockout:
 		var art := _shape(a, poly, Color("#4a3448"), "Art")
 		art.z_index = 1
+	elif daylight:
+		# Book 4's D14 across the whole bed: the thicket repeated to the bed's
+		# width, an end at each side, in front of the plants.
+		var bw := x1 - x0
+		var rep: Dictionary = _day("bramble-repeat")
+		var rr: Rect2 = rep["rect"]
+		var parts: Array[Sprite2D] = []
+		var bx := 0.0
+		while bx < bw:
+			var seg := minf(rr.size.x, bw - bx)
+			parts.append(_sprite(a, rep["tex"], Rect2(rr.position, Vector2(seg, rr.size.y)), Vector2(bx, -rr.size.y + 2)))
+			bx += seg
+		parts.append(_day_sprite(a, "bramble-left-cap", Vector2(-14, -22)))
+		parts.append(_day_sprite(a, "bramble-right-cap", Vector2(bw - 10, -22)))
+		for b in parts:
+			b.name = "Bramble"
+			var m := ShaderMaterial.new()
+			m.shader = load("res://shaders/hit_flash.gdshader")
+			b.material = m
+			b.z_index = 8
 	else:
 		# Book 3's T3 across the whole bed: its thicket (cut to the bed's
 		# width) between its two ends, so every pixel that hurts shows thorns.
@@ -460,6 +532,12 @@ func _level_end(x: float, floor_y: float, w: float, h: float, next_scene := "") 
 		inner.append(Vector2(w, 0))
 		_shape(_blockout_node, _offset(inner, e.position), Color(0.95, 0.69, 0.29, 0.55), "EndArch")
 		_label("LEVEL END", e.position + Vector2(-6, -h - 14))
+	elif daylight:
+		# Book 4's arched doorway (D4): its 32-wide opening on the way out,
+		# its floor (row 79 of 80) on the walking line.
+		var door := _day_sprite(_root.get_node("Behind"), "arched-doorway", Vector2(x + w * 0.25 - 32.0, floor_y - 80.0))
+		door.name = "EndDoor"
+		door.z_index = 1
 	else:
 		# The arched doorway with its lantern (the mockup's way out).
 		var behind := _root.get_node("Behind")
@@ -544,8 +622,13 @@ func _crate(x: float, floor_y: float, region := CRATE_B) -> CharacterBody2D:
 	c.set_script(load("res://scripts/world/carriable.gd"))
 	c.position = Vector2(x, floor_y).round()
 	c.z_index = 11
+	var sheet := CRATES
+	if daylight and not blockout:
+		# Book 4's crate (D15): the size of the box in Kleo's carry frames.
+		sheet = _day("wooden-crate")["tex"]
+		region = _day("wooden-crate")["rect"]
 	_node(_rect_shape(Vector2(region.size.x - 6, 6), Vector2(0, -3)), "Shape", c)
-	var art := _sprite(c, CRATES, region, Vector2(-roundf(region.size.x * 0.5), -region.size.y + 1))
+	var art := _sprite(c, sheet, region, Vector2(-roundf(region.size.x * 0.5), -region.size.y + 1))
 	art.name = "Art"
 	var handle := _node(Area2D.new(), "Handle", c) as Area2D
 	handle.set_script(load("res://scripts/world/carry_handle.gd"))
@@ -674,7 +757,8 @@ func _water_foreground(surface_y: float, spans: Array) -> void:
 		m.set_shader_parameter("deep", Color("#0f2a3a"))
 		m.set_shader_parameter("line_color", Color("#7fc4c8"))
 		if not blockout:
-			var paint: Texture2D = load(ENV_WILDS + "water_paint.png")
+			# By day, Book 4's D10 (the pond); at dusk, the creative lead's water.
+			var paint: Texture2D = load(ENV_DAY + "11-pond-water.png" if daylight else ENV_WILDS + "water_paint.png")
 			m.set_shader_parameter("use_paint", true)
 			m.set_shader_parameter("paint", paint)
 			m.set_shader_parameter("paint_size", Vector2(paint.get_size()))
@@ -690,12 +774,17 @@ func _water_foreground(surface_y: float, spans: Array) -> void:
 func _face_under_water(face_x: float, faces: int) -> void:
 	var bottom := float(room.end.y * TILE)
 	var y := water_line - 4.0
+	# The wall band (its face column and width): by day Book 4's D2, else W2.
+	var tex := DAY_T + "day_wall.png" if daylight else RUIN + "ruin_wall.png"
+	var face := 40.0 if daylight else 31.0
+	var bw := 44.0 if daylight else 41.0
+	var bh := 256.0 if daylight else 252.0
 	while y < bottom:
-		var h := minf(252.0, bottom - y)
-		var x := face_x - 31.0 if faces > 0 else face_x - 10.0
-		var band := _underwater(RUIN + "ruin_wall.png", Rect2(0, 0, 41, h), Vector2(x, y), faces < 0)
+		var h := minf(bh, bottom - y)
+		var x := face_x - face if faces > 0 else face_x - (bw - face - 1.0)
+		var band := _underwater(tex, Rect2(0, 0, bw, h), Vector2(x, y), faces < 0)
 		band.z_index = 13
-		y += 252.0
+		y += bh
 
 
 ## Something seen under the water: tinted toward the water and a little
@@ -846,7 +935,7 @@ func _bonus_zone(kind: String, area: Rect2i, start: Vector2, token_pos: Vector2,
 ## (px), dark inside with a faint Anima glow and motes drifting into it.
 ## Walking in takes her to `zone`; she comes back out at `return_pos`, which
 ## must lie outside the hollow.
-func _bonus_door(x: float, floor_y: float, zone: Node2D, return_pos: Vector2, facing := 1) -> Area2D:
+func _bonus_door(x: float, floor_y: float, zone: Node2D, return_pos: Vector2, facing := 1, hollow_kind := "root-hollow") -> Area2D:
 	var d := _node(Area2D.new(), "BonusDoor", _root) as Area2D
 	d.set_script(load("res://scripts/world/bonus_door.gd"))
 	d.position = Vector2(x, floor_y).round()
@@ -862,7 +951,13 @@ func _bonus_door(x: float, floor_y: float, zone: Node2D, return_pos: Vector2, fa
 		var a := PI + PI * k / 8.0
 		arch.append(Vector2(cos(a) * 10.0, -22.0 + sin(a) * 10.0).round())
 	arch.append(Vector2(10, 0))
-	_shape(d, arch, Color("#120c1c") if not blockout else Color("#1d4a52"), "Hollow")
+	if daylight and not blockout:
+		# Book 4's D13: a hollow (in a great tree's roots, or a ruin wall),
+		# its opening 20 x 28, its floor on the ground.
+		var hollow := _day_sprite(d, hollow_kind, Vector2(-24, -48))
+		hollow.name = "Hollow"
+	else:
+		_shape(d, arch, Color("#120c1c") if not blockout else Color("#1d4a52"), "Hollow")
 	var glow := _node(ColorRect.new(), "Glow", d) as ColorRect
 	glow.size = Vector2(56, 56)
 	glow.position = Vector2(-28, -44)
