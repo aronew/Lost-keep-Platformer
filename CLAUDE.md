@@ -657,6 +657,18 @@ creative lead approved ("the slab looks good like that").
 `docs/mockups/platformer/world_map/` holds the creative lead's map mockup
 (a map screen for each region's levels).
 
+## 1-2's look: the Flooded Sanctuary (Book 5, awaiting its sheets)
+The creative lead: 1-2 keeps the flooded-ruins look ("the old tile set"),
+"but I think we need new tiles for it". Its four mockups are in
+`docs/mockups/platformer/flooded_sanctuary/` (S1 to S4). **Book 5**
+(`docs/art-production/platformer-sanctuary-prompt-book.html`, from
+`src/book5_body.html` and `src/book5_cards.js`; published at
+https://claude.ai/artifact/GwreeWZdoTHN9VwW37f2Ja with `platformer-attach/`
+S1 to S4 and G8) asks for that kit in 16 sheets: stone that is stone all the
+way in, a real fill, readable. 1-1 stays the Sunlit Woodland. Which look 1-3
+onward take is undecided. When the kit arrives, process it as
+`tools/make_day.py` does the day kit (from its sources, its own colours).
+
 ## Open items
 - **Level 1-1: lit as bright day, letters and two bonus areas in, awaiting
   the creative lead's play** (`design/levels/1-1_overgrown_ruins.md`,
