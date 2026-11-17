@@ -76,6 +76,12 @@ signal health_changed(health: int, max_health: int)
 ## She is back at the last checkpoint after a fall or a defeat (crates and
 ## such put themselves back).
 signal respawned
+## The power-up she holds ("" for none; "spark": the Anima Spark). As Mario's:
+## found in levels, one at a time, lost when she is hit (the hit costs the
+## power, not a flame) or beaten. PowerUp gives it; Kleo uses it (spell).
+var power := ""
+var _power_icon: TextureRect
+const POWER_ART := {"spark": "res://assets/items/power_spark.png"}
 var max_health := 3
 var health := 3
 ## The room or level being played (a Room), set by Room._ready.
@@ -282,6 +288,11 @@ func _setup_screen_layers() -> void:
 	_flames.add_theme_constant_override("separation", 1)
 	_flames.visible = false
 	hud_layer.add_child(_flames)
+	_power_icon = TextureRect.new()
+	_power_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_power_icon.position = Vector2(46, 28)
+	_power_icon.visible = false
+	hud_layer.add_child(_power_icon)
 	_hud = HBoxContainer.new()
 	_hud.position = Vector2(9, 30)
 	_hud.add_theme_constant_override("separation", 3)
@@ -356,6 +367,15 @@ func _frame(tex: Texture2D, w: int, h: int, i: int) -> AtlasTexture:
 
 
 ## Redraw the flames: lit ones, then spent ones. The newest change flares.
+func set_power(kind: String) -> void:
+	power = kind
+	_power_icon.visible = kind != ""
+	if kind != "":
+		_power_icon.texture = _frame(load(POWER_ART[kind]), 16, 16, 0)
+		_power_icon.modulate = Color(2.0, 2.0, 2.0)
+		_power_icon.create_tween().tween_property(_power_icon, "modulate", Color.WHITE, 0.5)
+
+
 func _show_health(flare := -1) -> void:
 	for c in _flames.get_children():
 		c.queue_free()

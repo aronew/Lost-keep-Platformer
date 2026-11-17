@@ -122,6 +122,31 @@ sword combo** (swipe left, swipe right, overhead, a spinning leap into a
 slashing slam; she steps forward with every hit), and her **Lantern** (it
 lights dark corners and pulses near hidden letters and bonus entrances).
 
+**Changed (the creative lead, 2026-11): power-ups, as Mario's, not
+permanent abilities.** "A platformer side scroller [with] the fun fighting
+you'd get from an action adventure", puzzle sections, and "like in Mario
+where you get power-ups, a shooter, a star ... but in this game you get
+magic, ward". The rules:
+- A power-up is **found inside a level**, she **holds one at a time**, and
+  **a hit costs the power instead of a flame** (it is an extra hit). Taking
+  another replaces it. A defeat loses it. It returns where it hung when she
+  is sent back to a checkpoint.
+- **The sword is the constant**; a power-up adds to it.
+- **Beating a boss unlocks a new kind**, which then turns up in levels (and
+  in earlier levels on a replay). Levels never need a power to finish; a
+  power opens shortcuts, secrets and easier fights.
+
+| Power-up | Unlocked | What it does |
+|---|---|---|
+| **Anima Spark** (built) | From the start | The spell button looses a teal bolt, level, about 11 tiles: strikes what a sword strikes |
+| **Ironbark Ward** | Region 1's boss | Proposed: a shield that turns shots back and lets her bash through bark-plate |
+| **Emberwick** | Region 2's boss | Proposed: a burning blade: burns bramble and webs, lights braziers (puzzles) |
+| **Morvath's Star** | Region 3's boss | Proposed: a short rush, unhurt, felling what she touches |
+| **Wing-Cloak** | Region 4's boss | Proposed: hold jump to glide (Mario's cape) |
+
+The table below is the earlier plan (a permanent ability after each boss),
+kept as the source of these powers.
+
 | After | Ability | What it does in a platformer |
 |---|---|---|
 | Region 1 | **Ironbark Ward** | Parry (about 8 frames: a parried shot flies back) and a 3-tile ground bash-dash that breaks bark-plate and hay and slips under closing gates |

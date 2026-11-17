@@ -338,6 +338,15 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
   level; touching one takes it (`Game.take_letter`; the HUD's letters, top
   right); all four is a burst of Resin. (They replace the cocoons: the
   creative lead found rescuing from cocoons "dumb".)
+- **Power-ups** (`power_up.gd`, `_power_up(pos, kind)`; `Game.power`,
+  `Game.set_power`): as Mario's (the creative lead's choice over permanent
+  abilities): found in a level, one held at a time (its icon by the Resin
+  count), and **a hit costs the power instead of a flame** (`Kleo.hurt`); a
+  defeat loses it; it returns where it hung on a respawn. Built: **the
+  Anima Spark** (`anima_bolt.gd`): the spell button (V, L, right click)
+  looses a teal bolt that strikes what a sword strikes. One hangs before
+  1-1's first rat. Its pickup art is a stand-in. The other kinds and what
+  each boss unlocks: `design/game-structure.md` §4.
 - **The thorn knot** (`thorn_knot.gd`, `_knot`): each level's one great
   secret (DKC2's DK coin): one of Morvath's knots, asleep, hidden with more
   cunning than anything else; touching it wakes it for good
@@ -640,7 +649,9 @@ a piece up in the atlas, `_day_sprite` / `_day_ground` place one,
 `_day_material()` is the ground (earth all the way in, `DAY_EARTH_DEEP`),
 `_day_backdrops()` the sky and forests; checkpoints, crates, thorns, bonus
 hollows and the end doorway use the kit by day. 1-1 is dressed by
-`_dress_day()`; its stall is gone (it "looks out of place with the new tile
+`_dress_day()`; its treetop crowns are whole trees standing on the hill
+(walkways on rows 20 and 21: higher, their trunks ended in the air and the
+creative lead saw "the trees floating"); its stall is gone (it "looks out of place with the new tile
 set"): the slab is an earth terrace on earth piers (`DAY_PIERS`), which the
 creative lead approved ("the slab looks good like that").
 `docs/mockups/platformer/world_map/` holds the creative lead's map mockup

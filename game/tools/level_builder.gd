@@ -692,6 +692,25 @@ func _cracked_wall(r: Rect2i, flag: String) -> StaticBody2D:
 	return w
 
 
+## A power-up hanging at `pos` (px): "spark", the Anima Spark.
+func _power_up(pos: Vector2, kind := "spark") -> Area2D:
+	var a := _node(Area2D.new(), "PowerUp", _root) as Area2D
+	a.set_script(load("res://scripts/world/power_up.gd"))
+	a.set("kind", kind)
+	a.position = pos.round()
+	a.z_index = 9
+	var art := _node(Sprite2D.new(), "Art", a) as Sprite2D
+	art.texture = load("res://assets/items/power_%s.png" % kind)
+	art.hframes = 4
+	var cs := CollisionShape2D.new()
+	var cc := CircleShape2D.new()
+	cc.radius = 10.0
+	cs.shape = cc
+	_node(cs, "Shape", a)
+	_label("POWER-UP: " + kind, pos + Vector2(-20, -24))
+	return a
+
+
 ## One of the level's four letters, K-L-E-O (as Donkey Kong Country's
 ## K-O-N-G), hanging at `pos` (px): along the main line and off it.
 func _letter(pos: Vector2, letter: String, flag: String) -> Area2D:

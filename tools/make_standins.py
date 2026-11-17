@@ -163,6 +163,25 @@ def banner():
     return sheet
 
 
+TEAL, TEAL_L, TEAL_D = (63, 224, 200, 255), (200, 255, 244, 255), (24, 120, 124, 255)
+
+
+def power_spark():
+    """The Anima Spark power-up: a teal flame of Anima in a gold ring, 4 frames of 16 x 16."""
+    sheet = Image.new("RGBA", (64, 16), (0, 0, 0, 0))
+    for f in range(4):
+        im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        d.ellipse((1, 1, 14, 14), fill=TEAL_D, outline=OUT)
+        d.ellipse((2, 2, 13, 13), outline=GOLD)
+        tip = [3, 2, 3, 4][f]
+        lean = [0, 1, 0, -1][f]
+        d.polygon([(8 + lean, tip), (11, 9), (8, 12), (5, 9)], fill=TEAL)
+        d.polygon([(8 + lean, tip + 3), (9, 9), (8, 11), (7, 9)], fill=TEAL_L)
+        sheet.alpha_composite(im, (f * 16, 0))
+    return sheet
+
+
 def save(im, *parts):
     path = os.path.join(ROOT, *parts)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -171,8 +190,8 @@ def save(im, *parts):
 
 
 if __name__ == "__main__":
-    save(letters(), "items", "letters.png")
-    save(letter_icons(), "ui", "letter_icons.png")
-    save(token(), "items", "token.png")
+    # The letters, their HUD icons and the token now come from the day kit
+    # (tools/make_day.py); their stand-ins above are kept for reference.
+    save(power_spark(), "items", "power_spark.png")
     save(knot(), "items", "knot.png")
     save(banner(), "items", "banner.png")
