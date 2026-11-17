@@ -682,8 +682,10 @@ vignette. **The stone is piles, not walls** ("they look nothing like the
 natural stone in the mockups"): lit boulders at the edges and deep shadow
 inside (the fill fades in 2 tiles to `SANCT_STONE_DEEP`), masses stepped one
 block at a time, never tall boxes, rubble and ferns at their feet. **The
-foreground has a second, nearer layer of silhouette plants** (the creative
-lead's; `fg_scroll`, Lost Keep's black forest band at 1.45). Drowned stone
+foreground is two layers** (the creative lead's): a lit band of real plants
+in their own colours just in front of the play (scroll 1.12, raised 20 px
+with `fg_raise` so it shows), and nearest the camera a lower band of
+silhouette plants (Lost Keep's black forest band, scroll 1.45, sunk 22 px). Drowned stone
 stands on the bed (`_sanct_bed`), never mid-water. **A level looks like a
 mockup only if its shapes are the mockup's:** build sanctuary levels from the mockups' shapes (thick masses
 stepping into water a tile below the low ground, a rock roof), then dress.
