@@ -1407,12 +1407,12 @@ func _secrets_l1_1() -> void:
 	await _wait(10)
 	res.append(["onto the crate (2 up)", await _jump_to(3858, 3886, 3910, 22)])
 	res.append(["onto the stack of two (2 up)", await _jump_to(3900, 3924, 3948, 20)])
-	res.append(["from the stack onto the first treetop (level with it)", await _step_off("move_right", 3966.0, 20)])
-	res.append(["treetop 2 (4 across, 1 down)", await _jump_to(3968, 4084, 4204, 21, 4008)])
-	res.append(["treetop 3 (4 across, 1 up)", await _jump_to(4150, 4276, 4364, 20, 4200)])
-	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 4330.0, 100)
+	res.append(["a hop from the stack onto the first treetop (1 across)", await _jump_to(3940, 3968, 4064, 20)])
+	res.append(["treetop 2 (4 across, 1 down)", await _jump_to(4000, 4128, 4240, 21, 4040)])
+	res.append(["treetop 3 (4 across, 1 up)", await _jump_to(4180, 4304, 4400, 20, 4220)])
+	await _hold_until(["move_right"], func(): return kleo.global_position.x >= 4356.0, 100)
 	res.append(["letter E (on the third treetop)", _letter_taken("E")])
-	res.append(["treetop 4 (4 across, 1 down)", await _jump_to(4300, 4436, 4500, 21, 4360)])
+	res.append(["treetop 4 (4 across, 1 down)", await _jump_to(4340, 4464, 4540, 21, 4380)])
 	var course: BonusZone = _zone("course")
 	await _hold_until(["move_right"], func(): return course.running(), 200)
 	res.append(["the hollow at the treetops' end takes her to bonus 2", course.running()])
@@ -1431,8 +1431,8 @@ func _secrets_l1_1() -> void:
 		if Game.bonus == null and kleo.state == Kleo.State.NORMAL:
 			break
 	await _wait(20)
-	res.append(["back out on the last treetop", absf(kleo.global_position.x - 280.5 * TILE) < 3.0 and _floor_at(21)])
-	res.append(["down off the last treetop onto the hill (the hollow, won, lets her by)", await _step_off("move_right", 4552.0, 27)])
+	res.append(["back out on the last treetop", absf(kleo.global_position.x - 282.5 * TILE) < 3.0 and _floor_at(21)])
+	res.append(["down off the last treetop onto the hill (the hollow, won, lets her by)", await _step_off("move_right", 4592.0, 27)])
 	# The treetops can't be reached from the hill without the crates.
 	_place(262.0, 27)
 	await _wait(10)

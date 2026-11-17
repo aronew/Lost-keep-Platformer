@@ -102,7 +102,9 @@ const MASSES := [
 ## trunk's foot is 108 px under its walking line, so the walkways are rows 20
 ## and 21 (7 and 6 over the hill: still out of a jump's reach, and the
 ## creative lead saw the old, higher crowns "floating above the ground").
-const TREETOPS := [[244, 251, 20, 1, false], [255, 263, 21, 0, false], [267, 273, 20, 2, false], [277, 284, 21, 1, true]]
+## The first stands a tile east of the crate stack (level with its top): a
+## hop she must choose, so walking over the stack still drops to the hill.
+const TREETOPS := [[248, 254, 20, 1, false], [258, 265, 21, 0, false], [269, 275, 20, 2, false], [279, 286, 21, 1, true]]
 ## The stall's piers, from its painting (art x, width; the painting's left
 ## edge stands at the slab's left end, x 352).
 const STALL_PIERS := [[9, 31], [123, 32], [243, 33]]
@@ -273,7 +275,7 @@ func _twist() -> void:
 		"l11_token2", 10.0, "Reach the token!")
 	_beads([Vector2(_t(503.5), _t(29) - 22), Vector2(_t(510), _t(27) - 26), Vector2(_t(517), _t(27) - 22), Vector2(_t(524), _t(27) - 26),
 		Vector2(_t(530.5), _t(27) - 22)], "l11_course")
-	_bonus_door(_t(283.5), _t(21), course, Vector2(_t(280.5), _t(21)), -1, "root-hollow")
+	_bonus_door(_t(285.5), _t(21), course, Vector2(_t(282.5), _t(21)), -1, "root-hollow")
 	_label("CANOPY ROUTE (secret, over the treetops; letter E)", Vector2(_t(252), _t(11)))
 	_label("BONUS 2 ENTRANCE", Vector2(_t(281), _t(11)))
 	# The hill: a second rat.
