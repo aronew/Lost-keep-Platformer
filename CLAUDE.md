@@ -111,6 +111,7 @@ start.
 
 | File | What it holds |
 |---|---|
+| `design/lore-bible.md` | **The lore bible:** the world, the peoples, the crime, the characters and bosses, the story region by region, Kleo's gifts, the Refuge, in one place; each line marked canon, planned, proposed or open, with the open questions |
 | `design/rulebook.md` | **The rulebook:** the macro loop and economy, the golden rules of movement and combat (with Kleo's measured frame data), telegraphs and fairness, reading the screen, level architecture, the psychology of secrets, boss staging, the six-level template and its checklists, and **the audit** |
 | `design/regions/` | One plan per region (region 2, the Hearth-Plains: eight stops, where each idea came from, what must be built) |
 | `design/game-structure.md` | **The game's structure:** regions, levels, bosses, abilities, how a level is laid out, checkpoints, Resin, the hub |
