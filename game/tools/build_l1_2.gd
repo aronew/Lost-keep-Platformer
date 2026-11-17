@@ -108,7 +108,10 @@ func _initialize() -> void:
 	skip = []
 	spawn = Vector2(5 * TILE, G)
 	room_path = ROOM_PATH
-	blockout = true
+	# The art pass begins: the Flooded Sanctuary kit (Book 5). Set blockout
+	# true to see the plan and its labels again.
+	blockout = false
+	kit = "sanctuary"
 	main_floor = G
 	_level_begin("L1_2_GateRoad", "1-2 The Gate Road")
 	_root.set("main_area", MAIN)

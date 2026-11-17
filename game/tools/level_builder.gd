@@ -68,7 +68,7 @@ func _level_begin(node_name: String, title: String) -> Dictionary:
 	if not blockout:
 		# The levels' ground: by day the creative lead's earth and stone (Book
 		# 4's D1 to D3); at dusk Book 3's ruin stone. Material 0 for every mass.
-		_earth = _day_material() if daylight else _ruin_material()
+		_earth = (_sanct_material() if kit == "sanctuary" else _day_material()) if daylight else _ruin_material()
 	var t := _terrain(tileset)
 	if blockout:
 		# The skin off: the black collision tiles show (as in box view).
@@ -114,6 +114,35 @@ const DAY_RIM_SIDE := 0.25
 const DAY_LAMP := 0.3
 
 var _day_atlas := {}
+
+## Which kit dresses the level: "day" (the Sunlit Woodland, Book 4; 1-1) or
+## "sanctuary" (the Flooded Sanctuary, Book 5; 1-2: mossy purple stone in a
+## teal-lit cavern, tools/make_sanctuary.py). Both are lit by `_daylight()`:
+## no dusk tint, no vignette. The sanctuary's mood is its own teal distance.
+var kit := "day"
+const ENV_SANCT := "res://assets/environment/sanctuary/"
+## The stone deep inside a sanctuary mass.
+const SANCT_STONE_DEEP := Color("#2c2140")
+
+
+## The sanctuary's stone (Book 5's F1 to F3): the mossy top band, the hanging
+## underside, the wall face, and stone blocks all the way in. (Its corner
+## pieces came back in other shapes than asked: not used; the bands meet.)
+func _sanct_material() -> Resource:
+	var m: Resource = load("res://scripts/world/terrain_material.gd").new()
+	m.fill = load(ENV_SANCT + "terrain/sanct_fill.png")
+	m.fade_tiles = 9.0
+	m.top_band = load(ENV_SANCT + "terrain/sanct_top.png")
+	m.top_line = 15
+	m.top_lit = 36
+	m.under_band = load(ENV_SANCT + "terrain/sanct_under.png")
+	m.under_line = 16
+	m.wall_band = load(ENV_SANCT + "terrain/sanct_wall.png")
+	m.wall_face = 34
+	m.lip_color = Color(0, 0, 0, 0)
+	m.outline_color = Color(0, 0, 0, 0)
+	ResourceSaver.save(m, "res://scenes/world/terrain_sanctuary.tres")
+	return load("res://scenes/world/terrain_sanctuary.tres")
 
 
 ## A piece of the day kit by its atlas name: {"tex": path, "rect": Rect2, and
@@ -190,10 +219,14 @@ func _day_material() -> Resource:
 ## the dusk aqueduct go.
 func _day_backdrops() -> void:
 	var top := (main_floor - 58.0 - 180.0) if main_floor >= 0.0 else 0.0
-	for layer in [["Sky", "17-daytime-sky.png"], ["Far", "18-far-forest.png"], ["Mid", "19-mid-forest.png"]]:
+	var layers := [["Sky", ENV_DAY + "17-daytime-sky.png"], ["Far", ENV_DAY + "18-far-forest.png"], ["Mid", ENV_DAY + "19-mid-forest.png"]]
+	if kit == "sanctuary":
+		# Book 5's F15 (the cavern's light), F13 (far ruins), F14 (nearer ruins).
+		layers = [["Sky", ENV_SANCT + "F15-cavern-light.png"], ["Far", ENV_SANCT + "F13-far-ruins.png"], ["Mid", ENV_SANCT + "F14-mid-ruins.png"]]
+	for layer in layers:
 		var p := _root.get_node(layer[0]) as Parallax2D
 		var art := p.get_node("Art") as Sprite2D
-		var tex: Texture2D = load(ENV_DAY + layer[1])
+		var tex: Texture2D = load(layer[1])
 		art.texture = tex
 		art.modulate = Color.WHITE
 		art.position.y = roundf(p.scroll_scale.y * top)
@@ -217,7 +250,7 @@ func _daylight() -> void:
 	for skin_name in ["TerrainSkin", "FakeSkin"]:
 		for sk in _root.find_children(skin_name + "*", "", true, false):
 			if "void_color" in sk:
-				sk.set("void_color", DAY_EARTH_DEEP)
+				sk.set("void_color", SANCT_STONE_DEEP if kit == "sanctuary" else DAY_EARTH_DEEP)
 	var w := float(room.size.x * TILE)
 	var h := float(room.size.y * TILE)
 	# Sun falling through the canopy, warm and faint.
@@ -308,6 +341,9 @@ func _level_foreground() -> void:
 		view_bottom = main_floor - 58.0 + 180.0
 	if daylight:
 		# Book 4's D19: one leafy band.
+		if kit == "sanctuary":
+			_fg_bands("sanct", Color(0, 0, 0, 0), ENV_SANCT, true, 0.0, "ForegroundLeaves", view_bottom, main_floor)
+			return
 		_fg_bands("day", Color(0, 0, 0, 0), ENV_DAY, true, 0.0, "ForegroundLeaves", view_bottom, main_floor)
 		return
 	_fg_bands("ferns", Color(0, 0, 0, 0), ENV_WILDS, true, 0.0, "ForegroundFerns", view_bottom, main_floor)
@@ -778,6 +814,8 @@ func _water_foreground(surface_y: float, spans: Array) -> void:
 		if not blockout:
 			# By day, Book 4's D10 (the pond); at dusk, the creative lead's water.
 			var paint: Texture2D = load(ENV_DAY + "11-pond-water.png" if daylight else ENV_WILDS + "water_paint.png")
+			if daylight and kit == "sanctuary":
+				paint = load(ENV_SANCT + "sanct_water.png")  # Book 5's F8
 			m.set_shader_parameter("use_paint", true)
 			m.set_shader_parameter("paint", paint)
 			m.set_shader_parameter("paint_size", Vector2(paint.get_size()))

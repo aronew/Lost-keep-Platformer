@@ -657,7 +657,21 @@ creative lead approved ("the slab looks good like that").
 `docs/mockups/platformer/world_map/` holds the creative lead's map mockup
 (a map screen for each region's levels).
 
-## 1-2's look: the Flooded Sanctuary (Book 5, awaiting its sheets)
+## The sanctuary kit (Book 5, delivered; first pass in 1-2)
+`art/source/sanctuary/F1..F16` holds the generator's 16 sheets unchanged;
+`tools/make_sanctuary.py` reduces them (averaged, each sheet's own colours)
+into `game/assets/environment/sanctuary/` with `sanct_pieces.json` (every
+piece's rectangle). In `level_builder.gd`, `kit = "sanctuary"` gives a level
+the stone (`_sanct_material()`: top, underside, wall, fill; the kit's corner
+pieces came back in other shapes and are not used), the cavern light and
+ruins backdrops, the water and the foreground band. **1-2 is built with it
+(`blockout = false`): terrain, water, backdrops and foreground only.** Still
+to place from the kit: islands and pillars (F5), ruins (F4), the log (F6),
+the ceiling (F7), sunken pieces (F9), the hut and doorway (F10), flora
+(F11), thorns, banner, crate (F12); those spots still show day-kit or
+stand-in art. Pictures: `docs/levels/1-2/art_pass/`.
+
+## 1-2's look: the Flooded Sanctuary (Book 5)
 The creative lead: 1-2 keeps the flooded-ruins look ("the old tile set"),
 "but I think we need new tiles for it". Its four mockups are in
 `docs/mockups/platformer/flooded_sanctuary/` (S1 to S4). **Book 5**
