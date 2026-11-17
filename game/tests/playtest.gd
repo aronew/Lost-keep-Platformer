@@ -1956,15 +1956,7 @@ func _run_moves(moves: Array, file: String) -> void:
 				var bedge := float(m[3]) * TILE
 				var bdir := 1 if at.x + bw * 0.5 > bedge else -1
 				await _walk_tile(float(m[3]) - bdir * 1.5)
-				# Wait for it to arrive (not merely to be there: its rest may be nearly over).
-				var away := false
-				for i in 2400:
-					await _step()
-					var d: float = bm.position.distance_to(at)
-					if d > 4.0:
-						away = true
-					elif d < 1.0 and away:
-						break
+				await _mover_arrives(bm, at)
 				var bkey := "move_right" if bdir > 0 else "move_left"
 				await _hold_until([bkey], func(): return bdir * (kleo.global_position.x - (bedge - bdir * 8.0)) >= 0.0, 120)
 				_press(bkey)
@@ -1980,6 +1972,21 @@ func _run_moves(moves: Array, file: String) -> void:
 				res.append(["a timed jump onto mover %d" % int(m[1]), kleo.is_on_floor()
 					and absf(kleo.global_position.x - (float(bm.global_position.x) + bw * 0.5)) < bw * 0.5 + 3.0
 					and absf(kleo.global_position.y - float(bm.global_position.y)) < 3.0])
+			"await_mover":
+				# Wait where she stands until mover m[1] comes to rest at its end m[2].
+				var am: Node = _find("moving_platform")[int(m[1])]
+				await _mover_arrives(am, am._origin + am.path[0 if int(m[2]) == 0 else am.path.size() - 1])
+			"step_on":
+				# Walk (m[3]: 1 right, -1 left) onto mover m[1] as it comes to rest at its end m[2].
+				var sm: Node = _find("moving_platform")[int(m[1])]
+				var sw: float = (sm.get_node("Shape") as CollisionShape2D).shape.size.x
+				await _mover_arrives(sm, sm._origin + sm.path[0 if int(m[2]) == 0 else sm.path.size() - 1])
+				var skey := "move_right" if int(m[3]) > 0 else "move_left"
+				await _hold_until([skey], func(): return absf(kleo.global_position.x - (float(sm.global_position.x) + sw * 0.5)) < 5.0, 240)
+				await _wait(4)
+				res.append(["a step onto mover %d while it rests" % int(m[1]), kleo.is_on_floor()
+					and absf(kleo.global_position.x - (float(sm.global_position.x) + sw * 0.5)) < sw * 0.5 + 3.0
+					and absf(kleo.global_position.y - float(sm.global_position.y)) < 3.0])
 			"ride_end":
 				# Stand on mover m[1] until it comes to rest at its end m[2].
 				var rm: Node = _find("moving_platform")[int(m[1])]
@@ -2049,3 +2056,12 @@ func _run_moves(moves: Array, file: String) -> void:
 				res.append(["through the %s: the level ends" % ("secret exit" if m.size() > 2 else "way out"), end.done])
 	_results(res, ["flames left %d; Resin %d; letters %d of 4; tokens %d of %d" % [Game.health, Game.currency,
 		Game.letters_found(), Game.tokens_found(), Game.level_tokens.size()]], file)
+
+
+## Wait until a mover has just come to rest at `at` (with nearly all of its
+## rest still to come: being there is not enough, it may be about to leave).
+func _mover_arrives(mover: Node, at: Vector2) -> void:
+	for i in 3000:
+		if mover.position.distance_to(at) < 1.0 and mover.resting(float(mover.pause) - 0.15):
+			return
+		await _step()

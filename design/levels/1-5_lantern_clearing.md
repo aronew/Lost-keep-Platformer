@@ -14,8 +14,8 @@ Its secret exit moved to 1-3 (the creative lead's map).
 | **One crate, two uses** | 67–110 | A crate, a rat, and a ruin block on the road whose mouth is sealed with cracked stone. |
 | Raft and islands | 110–162 | A raft that runs on its own (1-4): a timed jump on, and off onto a stone. Then two floating islands and a stone (1-2). |
 | **The midway banner** | 166 | |
-| The wall | 174–220 | A lift up a wall no jump reaches; on top, thorns to jump, a rat, a chest. |
-| Raft to lift | 220–259 | A high raft on its own run; a jump from it onto a lift that takes her down; a stone, a hop to the bank. |
+| The wall | 174–220 | A lift, running on its own, up a wall no jump reaches; on top, thorns to jump, a rat, a chest. |
+| Raft to lift | 220–259 | A high raft on its own run and a lift that keeps its time: when the raft rests at its far end the lift is resting at the top, two tiles on. A jump across; it takes her down to a stone; a hop to the bank. |
 | At a run | 259–318 | Thorns, then a stone, two floating islands, a stone (**letter O** over the islands). |
 | The gate | 318–380 | Terraces, a chest, the way to the Keep. |
 

@@ -6,7 +6,8 @@ extends "res://tools/level_builder.gd"
 ## Spec: design/levels/1-4_aqueduct.md. The level's one idea is **things that
 ## really move**: timber rafts and counterweighted lifts. Rafts run back and
 ## forth on their own, two tiles short of each bank: she times a jump on and a
-## jump off. Lifts wait for her weight. TEACH: a raft over a dry channel and a
+## jump off. Lifts run up and down on their own too: she steps on while one
+## rests at her floor, and off at the other. TEACH: a raft over a dry channel and a
 ## lift beside a wall, where a miss costs nothing. TEST: a raft over the gorge,
 ## a lift up to the aqueduct's deck. TWIST: two rafts out of step high over
 ## open water, a jump between them, a lift down. FINISH: a fast raft, the gate.
@@ -26,16 +27,19 @@ func _t(x: float) -> float:
 
 ## A raft: it runs back and forth on its own (the creative lead: "they
 ## shouldn't wait, they should be moving back and forth ... you need to time
-## jumps properly"), resting a second at each end. Its run stops two tiles
-## short of each bank: she jumps on when it is near and off before it leaves.
-## `x` is its left edge at the start, `run` how far it goes (tiles).
-func _raft(x: float, row: float, run: float, speed := 56.0, phase := 0.0) -> AnimatableBody2D:
-	return _mover(Vector2(_t(x), _t(row)), 48.0, [Vector2.ZERO, Vector2(run * TILE, 0)], speed, 1.0, false, phase)
+## jumps properly"), resting `rest` seconds at each end. Its run stops two
+## tiles short of each bank: she jumps on when it is near and off before it
+## leaves. `x` is its left edge at the start, `run` how far it goes (tiles).
+func _raft(x: float, row: float, run: float, speed := 56.0, phase := 0.0, rest := 1.0) -> AnimatableBody2D:
+	return _mover(Vector2(_t(x), _t(row)), 48.0, [Vector2.ZERO, Vector2(run * TILE, 0)], speed, rest, false, phase)
 
 
-## A counterweighted lift: it waits for her weight, makes its run, and goes back.
-func _weight_lift(x: float, row: float, rise: float) -> AnimatableBody2D:
-	return _mover(Vector2(_t(x), _t(row)), 48.0, [Vector2.ZERO, Vector2(0, -rise * TILE)], 56.0, 0.6, true)
+## A lift: it runs up and down on its own too (the creative lead: "make the
+## lifts move on their own too"), resting at each end beside the floor it
+## serves: she steps on while it rests, and off at the other end. `row` is
+## where it starts, `rise` how far up it goes (negative: down).
+func _run_lift(x: float, row: float, rise: float, speed := 56.0, phase := 0.0, rest := 1.0) -> AnimatableBody2D:
+	return _mover(Vector2(_t(x), _t(row)), 48.0, [Vector2.ZERO, Vector2(0, -rise * TILE)], speed, rest, false, phase)
 
 
 func _initialize() -> void:
@@ -70,12 +74,12 @@ func _initialize() -> void:
 	# The main line.
 	tour.append_array([["walk", 12], ["rise", 16, 24, 27],
 		["board", 0, 0, 24], ["ride_end", 0, 1], ["leap", 34, 36, 44, 27],
-		["off", 44, G, 1], ["walk", 51], ["hop", 54, 55, 58, 29], ["ride", 1, 1], ["walk", 62],
+		["off", 44, G, 1], ["board", 1, 0, 54], ["ride_end", 1, 1], ["walk", 62],
 		["floor", 24, "the lift sets her on top of the wall"], ["off", 78, G, 1],
 		["board", 2, 0, 100], ["ride_end", 2, 1], ["leap", 114, 116, 126, G],
-		["ride", 3, 1], ["walk", 152], ["floor", 22, "the lift takes her up to the aqueduct"], ["banner"],
+		["walk", 138.5], ["step_on", 3, 0, 1], ["ride_end", 3, 1], ["walk", 152], ["floor", 22, "the lift takes her up to the aqueduct"], ["banner"],
 		["board", 4, 0, 188], ["ride_end", 4, 1], ["board", 5, 0, 200], ["ride_end", 5, 1],
-		["ride", 6, 1], ["walk", 218.5], ["floor", 28, "off the second raft onto the lift, down to the stone"]])
+		["step_on", 6, 0, 1], ["ride_end", 6, 1], ["walk", 218.5], ["floor", 28, "off the second raft onto the lift, down to the stone"]])
 	plan_leg(221, 28, 1, [[4, 4, 1, "stone"], [4, 10, -3, "none"]])
 	tour.append_array([["jump", 237.75, 243.5, 248, G, 238.75],
 		["board", 7, 0, 256], ["ride_end", 7, 1], ["leap", 274, 276, 286, G],
@@ -94,15 +98,15 @@ func _initialize() -> void:
 	_raft(26, 27, 5, 48.0)
 	_label("A RAFT over a dry channel\n(it runs on its own: time the jump; a miss costs nothing)", Vector2(_t(22), _t(20)))
 	_letter(Vector2(_t(30), _t(27) - 30), "K", "l14_letter_k")
-	_weight_lift(55, 29, 5)
-	_label("A LIFT up a wall no jump reaches", Vector2(_t(50), _t(18)))
+	_run_lift(55, 29, 5)
+	_label("A LIFT up a wall no jump reaches (it runs on its own)", Vector2(_t(50), _t(18)))
 	_chest(_t(70), _t(24), 8, "l14_chest1")
 	_mossback(_t(88), _t(G), _t(83), _t(95))
 	# TEST: a raft over the gorge; a lift over water up to the aqueduct.
 	_label("TEST", Vector2(_t(98), _t(12)))
 	_raft(102, G, 9, 64.0)
 	_label("A RAFT OVER THE GORGE", Vector2(_t(104), _t(24)))
-	_weight_lift(140, G, 8)
+	_run_lift(140, G, 8)
 	_label("A LIFT up to the aqueduct", Vector2(_t(132), _t(18)))
 	_checkpoint(_t(148), _t(22), "l14_mid")
 	_label("MIDWAY BANNER", Vector2(_t(146), _t(22) - 84))
@@ -111,9 +115,11 @@ func _initialize() -> void:
 	# TWIST: a raft high over open water hands her to a lift going down.
 	_label("TWIST", Vector2(_t(190), _t(12)))
 	# Two rafts out of step: they meet in the middle (3 apart) and part again.
-	_raft(190, 22, 7, 56.0)
-	_raft(203, 22, 7, 56.0, 3.8)
-	_weight_lift(213, 22, -6)
+	# All three rest 1.4 s and keep one time: the rafts meet in the middle, and
+	# the lift is at the top whenever the second raft is at its east end.
+	_raft(190, 22, 7, 56.0, 0.0, 1.4)
+	_raft(203, 22, 7, 56.0, 252.5 / 60.0, 1.4)
+	_run_lift(213, 22, -6, 48.0, 0.0, 1.4)
 	_label("RAFT TO RAFT (they meet in the middle), then a lift down", Vector2(_t(192), _t(16)))
 	# FINISH: thorns, a fast raft, the gate.
 	_label("FINISH", Vector2(_t(232), _t(16)))
@@ -140,7 +146,7 @@ func _initialize() -> void:
 	extras.append(["rise", 36, 44, 27])
 	# Letter L hangs over the first lift's top stop: a jump from the lift.
 	_letter(Vector2(_t(56.5), _t(24) - 50), "L", "l14_letter_l")
-	extras.append_array([["place", 51, G, 1], ["hop", 54, 55, 58, 29], ["ride", 1, 1], ["hopup", 24],
+	extras.append_array([["place", 51, G, 1], ["board", 1, 0, 54], ["ride_end", 1, 1], ["hopup", 24],
 		["letter", "L", "a jump from the lift at the top of its run"], ["place", 68, 24, 1], ["chest", 0]])
 	# The wall's east face is a false wall, behind her as she steps down: bonus 2.
 	_false_wall("WallFace", Rect2i(74, 28, 4, 2), 78, Vector2i(28, 2), 1, "l14_secret1")
@@ -150,14 +156,15 @@ func _initialize() -> void:
 	_label("FALSE WALL\n(BONUS 2)", Vector2(_t(79), _t(G) - 50))
 	extras.append_array([["place", 82, G, -1], ["into_zone", "l14_token2", -1]])
 	extras.append_array(b["moves"])
-	# The great secret: the lift at the aqueduct's foot is a bridge to whoever
-	# doesn't stop on it. Walk straight across before it rises: the cave under
-	# the aqueduct, and the knot.
+	# The great secret: the lift at the aqueduct's foot is also a bridge. While
+	# it rests at the bottom she can walk straight across it instead of riding:
+	# the cave under the aqueduct, and the knot.
 	_knot(Vector2(_t(150), _t(G) - 14), "l14_knot")
-	_label("THE CAVE UNDER THE AQUEDUCT\n(cross the lift before it rises)", Vector2(_t(144), _t(G) + 6))
-	extras.append_array([["place", 137, G, 1], ["walk", 150],
-		["floor", G, "straight across the lift before it rises, into the cave under the aqueduct"], ["knot"],
-		["wait", 480], ["ride", 3, -1], ["walk", 147], ["floor", 22, "and the lift takes her up from the cave's side"]])
+	_label("THE CAVE UNDER THE AQUEDUCT\n(cross the lift while it rests at the bottom)", Vector2(_t(144), _t(G) + 6))
+	extras.append_array([["place", 138.5, G, 1], ["await_mover", 3, 0], ["walk", 150],
+		["floor", G, "across the lift while it rests at the bottom, into the cave under the aqueduct"], ["knot"],
+		["walk", 144.5], ["step_on", 3, 0, -1], ["ride_end", 3, 1], ["walk", 147],
+		["floor", 22, "and the lift takes her up from the cave's side"]])
 	# Letter O over the fast raft's run; the gate's chest.
 	extras.append_array([["place", 253, G, 1], ["board", 7, 0, 256], ["ride_end", 7, 1], ["letter", "O", "over the fast raft's run"],
 		["place", 316, 24, 1], ["chest", 1]])

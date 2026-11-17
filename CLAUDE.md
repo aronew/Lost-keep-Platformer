@@ -39,7 +39,7 @@ what is missing in every level.
 | 1-1 Lantern Refuge (first called The Overgrown Ruins; files and node keep that name) | Playable, dressed in the dusk kit under daylight. Waiting for Book 4's bright-day art and the creative lead's play |
 | 1-2 The Gate Road | A **blockout**, awaiting review. No art until it is approved |
 | 1-3 The Ruin Gardens | A **blockout**, awaiting review: the vertical level, three legs up the hill; hides the secret exit |
-| 1-4 The Aqueduct | A **blockout**, awaiting review: rafts that run on their own (timed jumps) and lifts |
+| 1-4 The Aqueduct | A **blockout**, awaiting review: rafts and lifts that all run on their own (timed jumps and steps) |
 | 1-5 The Lantern Clearing | A **blockout**, awaiting review: the gauntlet |
 | 1-S The Hollow Oak | A **blockout**, awaiting review: the secret level, a harder climb. Its extra-flame reward isn't built |
 | 1-B The Keep Gate | A **blockout** of the approach and the arena. **The boss is not built** (no design, art or code): the arena is empty and the way out open |
@@ -60,7 +60,8 @@ never a lantern**; blockout first, art last.
   cool."** Decided: Kleo's stride stays. Levels are still designed for the
   plain jump; the stride is the skilled player's shortcut.
 - **"They shouldn't wait, they should be moving back and forth ... you need
-  to time jumps properly."** Decided: rafts run on their own (1-4, 1-5).
+  to time jumps properly"; "make the lifts move on their own too."**
+  Decided: rafts and lifts all run on their own (1-4, 1-5).
 - **"Use the map names and follow the map."** Decided: region 1 is
   **Flooded Sanctuary** and level 1-1 is **Lantern Refuge**, as the creative
   lead's region map has them; and the secret level is reached off pad 3, so
@@ -361,7 +362,7 @@ All are tried in the **systems arena** (`scenes/levels/systems_arena.tscn`,
 - **The thorn knot** (`thorn_knot.gd`, `_knot`): each level's one great
   secret (DKC2's DK coin): one of Morvath's knots, asleep, hidden with more
   cunning than anything else; touching it wakes it for good
-  (`Game.take_knot`; the HUD's icon, top right). 1-1: behind bonus 1's
+  (`Game.take_knot`; the HUD's icon, top right). (1-3 to 1-S: their specs.) 1-1: behind bonus 1's
   hollow, which lets her by only once the bonus is won. 1-2: on an island
   back west of the rampart's tower, the one time she must turn back.
 - **Kleo's stride** (`kleo.gd`: `stride_after`, `stride_speed`): a second of
@@ -479,12 +480,20 @@ creative lead: "they shouldn't wait, they should be moving back and forth
 ... you need to time jumps properly"): `_raft(x, row, run, speed)` in those
 builders, no `wait_for_rider`, a 1 s rest at each end, level with the banks
 but **stopping two tiles short of each**, so she times a jump on and a jump
-off. Two rafts meant to meet are set half a cycle apart with `phase`
-(1-4's twist). **Lifts wait** for her weight (`_weight_lift`); one on dry
-ground rests a row up (a hop on). A mover never stays at an end, so what she
-steps or jumps onto there must be within reach while it rests. The tests'
-moves for them: `board` (a timed jump on as it arrives), `ride_end`, `leap`
-(off at once), and `ride` for a lift. **Known, small:** a hit-stop while she
+off. **Lifts run on their own too** (the creative lead: "make the lifts
+move on their own too"): `_run_lift(x, row, rise, speed, phase, rest)`,
+resting beside the floor at each end (step on, step off); one on dry ground
+rests a row up (a hop on). **Movers that hand her on keep one time:** give
+them the same run time and rest, and set them apart with `phase` (1-4's two
+rafts and the lift past them; 1-5's high raft and its lift). They stay in
+step because `moving_platform.gd` counts every run and rest in whole ticks
+of game time (`_leg_ticks`, `rest_ticks`); count game time, never raw
+physics ticks, or a hit-stop throws the rider off. A mover never stays at an
+end, so what she steps or jumps onto there must be within reach while it
+rests. Nothing in the levels waits for her now (`wait_for_rider` is still
+there, and the systems arena uses it). The tests' moves: `board` (a timed
+jump on as it arrives), `step_on` (a timed walk on), `await_mover`,
+`ride_end`, `leap` (off at once). **Known, small:** a hit-stop while she
 rides shifts her along the mover (under 2 px with real frame times; up to
 18 px under `--fixed-fps`, a test artifact).
 
