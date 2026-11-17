@@ -9,6 +9,7 @@ Writes game/assets/environment/sanctuary/:
   terrain/sanct_*.png    the stone's top band, underside band, wall face, fill
   sanct_water.png        the water's paint (the sheet's long strip)
   fg_sanct_bottom_a/b    the foreground band (b: half a band on)
+  sanct_banner.png       the midway banner, 3 frames of 46 x 61
   sanct_pieces.json      every sheet's separate pieces: [x, y, w, h]
 
 Usage: python3 tools/make_sanctuary.py
@@ -76,6 +77,14 @@ def main():
     b.paste(fg.crop((half, 0, fg.width, fg.height)), (0, 0))
     b.paste(fg.crop((0, 0, half, fg.height)), (fg.width - half, 0))
     save(b, "fg_sanct_bottom_b.png")
+    # The midway banner (F12): furled, flying A, flying B, as three frames of
+    # 46 x 61 with the pole at the same place in each.
+    th = out["F12-things"]["pieces"]
+    frames = sorted([r for r in th if r[3] > 50], key=lambda r: r[0])
+    strip = Image.new("RGBA", (46 * 3, 61))
+    for i, r in enumerate(frames[:3]):
+        strip.alpha_composite(done["F12-things"].crop((r[0], r[1], r[0] + r[2], r[1] + r[3])), (i * 46, 61 - r[3]))
+    save(strip, "sanct_banner.png")
     with open(os.path.join(OUT, "sanct_pieces.json"), "w") as fh:
         json.dump(out, fh, indent=1)
 

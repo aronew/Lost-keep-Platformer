@@ -120,6 +120,8 @@ func _initialize() -> void:
 	_test()
 	_twist()
 	_finish_beat()
+	if not blockout:
+		_dress()
 	_level_finish()
 	quit()
 
@@ -151,7 +153,7 @@ func _teach() -> void:
 	# The road's broken wall stubs: the level's hops, first over dry ground.
 	_hops([[15.5, 30, 16.5, 28], [18.5, 28, 23.5, 28], [25.5, 28, 30.5, 27]], "l12_stub")
 	_label("WALL STUBS\n(hops over dry ground:\nnothing to lose)", Vector2(_t(15), _t(21)))
-	_breakable(CRATES, POT, _t(38), G, CLAY)
+	_sanct_breakable("barrel", _t(38), G, WOOD)
 	_mossback(_t(48), G, _t(42), _t(56))
 	_label("MOSSBACK", Vector2(_t(45), G - 44))
 	# The first water: two wide islands (gaps of 4).
@@ -183,7 +185,7 @@ func _test() -> void:
 	# rest on (a pot); a small high one; down and out.
 	_hops([[139.5, 30, 143.5, 29], [147.5, 29, 152.5, 28], [155.5, 28, 160.5, 26], [162.5, 26, 167.5, 29],
 		[170.5, 29, 175.5, 28], [180.5, 28, 185.5, 27], [187.5, 27, 192.5, 29], [195.5, 29, 200.5, 30]], "l12_low")
-	_breakable(CRATES, POT, _t(178.5), _t(28), CLAY)
+	_sanct_breakable("barrel", _t(178.5), _t(28), WOOD)
 	# Risky Resin beside the safe line: a low stone two tiles wide, a drop
 	# onto it, a step back up. Beads never lie: where they hang, there is ground.
 	_beads([Vector2(_t(171.7), _t(31) - 12), Vector2(_t(172.7), _t(31) - 12), Vector2(_t(173.4), _t(31) - 12)], "l12_risk")
@@ -206,9 +208,9 @@ func _test() -> void:
 		rush.append(Vector2(_t(q[0]), _t(q[1]) - 12))
 	var course := _bonus_zone("gather", BONUS_COURSE, Vector2(_t(454), G), Vector2(_t(490.5), _t(27) - 40),
 		"l12_token1", 12.0, "Get all the Resin!", rush)
-	_bonus_door(_t(208.5), _t(20), course, Vector2(_t(205.5), _t(20)), -1)
+	_bonus_door(_t(208.5), _t(20), course, Vector2(_t(205.5), _t(20)), -1, "ruin-hollow")
 	_label("BONUS 1 ENTRANCE", Vector2(_t(203), _t(15)))
-	_breakable(CRATES, BARREL, _t(204), G, WOOD)
+	_sanct_breakable("barrel", _t(204), G, WOOD)
 
 
 # --- TWIST: the road ends: the floating islands are the only way, an enemy on the great one -------
@@ -241,7 +243,7 @@ func _twist() -> void:
 		pile.append_array(_arc_pts(h[0], h[1]))
 	var gather := _bonus_zone("gather", BONUS_GATHER, Vector2(_t(497.5), G), Vector2(_t(531.5), _t(26) - 36),
 		"l12_token2", 16.0, "Get all the Resin!", pile)
-	_bonus_door(_t(238.3), _t(31), gather, Vector2(_t(236.2), _t(31)), -1)
+	_bonus_door(_t(238.3), _t(31), gather, Vector2(_t(236.2), _t(31)), -1, "ruin-hollow")
 	_label("THE OLD LANDING under the island (secret):\nBONUS 2 ENTRANCE", Vector2(_t(240), _t(29)))
 
 
@@ -266,3 +268,83 @@ func _finish_beat() -> void:
 	_chest(_t(421), _t(24), 8, "l12_chest3")
 	_level_end(_t(428), _t(24), 48, 72)
 	_label("THE GATEHOUSE", Vector2(_t(418), _t(17)))
+
+
+# --- The art pass: Book 5's Flooded Sanctuary kit, after the creative lead's mockups ---------------
+
+## Plants, by hand: [piece, tile x (its centre), floor row, flipped]. Each
+## stands on flat ground well inside its ledge (`_sanct_plant` checks it).
+const PLANTS := [
+	# TEACH
+	["fern", 9.5, 30, false], ["flowers", 13.5, 30, false], ["mushroom", 24.5, 28, false],
+	["mushroom_big", 35, 30, false], ["grass", 41.5, 30, false], ["flowers_b", 52, 30, true], ["fern_tall", 57, 30, true],
+	["mushrooms", 83.5, 30, false], ["grass", 92, 25, false],
+	["fern", 100.5, 23, false], ["mushroom_big", 108, 23, true],
+	["flowers", 96.5, 30, false], ["fern_tall", 113, 30, false], ["mushroom_b", 116, 30, false],
+	# TEST
+	["flowers_b", 128, 21, false], ["grass", 134, 25, true],
+	["mushroom", 145.5, 29, false], ["fern", 176.6, 28, false],
+	["fern_tall", 139, 19, false], ["flowers", 145, 19, false], ["mushroom_big", 166.6, 18, false], ["grass", 186, 18, false],
+	["mushroom_b", 203.6, 20, false], ["fern", 207.5, 30, true], ["flowers", 213, 27, false], ["mushrooms", 217.4, 30, false],
+	# TWIST
+	["grass", 230, 24, false], ["flowers_b", 241, 22, false], ["fern_tall", 262, 22, false], ["mushroom_big", 283.5, 22, true],
+	["mushroom", 303, 22, false],
+	# FINISH
+	["fern", 319.5, 30, false], ["flowers", 324, 30, false], ["mushroom_big", 339.5, 30, false],
+	["flowers_b", 369.5, 25, false], ["mushroom_b", 381, 23, false], ["grass", 399, 30, false],
+	["fern_tall", 411.5, 27, true], ["mushrooms", 417, 24, false], ["flowers", 436, 24, false],
+]
+
+
+func _dress() -> void:
+	var behind: Node = _root.get_node("Behind")
+	# The lantern hut where she starts (F10), and the ruins along the way
+	# (F4): an arch holding the first floating island up, as the mockups'
+	# ledges stand on arches; an archway on the rampart's top; pillars.
+	_sanct_ground(behind, "hut", _t(3.5), G)
+	_sanct_ground(behind, "arch", _t(104), G)
+	_sanct_ground(behind, "archway", _t(129), _t(21))
+	_sanct_ground(behind, "archway", _t(327.5), G, true)
+	for p in [[45, 30], [111, 30], [201.5, 30], [317.5, 30], [342, 30], [406, 27]]:
+		_sanct_ground(behind, "pillar", _t(p[0]), _t(p[1]))
+	for p in PLANTS:
+		_sanct_plant(behind, p[0], p[1], p[2], p[3])
+	# The cavern's roof (F7) along the top of the level: seen from the high path.
+	var cw: float = (_sanct("ceiling")["rect"] as Rect2).size.x
+	var cx := 0.0
+	while cx < _t(440):
+		var c := _sprite(behind, _sanct("ceiling")["tex"], _sanct("ceiling")["rect"], Vector2(cx, 0))
+		c.name = "Ceiling"
+		cx += cw
+	# Under the water (F9): drowned stone and water plants on the bed, seen
+	# through the surface; lily pads on it where the water lies open.
+	var stones := ["sunk_a", "sunk_c", "sunk_b", "sunk_d"]
+	var weeds := ["weed_a", "weed_c", "weed_b"]
+	var x := 30.0
+	var k := 0
+	while x < _t(440):
+		var sd := _sanct(stones[k % stones.size()])
+		_underwater(sd["tex"], sd["rect"], Vector2(x, WATER_Y + 30.0 + float((k * 13) % 18)), k % 2 == 1)
+		var wd := _sanct(weeds[k % weeds.size()])
+		_underwater(wd["tex"], wd["rect"], Vector2(x + 84.0, WATER_Y + 34.0 + float((k * 7) % 12)), k % 2 == 0)
+		x += 170.0 + float((k * 37) % 80)
+		k += 1
+	var lilies := ["lily_a", "lily_b", "lily_c"]
+	var holder := _node(Node2D.new(), "Lilies", _root) as Node2D
+	holder.z_index = 13
+	for span in [[60, 81], [140, 200], [232, 316], [344, 396]]:
+		var lx := _t(span[0]) + 22.0
+		var n := 0
+		while lx < _t(span[1]) - 22.0:
+			var ld := _sanct(lilies[n % 3])
+			var lw: float = (ld["rect"] as Rect2).size.x
+			# Only on open water: no stone island standing in it there.
+			var open := true
+			for c in range(int((lx - lw * 0.5 - 6.0) / TILE), int((lx + lw * 0.5 + 6.0) / TILE) + 1):
+				if _is_solid_cell(Vector2i(c, 32)):
+					open = false
+			if open:
+				var l := _sprite(holder, ld["tex"], ld["rect"], Vector2(lx - lw * 0.5, WATER_Y - 3.0).round())
+				l.name = "Lily"
+			lx += 58.0 + float((n * 31) % 44)
+			n += 1

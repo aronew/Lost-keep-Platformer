@@ -123,6 +123,63 @@ var kit := "day"
 const ENV_SANCT := "res://assets/environment/sanctuary/"
 ## The stone deep inside a sanctuary mass.
 const SANCT_STONE_DEEP := Color("#2c2140")
+const SANCT_WATER_LIFT := Color(1.7, 2.1, 2.5)
+## The sanctuary kit's pieces by name: [sheet, index in sanct_pieces.json].
+const SANCT := {
+	"arch": ["F4-ruins", 0], "archway": ["F4-ruins", 1], "pillar": ["F4-ruins", 2],
+	"hut": ["F10-hut-door", 0], "doorway": ["F10-hut-door", 1],
+	"mushroom_big": ["F11-flora", 0], "fern": ["F11-flora", 1], "fern_tall": ["F11-flora", 2],
+	"mushroom": ["F11-flora", 3], "mushroom_b": ["F11-flora", 4], "mushrooms": ["F11-flora", 5],
+	"flowers": ["F11-flora", 9], "flowers_b": ["F11-flora", 10], "grass": ["F11-flora", 11],
+	"thorn_left": ["F12-things", 0], "thorn_bed": ["F12-things", 1], "thorn_right": ["F12-things", 2],
+	"crate": ["F12-things", 6], "barrel": ["F12-things", 7],
+	"sunk_a": ["F9-sunken", 0], "sunk_b": ["F9-sunken", 1], "sunk_c": ["F9-sunken", 2], "sunk_d": ["F9-sunken", 3],
+	"weed_a": ["F9-sunken", 4], "weed_b": ["F9-sunken", 5], "weed_c": ["F9-sunken", 6],
+	"lily_a": ["F9-sunken", 7], "lily_b": ["F9-sunken", 8], "lily_c": ["F9-sunken", 9],
+	"ceiling": ["F7-ceiling", 0], "log": ["F6-log-root", 1], "root": ["F6-log-root", 0],
+}
+var _sanct_json := {}
+
+
+## A sanctuary piece: {"tex": path, "rect": Rect2}.
+func _sanct(name: String) -> Dictionary:
+	if _sanct_json.is_empty():
+		_sanct_json = JSON.parse_string(FileAccess.get_file_as_string(ENV_SANCT + "sanct_pieces.json"))
+	var ref: Array = SANCT[name]
+	var r: Array = _sanct_json[ref[0]]["pieces"][ref[1]]
+	return {"tex": ENV_SANCT + ref[0] + ".png", "rect": Rect2(r[0], r[1], r[2], r[3])}
+
+
+## A sanctuary piece standing on `floor_y`, centred on `x` (px).
+func _sanct_ground(parent: Node, name: String, x: float, floor_y: float, flip := false) -> Sprite2D:
+	var d := _sanct(name)
+	var r: Rect2 = d["rect"]
+	var s := _sprite(parent, d["tex"], r, Vector2(x - r.size.x * 0.5, floor_y - r.size.y + 1.0).round())
+	s.name = name.capitalize().replace(" ", "")
+	s.flip_h = flip
+	return s
+
+
+## A plant on the floor whose top is tile row `row`, centred on tile `tx`:
+## placed only if the ground runs flat under its whole width (and a little
+## more) and the air above is clear, so nothing hangs off an edge or sits in
+## a wall. Otherwise it is left out, and the build says so.
+func _sanct_plant(parent: Node, name: String, tx: float, row: int, flip := false) -> void:
+	var w: float = (_sanct(name)["rect"] as Rect2).size.x
+	var x := tx * TILE
+	var c0 := int(floor((x - w * 0.5 - 4.0) / TILE))
+	var c1 := int(floor((x + w * 0.5 + 3.0) / TILE))
+	for c in range(c0, c1 + 1):
+		if not _is_solid_cell(Vector2i(c, row)) or _is_solid_cell(Vector2i(c, row - 1)):
+			print("  plant left out (not on flat ground): ", name, " at tile ", tx, ", row ", row)
+			return
+	_sanct_ground(parent, name, x, row * TILE, flip)
+
+
+## A barrel from the sanctuary kit that breaks and drops Resin once.
+func _sanct_breakable(name: String, x: float, floor_y: float, chips: Color) -> Node2D:
+	var d := _sanct(name)
+	return _breakable(d["tex"], d["rect"], x, floor_y, chips)
 
 
 ## The sanctuary's stone (Book 5's F1 to F3): the mossy top band, the hanging
@@ -333,7 +390,11 @@ func _ruin_material() -> Resource:
 var main_floor := -1.0
 
 func _level_foreground() -> void:
-	_detail_kind = "surface"
+	# By day nothing is scattered by rule: Lost Keep's detail pass hung ivy and
+	# set bushes along every edge (the creative lead: "weird plant placements
+	# ... hanging off edges and in odd places"). Every plant is placed by hand,
+	# on flat ground (`_sanct_plant` checks it).
+	_detail_kind = "" if daylight else "surface"
 	var view_bottom := -1.0
 	if main_floor >= 0.0:
 		# The camera holds her feet 58 px below the view's centre
@@ -480,6 +541,10 @@ func _checkpoint(x: float, floor_y: float, flag: String) -> Node2D:
 		s.frame = part[1]
 		s.centered = false
 		s.position = Vector2(0, -63)
+		if kit == "sanctuary" and not blockout:
+			# Book 5's banner (F12): furled, then flying.
+			s.texture = load(ENV_SANCT + "sanct_banner.png")
+			s.position = Vector2(-4, -60)
 		s.visible = part[1] == 0
 	var l := _light(c, Vector2(7, -58), LAMP, 0.8, 0.8, "Light")
 	l.energy = 0.0
@@ -507,6 +572,26 @@ func _thorns(x0: float, x1: float, floor_y: float, height := 16.0) -> Area2D:
 	if blockout:
 		var art := _shape(a, poly, Color("#4a3448"), "Art")
 		art.z_index = 1
+	elif daylight and kit == "sanctuary":
+		# Book 5's thorn bed (F12) across the whole bed: its middle cut to
+		# the bed's width, an end at each side.
+		var sw := x1 - x0
+		var bed: Dictionary = _sanct("thorn_bed")
+		var br: Rect2 = bed["rect"]
+		var mid_w := minf(br.size.x, sw)
+		var sparts: Array[Sprite2D] = []
+		sparts.append(_sprite(a, bed["tex"], Rect2(br.position.x + roundf((br.size.x - mid_w) * 0.5), br.position.y, mid_w, br.size.y),
+			Vector2(roundf((sw - mid_w) * 0.5), -br.size.y + 2)))
+		var lc: Dictionary = _sanct("thorn_left")
+		sparts.append(_sprite(a, lc["tex"], lc["rect"], Vector2(-16, -(lc["rect"] as Rect2).size.y + 2)))
+		var rc: Dictionary = _sanct("thorn_right")
+		sparts.append(_sprite(a, rc["tex"], rc["rect"], Vector2(sw - 11, -(rc["rect"] as Rect2).size.y + 2)))
+		for b in sparts:
+			b.name = "Bramble"
+			var m := ShaderMaterial.new()
+			m.shader = load("res://shaders/hit_flash.gdshader")
+			b.material = m
+			b.z_index = 8
 	elif daylight:
 		# Book 4's D14 across the whole bed: the thicket repeated to the bed's
 		# width, an end at each side, in front of the plants.
@@ -568,6 +653,13 @@ func _level_end(x: float, floor_y: float, w: float, h: float, next_scene := "") 
 		inner.append(Vector2(w, 0))
 		_shape(_blockout_node, _offset(inner, e.position), Color(0.95, 0.69, 0.29, 0.55), "EndArch")
 		_label("LEVEL END", e.position + Vector2(-6, -h - 14))
+	elif daylight and kit == "sanctuary":
+		# Book 5's doorway (F10): its opening (centred 69 px into the piece)
+		# on the way out.
+		var sd := _sanct_ground(_root.get_node("Behind"), "doorway", 0.0, floor_y)
+		sd.position.x = roundf(x + w * 0.25 - 69.0)
+		sd.name = "EndDoor"
+		sd.z_index = 1
 	elif daylight:
 		# Book 4's arched doorway (D4): its 32-wide opening on the way out,
 		# its floor (row 79 of 80) on the walking line.
@@ -663,6 +755,9 @@ func _crate(x: float, floor_y: float, region := CRATE_B) -> CharacterBody2D:
 		# Book 4's crate (D15): the size of the box in Kleo's carry frames.
 		sheet = _day("wooden-crate")["tex"]
 		region = _day("wooden-crate")["rect"]
+		if kit == "sanctuary":
+			sheet = _sanct("crate")["tex"]
+			region = _sanct("crate")["rect"]
 	_node(_rect_shape(Vector2(region.size.x - 6, 6), Vector2(0, -3)), "Shape", c)
 	var art := _sprite(c, sheet, region, Vector2(-roundf(region.size.x * 0.5), -region.size.y + 1))
 	art.name = "Art"
@@ -820,6 +915,11 @@ func _water_foreground(surface_y: float, spans: Array) -> void:
 			m.set_shader_parameter("paint", paint)
 			m.set_shader_parameter("paint_size", Vector2(paint.get_size()))
 			m.set_shader_parameter("reflect_strength", 0.32)
+			if daylight and kit == "sanctuary":
+				# The kit's water is near black in the game: lifted to the
+				# mockups' blue, the world and its lanterns showing in it.
+				m.set_shader_parameter("paint_tint", SANCT_WATER_LIFT)
+				m.set_shader_parameter("reflect_strength", 0.42)
 		else:
 			m.set_shader_parameter("reflect_strength", 0.55)
 		i += 1

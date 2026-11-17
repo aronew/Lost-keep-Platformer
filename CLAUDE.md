@@ -664,12 +664,20 @@ into `game/assets/environment/sanctuary/` with `sanct_pieces.json` (every
 piece's rectangle). In `level_builder.gd`, `kit = "sanctuary"` gives a level
 the stone (`_sanct_material()`: top, underside, wall, fill; the kit's corner
 pieces came back in other shapes and are not used), the cavern light and
-ruins backdrops, the water and the foreground band. **1-2 is built with it
-(`blockout = false`): terrain, water, backdrops and foreground only.** Still
-to place from the kit: islands and pillars (F5), ruins (F4), the log (F6),
-the ceiling (F7), sunken pieces (F9), the hut and doorway (F10), flora
-(F11), thorns, banner, crate (F12); those spots still show day-kit or
-stand-in art. Pictures: `docs/levels/1-2/art_pass/`.
+ruins backdrops, the water (lifted: `SANCT_WATER_LIFT`) and the foreground
+band. **1-2 is dressed in it** (`_dress()` in `build_l1_2.gd`): the lantern
+hut at the start, the doorway at the end, an arch under the first floating
+island, archways and pillars, the banner, the thorn bed, barrels, the
+cavern roof along the level's top, drowned stone, water plants and lily pads.
+`_sanct(name)` looks a piece up (`SANCT`), `_sanct_ground` stands one on a
+floor. **Plants are placed by hand, never by rule:** `_sanct_plant(piece,
+tile x, row)` places one only on flat ground under its whole width, and the
+old scatter pass (`_detail_kind`) is off for daylight levels (the creative
+lead: "no weird plant placements; some of them are hanging off edges and
+are in odd places"; "the mockups are the goal for the look"). Not used yet:
+the islands and pillars (F5; 1-2's are tile masses in the stone), the log
+and root (F6), the steps. The bonus hollows are still the day kit's.
+Pictures: `docs/levels/1-2/art_pass/`.
 
 ## 1-2's look: the Flooded Sanctuary (Book 5)
 The creative lead: 1-2 keeps the flooded-ruins look ("the old tile set"),
