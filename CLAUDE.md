@@ -917,7 +917,8 @@ onward take is undecided. When the kit arrives, process it as
 - **Six levels a region:** region 1 needs a sixth level (its remix), and
   its painted map a seventh pad, or the boss through level 6's gate.
   `Game.LEVELS` still lists region 1 as five, a secret and a boss.
-- **There is no sound in the game at all** (rulebook R12).
+- **Sound effects are in** (see "Sound" above); music and ambience are
+  not (rulebook R12).
 - **Region 2's map page is a stand-in** drawn in code.
 - **IB-04's room tour** (`room=ib04 mode=tour`) reports "0 of 7 jumps
   landed" on the pool's low path, on `main` as it was merged too: an old
